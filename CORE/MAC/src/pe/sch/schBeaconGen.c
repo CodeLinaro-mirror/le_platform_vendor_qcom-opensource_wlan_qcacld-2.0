@@ -489,8 +489,9 @@ tSirRetStatus schSetFixedBeaconFields(tpAniSirGlobal pMac,tpPESession psessionEn
             schLog(pMac, LOG1, FL("extcap not extracted"));
         }
         /* merge extcap IE */
-        if (extcap_present)
-            lim_merge_extcap_struct(&pBcn2->ExtCap, &extracted_extcap);
+        if (extcap_present &&
+            psessionEntry->limSystemRole != eLIM_STA_IN_IBSS_ROLE)
+            lim_merge_extcap_struct(&pBcn2->ExtCap, &extracted_extcap, true);
 
     }
 
