@@ -15408,8 +15408,12 @@ static int __wlan_hdd_cfg80211_txpower_scale_decr_db(struct wiphy *wiphy,
 
 	adapter = WLAN_HDD_GET_PRIV_PTR(dev);
 
+<<<<<<< HEAD   (7c34e1 qcacld-2.0: Correcting the TSInfo structure size according t)
 	if (wlan_cfg80211_nla_parse(tb,
 		      QCA_WLAN_VENDOR_ATTR_TXPOWER_SCALE_DECR_DB_MAX,
+=======
+	if (nla_parse(tb, QCA_WLAN_VENDOR_ATTR_TXPOWER_SCALE_DECR_DB_MAX,
+>>>>>>> CHANGE (cbdece qcacld-2.0: Specify policy for txpower_scale_decr_db)
 		      data, data_len, txpower_scale_decr_db_policy)) {
 		hddLog(LOGE, "Invalid ATTR");
 		return -EINVAL;
