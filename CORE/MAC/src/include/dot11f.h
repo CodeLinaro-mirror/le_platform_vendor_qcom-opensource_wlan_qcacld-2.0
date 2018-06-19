@@ -55,6 +55,10 @@ typedef tANI_U32 tDOT11F_U64[2];
 #   pragma warning (disable: 4214) /* nonstandard extension used */
 #endif /* Microsoft C/C++             bit field types other than int */
 
+#if !defined unlikely
+#define unlikely(x)    (x)
+#endif
+
 /*
  * Frames Return Codes:
  *
