@@ -18757,13 +18757,13 @@ static tANI_U32 UnpackCore(tpAniSirGlobal pCtx,
 
         if (pIe)
         {
-            if ((nBufRemaining < pIe->minSize - pIe->noui - 2U) ||
-                (len < pIe->minSize - pIe->noui - 2U))
+            if (nBufRemaining < pIe->minSize - pIe->noui - 2U)
             {
-                FRAMES_LOG3(pCtx, FRLOGW, FRFL("The IE %s must be "
-			"at least %d bytes in size, but there are onl"
-			"y %d bytes remaining in this frame.\n"),
-			pIe->name, pIe->minSize, nBufRemaining);
+                FRAMES_LOG3(pCtx, FRLOGW, FRFL("The IE %s must "
+                   "be at least %d bytes in size, but "
+                   "there are only %d bytes remaining in "
+                   "this frame.\n"),
+                    pIe->name, pIe->minSize, nBufRemaining);
                 FRAMES_DUMP(pCtx, FRLOG1, pBuf, nBuf);
                 status |= DOT11F_INCOMPLETE_IE;
                 FRAMES_DBG_BREAK();
@@ -18771,6 +18771,14 @@ static tANI_U32 UnpackCore(tpAniSirGlobal pCtx,
             }
             else
             {
+                if (len < pIe->minSize - pIe->noui - 2U) {
+                     FRAMES_LOG3(pCtx, FRLOGW, FRFL("The IE %s must "
+                         "be at least %d bytes in size, but "
+                         "there are only %d bytes in the IE\n"),
+                         pIe->name, pIe->minSize, (len + pIe->noui + 2U));
+                     goto skip_ie;
+               }
+
                 if (len > pIe->maxSize - pIe->noui - 2U){
                 FRAMES_LOG1(pCtx, FRLOGW, FRFL("The IE %s reports "
                     "an unexpectedly large size; it is presumably "
@@ -18783,7 +18791,7 @@ static tANI_U32 UnpackCore(tpAniSirGlobal pCtx,
         countOffset = ( (0 != pIe->arraybound) * ( *(tANI_U16* )(pFrm + pIe->countOffset)));
         if (0 != pIe->arraybound && countOffset >= pIe->arraybound) {
             status |= DOT11F_DUPLICATE_IE;
-            goto skip_dup_ie;
+            goto skip_ie;
         }
                 switch (pIe->sig)
                 {
@@ -19222,7 +19230,7 @@ static tANI_U32 UnpackCore(tpAniSirGlobal pCtx,
             status |= DOT11F_UNKNOWN_IES;
         }
 
-skip_dup_ie:
+skip_ie:
         pBufRemaining += len;
 
          if (len > nBufRemaining)
