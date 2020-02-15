@@ -4558,6 +4558,22 @@ struct sir_rssi_info {
 	int8_t rssi;
 };
 
+
+/*
+ * struct sir_peer_info - peer information struct
+ * @peer_macaddr: MAC address
+ * @rssi: rssi
+ * @tx_rate: last tx rate
+ * @rx_rate: last rx rate
+ *
+ * a station's information
+ */
+struct sir_peer_info {
+	tSirMacAddr peer_macaddr;
+	int8_t rssi;
+	uint32_t tx_rate;
+	uint32_t rx_rate;
+};
 /**
  * @sta_num: number of peer station which has valid info
  * @info: peer information

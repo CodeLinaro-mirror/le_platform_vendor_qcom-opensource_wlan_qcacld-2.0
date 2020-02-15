@@ -5761,17 +5761,17 @@ void hdd_get_rssi_cb(struct sir_rssi_resp *sta_rssi, void *context)
 {
 	struct hdd_request *request;
 	struct peer_rssi_priv *priv;
-	struct sir_peer_info *rssi_info;
+	struct sir_rssi_info *rssi_info;
 	uint8_t peer_num;
 
 	request = hdd_request_get(context);
 	if (!request) {
 		hddLog(VOS_TRACE_LEVEL_ERROR,
-		       "Obsolete request %pK", context);
+			"%s: Bad param, sta_rssi [%p] context [%p]",
+			__func__, sta_rssi, context);
 		return;
 	}
 	priv = hdd_request_priv(request);
-
 	if (!sta_rssi) {
 		hddLog(VOS_TRACE_LEVEL_ERROR,
 		       "%s: Bad param, sta_rssi [%pK] context [%pK]",
@@ -5821,7 +5821,7 @@ static int  wlan_hdd_get_peer_rssi(hdd_adapter_t *adapter,
 	eHalStatus hstatus;
 	void *cookie;
 	int ret;
-	struct sir_peer_info_req rssi_req;
+	struct sir_rssi_req rssi_req;
 	struct hdd_request *request;
 	struct peer_rssi_priv *priv;
 	static const struct hdd_request_params params = {
@@ -5849,9 +5849,9 @@ static int  wlan_hdd_get_peer_rssi(hdd_adapter_t *adapter,
 
 	vos_mem_copy(&(rssi_req.peer_macaddr), &macaddress,
 				VOS_MAC_ADDR_SIZE);
-	rssi_req.sessionid = adapter->sessionId;
+	rssi_req.sessionId = adapter->sessionId;
 
-	hstatus = sme_get_peer_info(WLAN_HDD_GET_HAL_CTX(adapter),
+	hstatus = sme_get_rssi(WLAN_HDD_GET_HAL_CTX(adapter),
 				    rssi_req,
 				    cookie,
 				    hdd_get_rssi_cb);
