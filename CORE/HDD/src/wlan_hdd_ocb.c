@@ -77,7 +77,7 @@ void hdd_set_dot11p_config(hdd_context_t *hdd_ctx)
 			      hdd_ctx->cfg_ini->dot11p_mode !=
 				WLAN_HDD_11P_DISABLED);
 }
-
+#if 0
 /**
  * dot11p_validate_qos_params() - Check if QoS parameters are valid
  * @qos_params:   Array of QoS parameters
@@ -120,7 +120,7 @@ static int dot11p_validate_qos_params(struct sir_qos_params qos_params[])
 
 	return 0;
 }
-
+#endif
 #ifdef FEATURE_STATICALLY_ADD_11P_CHANNELS
 
 #define DOT11P_TX_PWR_MAX	30
@@ -157,74 +157,8 @@ struct chan_info valid_dot11p_channels[NUM_DOT11P_CHANNELS] = {
 	{5905, 20},
 	{5852, 5}
 };
-
-/**
- * dot11p_validate_channel_static_channels() - validate a DSRC channel
- * @center_freq: the channel's center frequency
- * @bandwidth: the channel's bandwidth
- * @tx_power: transmit power
- * @reg_power: (output) the max tx power from the regulatory domain
- * @antenna_max: (output) the max antenna gain from the regulatory domain
- *
- * This function of the function checks the channel parameters against a
- * hardcoded list of valid channels based on the FCC rules.
- *
- * Return: 0 if the channel is valid, error code otherwise.
- */
-static int dot11p_validate_channel_static_channels(struct wiphy *wiphy,
-	uint32_t channel_freq, uint32_t bandwidth, uint32_t tx_power,
-	uint8_t *reg_power, uint8_t *antenna_max)
-{
-	int i;
-
-	for (i = 0; i < NUM_DOT11P_CHANNELS; i++) {
-		if (channel_freq == valid_dot11p_channels[i].center_freq) {
-			if (reg_power)
-				*reg_power = DOT11P_TX_PWR_MAX;
-			if (antenna_max)
-				*antenna_max = DOT11P_TX_ANTENNA_MAX;
-
-			if (bandwidth == 0)
-				bandwidth =
-					valid_dot11p_channels[i].max_bandwidth;
-			else if (bandwidth >
-				 valid_dot11p_channels[i].max_bandwidth)
-				return -EINVAL;
-
-			if (bandwidth != 5 && bandwidth != 10 &&
-			    bandwidth != 20)
-				return -EINVAL;
-			if (tx_power > DOT11P_TX_PWR_MAX)
-				return -EINVAL;
-
-			return 0;
-		}
-	}
-
-	return -EINVAL;
-}
-#else
-/**
- * dot11p_validate_channel_static_channels() - validate a DSRC channel
- * @center_freq: the channel's center frequency
- * @bandwidth: the channel's bandwidth
- * @tx_power: transmit power
- * @reg_power: (output) the max tx power from the regulatory domain
- * @antenna_max: (output) the max antenna gain from the regulatory domain
- *
- * This function of the function checks the channel parameters against a
- * hardcoded list of valid channels based on the FCC rules.
- *
- * Return: 0 if the channel is valid, error code otherwise.
- */
-static int dot11p_validate_channel_static_channels(struct wiphy *wiphy,
-	uint32_t channel_freq, uint32_t bandwidth, uint32_t tx_power,
-	uint8_t *reg_power, uint8_t *antenna_max)
-{
-	return -EINVAL;
-}
 #endif /* FEATURE_STATICALLY_ADD_11P_CHANNELS */
-
+#if 0
 /**
  * dot11p_validate_channel() - validates a DSRC channel
  * @center_freq: the channel's center frequency
@@ -303,7 +237,6 @@ static int dot11p_validate_channel(struct wiphy *wiphy,
 	return dot11p_validate_channel_static_channels(wiphy, channel_freq,
 		bandwidth, tx_power, reg_power, antenna_max);
 }
-
 /**
  * hdd_ocb_validate_config() - Validates the config data
  * @config: configuration to be validated
@@ -333,7 +266,6 @@ static int hdd_ocb_validate_config(hdd_adapter_t *adapter,
 
 	return 0;
 }
-
 /**
  * hdd_ocb_register_sta() - Register station with Transport Layer
  * @adapter: Pointer to HDD Adapter
@@ -396,7 +328,7 @@ static int hdd_ocb_register_sta(hdd_adapter_t *adapter)
 
 	return 0;
 }
-
+#endif
 /**
  * hdd_ocb_config_new() - Creates a new OCB configuration
  * @num_channels: the number of channels
@@ -454,7 +386,7 @@ fail:
 	vos_mem_free(ret);
 	return NULL;
 }
-
+#if 0
 /**
  * hdd_ocb_set_config_callback() - OCB set config callback function
  * @context_ptr: OCB call context
@@ -506,7 +438,7 @@ static void hdd_ocb_set_config_callback(void *context_ptr, void *response_ptr)
 		spin_unlock(&hdd_context_lock);
 	}
 }
-
+#endif
 /**
  * hdd_ocb_set_config_req() - Send an OCB set config request
  * @adapter: a pointer to the adapter
@@ -517,60 +449,7 @@ static void hdd_ocb_set_config_callback(void *context_ptr, void *response_ptr)
 static int hdd_ocb_set_config_req(hdd_adapter_t *adapter,
 				  struct sir_ocb_config *config)
 {
-	int rc;
-	eHalStatus halStatus;
-	struct hdd_ocb_ctxt context = {0};
-
-	if (hdd_ocb_validate_config(adapter, config)) {
-		hddLog(LOGE, FL("The configuration is invalid"));
-		return -EINVAL;
-	}
-
-	init_completion(&context.completion_evt);
-	context.adapter = adapter;
-	context.magic = HDD_OCB_MAGIC;
-
-	hddLog(LOG1, FL("Disabling queues"));
-	netif_tx_disable(adapter->dev);
-	netif_carrier_off(adapter->dev);
-
-	/* Call the SME API to set the config */
-	halStatus = sme_ocb_set_config(
-		((hdd_context_t *)adapter->pHddCtx)->hHal, &context,
-		hdd_ocb_set_config_callback, config);
-	if (halStatus != eHAL_STATUS_SUCCESS) {
-		hddLog(LOGE, FL("Error calling SME function."));
-		/* Convert from eHalStatus to errno */
-		return -EINVAL;
-	}
-
-	/* Wait for the function to complete. */
-	rc = wait_for_completion_timeout(&context.completion_evt,
-		msecs_to_jiffies(WLAN_WAIT_TIME_OCB_CMD));
-	if (rc == 0) {
-		rc = -ETIMEDOUT;
-		goto end;
-	}
-	rc = 0;
-
-	if (context.status) {
-		rc = context.status;
-		goto end;
-	}
-
-	if (adapter->ocb_set_config_resp.status) {
-		rc = -EINVAL;
-		goto end;
-	}
-
-	/* fall through */
-end:
-	spin_lock(&hdd_context_lock);
-	context.magic = 0;
-	spin_unlock(&hdd_context_lock);
-	if (rc)
-		hddLog(LOGE, FL("Operation failed: %d"), rc);
-	return rc;
+	return 0;
 }
 
 /**
