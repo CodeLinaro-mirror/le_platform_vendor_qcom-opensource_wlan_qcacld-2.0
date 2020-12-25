@@ -315,12 +315,20 @@ static inline void vos_flush_delayed_work(void *dwork)
 	cnss_flush_delayed_work(dwork);
 }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 80))
+static inline void vos_pm_wake_lock_init(vos_wake_lock_t *lock,
+					 const char *name)
+{
+	cnss_pm_wake_lock_init(&(lock->priv), name);
+	lock->lock = *lock->priv;
+}
+#else
 static inline void vos_pm_wake_lock_init(vos_wake_lock_t *lock,
 					 const char *name)
 {
 	cnss_pm_wake_lock_init(&(lock->lock), name);
 }
-
+#endif
 static inline void vos_pm_wake_lock(vos_wake_lock_t *lock)
 {
 	cnss_pm_wake_lock(&(lock->lock));
@@ -337,6 +345,21 @@ static inline void vos_pm_wake_lock_release(vos_wake_lock_t *lock)
 	cnss_pm_wake_lock_release(&(lock->lock));
 }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 80))
+static inline void vos_pm_wake_lock_destroy(vos_wake_lock_t *lock)
+{
+	cnss_pm_wake_lock_destroy(lock->priv);
+}
+
+static inline void vos_get_monotonic_boottime_ts(struct timespec *ts)
+{
+	struct timespec64 ts64;
+
+	cnss_get_monotonic_boottime(&ts64);
+	ts->tv_sec = ts64.tv_sec;
+	ts->tv_nsec = ts64.tv_nsec;
+}
+#else
 static inline void vos_pm_wake_lock_destroy(vos_wake_lock_t *lock)
 {
 	cnss_pm_wake_lock_destroy(&(lock->lock));
@@ -346,6 +369,7 @@ static inline void vos_get_monotonic_boottime_ts(struct timespec *ts)
 {
         cnss_get_monotonic_boottime(ts);
 }
+#endif
 
 #if defined(CONFIG_CNSS) && defined(HIF_PCI)
 static inline void vos_set_driver_status(int status)
