@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2015,2017,2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2015,2017,2019,2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -44,11 +44,12 @@
  */
 typedef struct timer_list       __adf_os_timer_t;
 typedef struct hrtimer          __adf_os_hrtimer_t;
+typedef enum hrtimer_restart    __adf_os_enum_hrtimer_t;
 
-typedef enum {
+enum {
     ADF_OS_HRTIMER_NORESTART = HRTIMER_NORESTART,
     ADF_OS_HRTIMER_RESTART = HRTIMER_RESTART,
-} __adf_os_enum_hrtimer_t;
+};
 
 typedef enum hrtimer_restart (*__adf_os_hrtimer_func_t) (struct hrtimer *);
 

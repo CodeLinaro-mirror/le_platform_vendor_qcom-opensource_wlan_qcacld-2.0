@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -2196,9 +2196,7 @@ tANI_BOOLEAN csrIsPhyModeMatch( tpAniSirGlobal pMac, tANI_U32 phyMode,
 
         if ((0 == phyMode) || (eCSR_DOT11_MODE_AUTO & phyMode)) {
             if (0 != phyMode) {
-                if (eCSR_DOT11_MODE_AUTO & phyMode) {
-                    phyMode2 = eCSR_DOT11_MODE_AUTO & phyMode;
-                }
+                phyMode2 = eCSR_DOT11_MODE_AUTO & phyMode;
             } else {
                 phyMode2 = phyMode;
             }

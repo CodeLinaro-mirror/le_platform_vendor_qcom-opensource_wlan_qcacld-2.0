@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2016-2018, 2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2014, 2016-2018, 2020-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -391,7 +391,7 @@ static inline bool vos_system_time_after(vos_time_t a, vos_time_t b)
 
 unsigned long vos_get_time_of_the_day_ms(void);
 void vos_get_time_of_the_day_in_hr_min_sec_usec(char *tbuf, int len);
-void vos_process_wd_timer(void);
+void vos_process_wd_timer(struct work_struct *twork);
 void vos_wdthread_init_timer_work(void *callbackptr);
 void vos_wdthread_flush_timer_work(void);
 #endif // #if !defined __VOSS_TIMER_H

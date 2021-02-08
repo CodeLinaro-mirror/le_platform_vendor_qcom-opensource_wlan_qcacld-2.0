@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -774,7 +774,7 @@ drop_list:
    return NETDEV_TX_OK;
 }
 
-int hdd_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
+netdev_tx_t hdd_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
 {
 	int ret;
 

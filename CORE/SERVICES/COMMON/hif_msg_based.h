@@ -1,5 +1,5 @@
 /*
- *Copyright (c) 2013-2016 The Linux Foundation. All rights reserved.
+ *Copyright (c) 2013-2016, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -44,7 +44,7 @@ extern "C" {
 typedef struct {
 	void *Context;  /**< context meaningful to HTC */
 	A_STATUS (*txCompletionHandler)(void *Context, adf_nbuf_t wbuf,
-					unsigned transferID);
+					unsigned int transferID);
 	A_STATUS (*rxCompletionHandler)(void *Context, adf_nbuf_t wbuf,
 					u_int8_t pipeID);
 	void     (*txResourceAvailHandler)(void *context, u_int8_t pipe);

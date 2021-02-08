@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -20,6 +20,7 @@
 #define WLAN_HDD_SPECTRAL_H
 
 #include <wmi_unified.h>
+#include <wlan_hdd_assoc.h>
 
 /* enum spectral_mode:
  *

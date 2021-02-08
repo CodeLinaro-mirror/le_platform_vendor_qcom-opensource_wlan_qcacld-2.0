@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2014, 2016-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2014, 2016-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1996,19 +1996,24 @@ ol_tx_vdev_set_bundle_require(uint8_t vdev_id, unsigned long tx_bytes,
 {
 	struct ol_txrx_vdev_t* vdev = ol_txrx_get_vdev_from_vdev_id(vdev_id);
 	bool old_bundle_required;
+	uint64_t high_th_ms, low_th_ms;
 
 	if ((!vdev) || (low_th > high_th))
 		return;
 
 	old_bundle_required = vdev->bundling_reqired;
-	if (tx_bytes > ((high_th * time_in_ms * 1500)/1000))
+	high_th_ms = high_th * time_in_ms * 1500;
+	high_th_ms = vos_do_div(high_th_ms, 1000);
+	low_th_ms = low_th * time_in_ms * 1500;
+	low_th_ms = vos_do_div(low_th_ms, 1000);
+	if (tx_bytes > high_th_ms)
 		vdev->bundling_reqired = true;
-	else if (tx_bytes < ((low_th * time_in_ms * 1500)/1000))
+	else if (tx_bytes < low_th_ms)
 		vdev->bundling_reqired = false;
 
 	if (old_bundle_required != vdev->bundling_reqired)
 		TXRX_PRINT(TXRX_PRINT_LEVEL_INFO1,
-			"vdev_id %d bundle_require %d tx_bytes %ld time_in_ms %d high_th %d low_th %d\n",
+			"vdev_id %d bundle_require %d tx_bytes %ld time_in_ms %d high_th %lld low_th %lld\n",
 			vdev->vdev_id, vdev->bundling_reqired, tx_bytes,
 			time_in_ms, high_th, low_th);
 }

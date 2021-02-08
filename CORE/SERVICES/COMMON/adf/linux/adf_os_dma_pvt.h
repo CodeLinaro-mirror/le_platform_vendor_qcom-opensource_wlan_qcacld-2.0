@@ -133,20 +133,17 @@ __adf_os_cache_line_size(void)
     return SMP_CACHE_BYTES;
 }
 
-#if MSM_PLATFORM && (LINUX_VERSION_CODE <= KERNEL_VERSION(4, 19, 0))
 static inline void
 __adf_os_invalidate_range(void * start, void * end)
 {
+#if (defined MSM_PLATFORM) && (LINUX_VERSION_CODE <= KERNEL_VERSION(4, 19, 0))
     dmac_inv_range(start, end);
-}
 #else
-static inline void
-__adf_os_invalidate_range(void * start, void * end)
-{
-    size_t len;
-    len = (size_t)((char *)end - (char *)start);
-    __dma_unmap_area((const void *)start, len, DMA_FROM_DEVICE);
-}
+    //TODO figure out how to invalidate cache on x86 and other non-MSM platform
+    __adf_os_print("Cache Invalidate not yet implemented for non-MSM platform\n");
+    return;
 #endif
+}
+
 
 #endif /*_ADF_CMN_OS_DMA_PVT_H*/

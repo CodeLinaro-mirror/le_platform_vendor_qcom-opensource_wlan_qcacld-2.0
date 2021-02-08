@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -10381,7 +10381,7 @@ void hdd_full_pwr_cbk(void *callbackContext, eHalStatus status)
    hdd_context_t *pHddCtx = (hdd_context_t*)callbackContext;
 
    hddLog(VOS_TRACE_LEVEL_INFO_HIGH,"HDD full Power callback status = %d", status);
-   if(&pHddCtx->full_pwr_comp_var)
+   if(pHddCtx)
    {
       complete(&pHddCtx->full_pwr_comp_var);
    }

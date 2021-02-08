@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2013, 2015-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2013, 2015-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1063,8 +1063,9 @@ static void __vos_process_wd_timer(void)
  * Wrapper function to process timer work.
  * return - void
  */
-void vos_process_wd_timer(void)
+void vos_process_wd_timer(struct work_struct *twork)
 {
+	(void)(twork);
 	vos_ssr_protect(__func__);
 	__vos_process_wd_timer();
 	vos_ssr_unprotect(__func__);

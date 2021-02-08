@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014-2016, 2018 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011, 2014-2016, 2018, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -181,8 +181,11 @@
 /*
  * total number of descriptors to use in the target
  */
+#ifdef WLAN_TGT_NUM_MSDU_DESC
+#define	CFG_TGT_NUM_MSDU_DESC    ((WLAN_TGT_NUM_MSDU_DESC) + 32)
+#else
 #define CFG_TGT_NUM_MSDU_DESC    (2048 + 32)
-
+#endif
 /*
  * Maximum number of frag table entries
  */

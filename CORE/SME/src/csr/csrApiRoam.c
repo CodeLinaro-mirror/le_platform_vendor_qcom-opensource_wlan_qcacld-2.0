@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -15353,7 +15353,7 @@ eHalStatus csrSendJoinReqMsg( tpAniSirGlobal pMac, tANI_U32 sessionId, tSirBssDe
         }
         if (pProfile->MFPEnabled &&
            !(pProfile->MFPRequired) && ((pIes->RSN.present) &&
-           (!(pIes->RSN.RSN_Cap[0] >> 7) & 0x1)))
+           (!((pIes->RSN.RSN_Cap[0] >> 7) & 0x1))))
             dwTmp = pal_cpu_to_be32(eSIR_ED_NONE);
         vos_mem_copy(pBuf, &dwTmp, sizeof(tANI_U32));
         pBuf += sizeof(tANI_U32);
