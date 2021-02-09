@@ -17838,10 +17838,8 @@ int hdd_wlan_startup(struct device *dev, v_VOID_t *hif_sc)
    }
 #endif
 
-   if (hdd_open_cesium_nl_sock() < 0) {
+   if (hdd_open_cesium_nl_sock() < 0)
       hddLog(VOS_TRACE_LEVEL_WARN, FL("hdd_open_cesium_nl_sock failed"));
-      goto err_ptt_sock_activate_svc;
-   }
 
    //Initialize the CNSS-DIAG service
    if (cnss_diag_activate_service() < 0)
@@ -18189,7 +18187,6 @@ int hdd_wlan_startup(struct device *dev, v_VOID_t *hif_sc)
 err_close_cesium:
    hdd_close_cesium_nl_sock();
 
-err_ptt_sock_activate_svc:
 #ifdef PTT_SOCK_SVC_ENABLE
    ptt_sock_deactivate_svc();
 err_oem_activate_service:
