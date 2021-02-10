@@ -2779,19 +2779,60 @@ static int hdd_ipa_rm_cons_request(void)
 	return ret;
 }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,4,0))
+static int hdd_set_perf_profile(bool is_cons, uint32_t max_supported_bw_mbps)
+{
+	struct ipa_wdi_perf_profile profile;
+
+	if (is_cons)
+		profile.client = IPA_CLIENT_WLAN1_CONS;
+	else
+		profile.client = IPA_CLIENT_WLAN1_PROD;
+	profile.max_supported_bw_mbps = max_supported_bw_mbps;
+	return ipa_wdi_set_perf_profile(&profile);
+}
+
+static bool hdd_force_set_perf_level_enabled(struct hdd_ipa_priv *hdd_ipa)
+{
+	hdd_context_t *hdd_ctx = hdd_ipa->hdd_ctx;
+
+	return HDD_IPA_IS_CONFIG_ENABLED(hdd_ctx,
+					 HDD_IPA_CLK_SCALING_ENABLE_MASK) &&
+		(!HDD_IPA_IS_CONFIG_ENABLED(hdd_ctx,
+			HDD_IPA_RM_ENABLE_MASK));
+}
+#else
+static int hdd_set_perf_profile(bool is_cons, uint32_t max_supported_bw_mbps)
+{
+	struct ipa_rm_perf_profile profile;
+	int client;
+
+	memset(&profile, 0, sizeof(profile));
+	if (is_cons)
+		client = IPA_RM_RESOURCE_WLAN_CONS;
+	else
+		client = IPA_RM_RESOURCE_WLAN_PROD;
+	profile.max_supported_bandwidth_mbps = max_supported_bw_mbps;
+	return ipa_rm_set_perf_profile(client, &profile);
+}
+
+static bool hdd_force_set_perf_level_enabled(struct hdd_ipa_priv *hdd_ipa)
+{
+	return false;
+}
+#endif
+
 int hdd_ipa_set_perf_level(hdd_context_t *hdd_ctx, uint64_t tx_packets,
 		uint64_t rx_packets)
 {
 	uint32_t  next_cons_bw, next_prod_bw;
 	struct hdd_ipa_priv *hdd_ipa = hdd_ctx->hdd_ipa;
-	struct ipa_rm_perf_profile profile;
 	int ret;
 
 	if ((!hdd_ipa_is_enabled(hdd_ctx)) ||
-		(!hdd_ipa_is_clk_scaling_enabled(hdd_ipa)))
+		(!(hdd_ipa_is_clk_scaling_enabled(hdd_ipa) ||
+		   hdd_force_set_perf_level_enabled(hdd_ipa))))
 		return 0;
-
-	memset(&profile, 0, sizeof(profile));
 
 	if (tx_packets > (hdd_ctx->cfg_ini->busBandwidthHighThreshold / 2))
 		next_cons_bw = hdd_ctx->cfg_ini->IpaHighBandwidthMbps;
@@ -2820,9 +2861,7 @@ int hdd_ipa_set_perf_level(hdd_context_t *hdd_ctx, uint64_t tx_packets,
 		HDD_IPA_LOG(VOS_TRACE_LEVEL_DEBUG,
 				"Requesting CONS perf curr: %d, next: %d",
 				hdd_ipa->curr_cons_bw, next_cons_bw);
-		profile.max_supported_bandwidth_mbps = next_cons_bw;
-		ret = ipa_rm_set_perf_profile(IPA_RM_RESOURCE_WLAN_CONS,
-				&profile);
+		ret = hdd_set_perf_profile(true, next_cons_bw);
 		if (ret) {
 			HDD_IPA_LOG(VOS_TRACE_LEVEL_ERROR,
 					"RM CONS set perf profile failed: %d",
@@ -2838,9 +2877,7 @@ int hdd_ipa_set_perf_level(hdd_context_t *hdd_ctx, uint64_t tx_packets,
 		HDD_IPA_LOG(VOS_TRACE_LEVEL_DEBUG,
 				"Requesting PROD perf curr: %d, next: %d",
 				hdd_ipa->curr_prod_bw, next_prod_bw);
-		profile.max_supported_bandwidth_mbps = next_prod_bw;
-		ret = ipa_rm_set_perf_profile(IPA_RM_RESOURCE_WLAN_PROD,
-				&profile);
+		ret = hdd_set_perf_profile(false, next_prod_bw);
 		if (ret) {
 			HDD_IPA_LOG(VOS_TRACE_LEVEL_ERROR,
 					"RM PROD set perf profile failed: %d",
