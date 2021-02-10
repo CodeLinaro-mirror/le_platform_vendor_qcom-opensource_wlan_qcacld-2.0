@@ -357,7 +357,7 @@ endif
 CONFIG_ATH_PCIE_ACCESS_DEBUG := 0
 
 #Enable IPA offload
-ifeq ($(CONFIG_IPA), y)
+ifeq (y, $(filter y, $(CONFIG_IPA), $(CONFIG_IPA3)))
 ifeq ($(CONFIG_ROME_IF),pci)
 CONFIG_IPA_OFFLOAD := 1
 CONFIG_IPA_UC_OFFLOAD := 1
