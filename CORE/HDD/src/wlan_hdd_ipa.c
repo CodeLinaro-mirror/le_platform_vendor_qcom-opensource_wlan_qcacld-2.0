@@ -47,6 +47,10 @@ Include Files
 #include <linux/debugfs.h>
 #include <linux/inetdevice.h>
 #include <linux/ip.h>
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,4,0))
+#include <linux/ipa_wdi3.h>
+#include <linux/msm-sps.h>
+#endif
 #include <wlan_hdd_softap_tx_rx.h>
 
 #include "vos_sched.h"
@@ -1903,7 +1907,7 @@ static void hdd_ipa_uc_op_cb(struct op_msg_type *op_msg, void *usr_ctxt)
 			ipa_stat.tx_ch_stats.num_db,
 			ipa_stat.tx_ch_stats.num_unexpected_db,
 			ipa_stat.tx_ch_stats.num_bam_int_handled,
-			ipa_stat.tx_ch_stats.num_bam_int_in_non_running_state,
+			ipa_stat.tx_ch_stats.num_bam_int_in_non_runnning_state,
 			ipa_stat.tx_ch_stats.num_qmb_int_handled);
 
 		VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
@@ -2850,6 +2854,28 @@ int hdd_ipa_set_perf_level(hdd_context_t *hdd_ctx, uint64_t tx_packets,
 	return 0;
 }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,4,0))
+static int hdd_ipa_uc_reg_rdyCB(struct ipa_wdi_uc_ready_params *inout)
+{
+	return ipa_reg_uc_rdyCB(inout);
+}
+
+static int hdd_ipa_uc_dereg_rdyCB(void)
+{
+	return ipa_dereg_uc_rdyCB();
+}
+#else
+static int hdd_ipa_uc_reg_rdyCB(struct ipa_wdi_uc_ready_params *inout)
+{
+	return ipa_uc_reg_rdyCB(inout);
+}
+
+static int hdd_ipa_uc_dereg_rdyCB(void)
+{
+	return ipa_uc_dereg_rdyCB();
+}
+#endif
+
 /**
  * hdd_ipa_is_present() - get IPA hw status
  * @hdd_ctx: pointer to hdd context
@@ -2864,7 +2890,7 @@ int hdd_ipa_set_perf_level(hdd_context_t *hdd_ctx, uint64_t tx_packets,
 bool hdd_ipa_is_present(hdd_context_t *hdd_ctx)
 {
 	/* Check if ipa hw is enabled */
-	if (ipa_uc_reg_rdyCB(NULL) != -EPERM)
+	if (hdd_ipa_uc_reg_rdyCB(NULL) != -EPERM)
 		return true;
 	else
 		return false;
@@ -5127,7 +5153,7 @@ VOS_STATUS hdd_ipa_init(hdd_context_t *hdd_ctx)
 		hdd_ipa->ipa_pipes_down = true;
 		uc_ready_param.priv = (void *)hdd_ipa;
 		uc_ready_param.notify = hdd_ipa_uc_loaded_uc_cb;
-		if (ipa_uc_reg_rdyCB(&uc_ready_param)) {
+		if (hdd_ipa_uc_reg_rdyCB(&uc_ready_param)) {
 			HDD_IPA_LOG(VOS_TRACE_LEVEL_ERROR,
 				"UC Ready CB register fail");
 			goto fail_setup_rm;
@@ -5299,7 +5325,7 @@ VOS_STATUS hdd_ipa_cleanup(hdd_context_t *hdd_ctx)
 
 #ifdef IPA_UC_OFFLOAD
 	if (hdd_ipa_uc_is_enabled(hdd_ipa)) {
-		if (ipa_uc_dereg_rdyCB())
+		if (hdd_ipa_uc_dereg_rdyCB())
 			HDD_IPA_LOG(VOS_TRACE_LEVEL_ERROR,
 				"UC Ready CB deregister fail");
 		hdd_ipa_uc_rt_debug_deinit(hdd_ctx);

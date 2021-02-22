@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -9997,7 +9997,10 @@ wlan_hdd_cfg80211_do_acs_policy[QCA_WLAN_VENDOR_ATTR_ACS_MAX+1] = {
 	[QCA_WLAN_VENDOR_ATTR_ACS_HT40_ENABLED] = { .type = NLA_FLAG },
 	[QCA_WLAN_VENDOR_ATTR_ACS_VHT_ENABLED] = { .type = NLA_FLAG },
 	[QCA_WLAN_VENDOR_ATTR_ACS_CHWIDTH] = { .type = NLA_U16 },
-	[QCA_WLAN_VENDOR_ATTR_ACS_CH_LIST] = { .type = NLA_UNSPEC },
+	[QCA_WLAN_VENDOR_ATTR_ACS_CH_LIST] = { .type = NLA_BINARY,
+			.len = sizeof(NLA_U8) * NUM_RF_CHANNELS },
+	[QCA_WLAN_VENDOR_ATTR_ACS_FREQ_LIST] = { .type = NLA_BINARY,
+			.len = sizeof(NLA_U32) * NUM_RF_CHANNELS },
 };
 
 
@@ -10298,6 +10301,28 @@ static void wlan_hdd_cfg80211_start_pending_acs(struct work_struct *work)
 	wlan_hdd_cfg80211_start_acs(adapter);
 }
 
+static uint32_t hdd_get_acs_evt_data_len(void)
+{
+	uint32_t len = NLMSG_HDRLEN;
+
+	/* QCA_WLAN_VENDOR_ATTR_ACS_PRIMARY_CHANNEL */
+	len += nla_total_size(sizeof(u8));
+
+	/* QCA_WLAN_VENDOR_ATTR_ACS_SECONDARY_CHANNEL */
+	len += nla_total_size(sizeof(u8));
+
+	/* QCA_WLAN_VENDOR_ATTR_ACS_VHT_SEG0_CENTER_CHANNEL */
+	len += nla_total_size(sizeof(u8));
+
+	/* QCA_WLAN_VENDOR_ATTR_ACS_VHT_SEG1_CENTER_CHANNEL */
+	len += nla_total_size(sizeof(u8));
+
+	/* QCA_WLAN_VENDOR_ATTR_ACS_CHWIDTH */
+	len += nla_total_size(sizeof(u16));
+
+	return len;
+}
+
 /**
  * wlan_hdd_cfg80211_acs_ch_select_evt: Callback function for ACS evt
  * @adapter: Pointer to SAP adapter struct
@@ -10316,13 +10341,12 @@ void wlan_hdd_cfg80211_acs_ch_select_evt(hdd_adapter_t *adapter)
 	tsap_Config_t *sap_cfg = &(WLAN_HDD_GET_AP_CTX_PTR(adapter))->sapConfig;
 	struct sk_buff *vendor_event;
 	int ret_val;
-	struct nlattr *nla;
 	hdd_adapter_t *con_sap_adapter;
 	uint16_t ch_width;
 
 	vendor_event = cfg80211_vendor_event_alloc(hdd_ctx->wiphy,
-			NULL,
-			4 * sizeof(u8) + 1 * sizeof(u16) + 4 + NLMSG_HDRLEN,
+			&adapter->wdev,
+			hdd_get_acs_evt_data_len(),
 			QCA_NL80211_VENDOR_SUBCMD_DO_ACS_INDEX,
 			GFP_KERNEL);
 
@@ -10330,22 +10354,6 @@ void wlan_hdd_cfg80211_acs_ch_select_evt(hdd_adapter_t *adapter)
 		hddLog(LOGE, FL("cfg80211_vendor_event_alloc failed"));
 		return;
 	}
-
-	/* Send the IF INDEX to differentiate the ACS event for each interface
-	 * TODO: To be update once cfg80211 APIs are updated to accept if_index
-	 */
-	nla_nest_cancel(vendor_event, ((void **)vendor_event->cb)[2]);
-
-	ret_val = nla_put_u32(vendor_event, NL80211_ATTR_IFINDEX,
-							adapter->dev->ifindex);
-	if (ret_val) {
-		hddLog(LOGE, FL("NL80211_ATTR_IFINDEX put fail"));
-		kfree_skb(vendor_event);
-		return;
-	}
-
-	nla = nla_nest_start(vendor_event, NL80211_ATTR_VENDOR_DATA);
-	((void **)vendor_event->cb)[2] = nla;
 
 	ret_val = nla_put_u8(vendor_event,
 				QCA_WLAN_VENDOR_ATTR_ACS_PRIMARY_CHANNEL,
