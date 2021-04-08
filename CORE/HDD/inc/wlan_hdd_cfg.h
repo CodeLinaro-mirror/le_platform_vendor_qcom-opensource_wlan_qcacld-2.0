@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -6044,6 +6044,26 @@ FG_BTC_BT_INTERVAL_PAGE_P2P_STA_DEFAULT
 #define CFG_ENABLE_CONCURRENT_STA_NAME    "gEnableConcurrentSTA"
 #define CFG_ENABLE_CONCURRENT_STA_DEFAULT ""
 
+ /*
+ * <ini>
+ * gMaxThroughputMBPS - Set max throughput
+ * @Min: 0
+ * @Max: 1000
+ * @Default: 800
+ *
+ * This ini is used to set max throughput. Which used to set rx ring size..
+ *
+ * Related: None
+ *
+ * Usage: Internel
+ *
+ * </ini>
+ */
+#define CFG_MAX_THROUGHPUT_MBPS_NAME    "gMaxThroughputMBPS"
+#define CFG_MAX_THROUGHPUT_MBPS_DEFAULT (800)
+#define CFG_MAX_THROUGHPUT_MBPS_MIN     (0)
+#define CFG_MAX_THROUGHPUT_MBPS_MAX     (1000)
+
 /*---------------------------------------------------------------------------
   Type declarations
   -------------------------------------------------------------------------*/
@@ -7000,7 +7020,7 @@ struct hdd_config {
 
    uint32_t  mask_tx_legacy_rate;
    uint32_t  mask_tx_ht_rate;
-
+   uint32_t  max_throughput_mbps;
 	uint16_t wlm_latency_enable;
 	uint16_t wlm_latency_level;
 	uint32_t wlm_latency_flags_normal;

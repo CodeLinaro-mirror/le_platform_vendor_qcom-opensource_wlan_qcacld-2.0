@@ -566,6 +566,8 @@ void vos_reset_global_reg_params()
 	init_by_reg_core = false;
 }
 
+#ifdef CLD_REGDB
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0))
 static struct ieee80211_regdomain *
 reg_copy_regd(const struct ieee80211_regdomain *src_regd)
 {
@@ -584,6 +586,8 @@ reg_copy_regd(const struct ieee80211_regdomain *src_regd)
 
 	return regd;
 }
+#endif
+#endif
 
 static int regd_init_wiphy(hdd_context_t *pHddCtx, struct regulatory *reg,
 			   struct wiphy *wiphy)
@@ -1808,9 +1812,12 @@ int vos_update_band(v_U8_t  band_capability)
 					IEEE80211_CHAN_DISABLED;
 				continue;
 			}
+#ifdef CLD_REGDB
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0))
 			if (NV_CHANNEL_DISABLE != channel_enabled_state)
 				band->channels[j].flags = flags;
-
+#endif
+#endif
 		}
 	}
 	return 0;

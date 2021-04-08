@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1491,7 +1491,9 @@ struct hdd_adapter_s
      */
     uint8_t restrict_offchannel_cnt;
 
+#ifdef WLAN_SPECTRAL_SCAN
     bool spectral_enabled;
+#endif
 	/* WLM latency level */
 	uint16_t latency_level;
 };
@@ -1787,6 +1789,7 @@ typedef struct sap_ch_switch_with_csa_ctx
 }sap_ch_switch_ctx;
 #endif
 
+#ifdef WLAN_SPECTRAL_SCAN
 typedef struct hdd_spectral
 {
 	uint32_t mode;
@@ -1798,6 +1801,7 @@ typedef struct hdd_spectral
 	struct dentry *debugfs_dir;
 	struct rchan *rfs_chan_spec_scan;
 }hdd_spectral_t;
+#endif
 
 /** Adapter stucture definition */
 
@@ -2216,7 +2220,9 @@ struct hdd_context_s
 #endif
     adf_os_spinlock_t restrict_offchan_lock;
     bool  restrict_offchan_flag;
+#ifdef WLAN_SPECTRAL_SCAN
     hdd_spectral_t *hdd_spec;
+#endif
 
     /* max latency_level of all adapters */
     uint16_t latency_level;

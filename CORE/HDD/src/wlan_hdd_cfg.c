@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -5548,6 +5548,13 @@ REG_TABLE_ENTRY g_registry_table[] =
 		CFG_HOST_LOG_CUSTOM_NETLINK_PROTO_MAX),
 #endif
 
+    REG_VARIABLE( CFG_MAX_THROUGHPUT_MBPS_NAME, WLAN_PARAM_Integer,
+                 hdd_config_t, max_throughput_mbps,
+                 VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK,
+                 CFG_MAX_THROUGHPUT_MBPS_DEFAULT,
+                 CFG_MAX_THROUGHPUT_MBPS_MIN,
+                 CFG_MAX_THROUGHPUT_MBPS_MAX ),
+
 	REG_VARIABLE(CFG_LATENCY_ENABLE_NAME, WLAN_PARAM_Integer,
 		     struct hdd_config, wlm_latency_enable,
 		     VAR_FLAGS_OPTIONAL | VAR_FLAGS_RANGE_CHECK_ASSUME_DEFAULT,
@@ -6572,6 +6579,10 @@ void print_hdd_cfg(hdd_context_t *pHddCtx)
   hddLog(LOG2, "Name = [%s] Value = [%u]",
                  CFG_ARP_AC_CATEGORY,
                  pHddCtx->cfg_ini->arp_ac_category);
+
+  hddLog(LOG2, "Name = [%s] Value = [%u]",
+                 CFG_MAX_THROUGHPUT_MBPS_NAME,
+                 pHddCtx->cfg_ini->max_throughput_mbps);
 
   hddLog(LOG2, "Name = [%s] value = [%u]",
                CFG_LATENCY_ENABLE_NAME,

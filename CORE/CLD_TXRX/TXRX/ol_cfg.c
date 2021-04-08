@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2014,2016-2017,2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2014,2016-2017 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -118,7 +118,7 @@ ol_pdev_handle ol_pdev_cfg_attach(adf_os_device_t osdev,
 		cfg_ctx->frame_type = wlan_frm_fmt_raw;
 	else
 		cfg_ctx->frame_type = wlan_frm_fmt_802_3;
-	cfg_ctx->max_thruput_mbps = 800;
+	cfg_ctx->max_thruput_mbps = cfg_param.max_throughput_mbps;
 	cfg_ctx->max_nbuf_frags = 1;
 	cfg_ctx->vow_config = vow_config;
 	cfg_ctx->target_tx_credit = CFG_TGT_NUM_MSDU_DESC;

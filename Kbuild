@@ -1648,6 +1648,10 @@ ifdef CONFIG_TGT_NUM_MSDU_DESC
 CDEFINES += -DWLAN_TGT_NUM_MSDU_DESC=$(CONFIG_TGT_NUM_MSDU_DESC)
 endif
 
+ifeq ($(CONFIG_SPECTRAL_SCAN), y)
+CDEFINES += -DWLAN_SPECTRAL_SCAN
+endif
+
 # Module information used by KBuild framework
 ifeq ($(CONFIG_FEATURE_LARGE_PREALLOC),y)
 obj-$(CONFIG_QCA_CLD_WLAN) += wlan_prealloc.o

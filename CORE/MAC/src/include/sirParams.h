@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -832,8 +832,10 @@ struct sir_mgmt_msg {
 #define SIR_HAL_ADD_MULTICAST_GROUP       (SIR_HAL_ITC_MSG_TYPES_BEGIN + 392)
 #define SIR_HAL_SET_MULTICAST_RATE            (SIR_HAL_ITC_MSG_TYPES_BEGIN + 393)
 #endif
+#ifdef WLAN_SPECTRAL_SCAN
 #define SIR_HAL_SPECTRAL_SCAN_ENABLE_CMDID  (SIR_HAL_ITC_MSG_TYPES_BEGIN + 394)
 #define SIR_HAL_SPECTRAL_SCAN_CONFIG_CMDID  (SIR_HAL_ITC_MSG_TYPES_BEGIN + 395)
+#endif
 #ifdef AUDIO_MULTICAST_AGGR_SUPPORT
 #define SIR_HAL_SET_MULTICAST_AUTO_RATE     (SIR_HAL_ITC_MSG_TYPES_BEGIN + 396)
 #define SIR_HAL_SET_MULTICAST_STA           (SIR_HAL_ITC_MSG_TYPES_BEGIN + 397)

@@ -3226,7 +3226,11 @@ wlan_cfg80211_nla_parse_nested(struct nlattr *tb[],
 	return nla_parse_nested(tb, maxtype, nla, policy, NULL);
 }
 #endif
+#ifdef WLAN_FEATURE_DSRC
+#define nla_parse  wlan_cfg80211_nla_parse
+#define nla_parse_nested  wlan_cfg80211_nla_parse_nested
+#else
 #define nla_parse(...) (obsolete, use wlan_cfg80211_nla_parse)
 #define nla_parse_nested(...) (obsolete, use wlan_cfg80211_nla_parse_nested)
-
+#endif
 #endif

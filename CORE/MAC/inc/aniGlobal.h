@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1151,6 +1151,7 @@ typedef struct sMacOpenParameters
     uint16_t del_ack_pkt_count;
 #endif
     bool bpf_packet_filter_enable;
+    uint32_t max_throughput_mbps;
 
     struct ol_tx_sched_wrr_ac_specs_t ac_specs[OL_TX_NUM_WMM_AC];
 } tMacOpenParameters;

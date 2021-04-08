@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2018 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -263,7 +263,7 @@ static void ptt_cmd_handler(const void *data, int data_len, void *ctx, int pid)
 		return;
 	}
 
-	if (nla_len(tb[CLD80211_ATTR_DATA]) < sizeof(struct ptt_app_reg_req)) {
+	if (nla_len(tb[CLD80211_ATTR_DATA]) < sizeof(struct sptt_app_reg_req)) {
 		PTT_TRACE(VOS_TRACE_LEVEL_ERROR, "%s:attr length check fails\n",
 			__func__);
 		return;

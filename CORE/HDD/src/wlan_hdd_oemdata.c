@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018 2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1197,6 +1197,20 @@ int oem_activate_service(void *hdd_ctx)
 	pHddCtx = (struct hdd_context_s *) hdd_ctx;
 	register_cld_cmd_cb(WLAN_NL_MSG_OEM, oem_cmd_handler, NULL);
 	return 0;
+}
+
+/**---------------------------------------------------------------------------
+
+  \brief oem_deactivate_service() - Deactivate oem message handler
+
+  This function unregisters a handler to receive netlink message from
+  an OEM application process.
+
+  \return - none
+  --------------------------------------------------------------------------*/
+void oem_deactivate_service()
+{
+   deregister_cld_cmd_cb(WLAN_NL_MSG_OEM);
 }
 #else
 /*

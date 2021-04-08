@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -21517,6 +21517,7 @@ eHalStatus sme_set_gpio_output(tHalHandle hal,
 	return hal_status;
 }
 
+#ifdef WLAN_SPECTRAL_SCAN
 eHalStatus sme_spectral_scan_enable(tHalHandle hal,
 				    sir_spectral_enable_params_t *params)
 {
@@ -21598,6 +21599,7 @@ eHalStatus sme_spectral_scan_config(tHalHandle hal,
 
 	return status;
 }
+#endif
 
 #ifdef AUDIO_MULTICAST_AGGR_SUPPORT
 /**

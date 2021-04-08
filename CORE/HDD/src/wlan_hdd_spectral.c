@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -19,6 +19,8 @@
 #include <wlan_hdd_includes.h>
 #include <wlan_hdd_spectral.h>
 #include <vos_api.h>
+
+#ifdef WLAN_SPECTRAL_SCAN
 #include <linux/relay.h>
 
 #define HDD_SPEC_LOG(LVL, fmt, args...) VOS_TRACE(VOS_MODULE_ID_HDD, LVL, "%s:%d: "fmt, __func__, __LINE__, ## args)
@@ -730,3 +732,19 @@ VOS_STATUS hdd_spectral_deinit(hdd_context_t *hdd_ctx)
 
 	return VOS_STATUS_SUCCESS;
 }
+#else
+void spectral_process_phyerr(wmi_single_phyerr_rx_event *ev, uint64_t fulltsf)
+{
+
+}
+
+VOS_STATUS hdd_spectral_init(hdd_context_t *hdd_ctx)
+{
+	return VOS_STATUS_SUCCESS;
+}
+
+VOS_STATUS hdd_spectral_deinit(hdd_context_t *hdd_ctx)
+{
+	return VOS_STATUS_SUCCESS;
+}
+#endif
