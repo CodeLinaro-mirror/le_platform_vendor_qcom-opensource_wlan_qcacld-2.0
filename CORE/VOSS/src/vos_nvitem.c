@@ -1469,7 +1469,9 @@ VOS_STATUS vos_nv_getRegDomainFromCountryCode( v_REGDOMAIN_t *pRegDomain,
     v_CONTEXT_t pVosContext = NULL;
     hdd_context_t *pHddCtx = NULL;
     struct wiphy *wiphy = NULL;
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)) || !defined(CLD_REGDB)
     int wait_result;
+#endif
 #ifdef CLD_REGDB
     struct regulatory_request request;
 #endif
@@ -1560,10 +1562,12 @@ VOS_STATUS vos_nv_getRegDomainFromCountryCode( v_REGDOMAIN_t *pRegDomain,
         init_by_driver = VOS_TRUE;
 
         if (('0' != country_code[0]) || ('0' != country_code[1])) {
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)) || !defined(CLD_REGDB)
             INIT_COMPLETION(pHddCtx->reg_init);
             regulatory_hint(wiphy, country_code);
             wait_for_completion_timeout(&pHddCtx->reg_init,
                                         msecs_to_jiffies(REG_WAIT_TIME));
+#endif
 #ifdef CLD_REGDB
             __wlan_hdd_linux_reg_notifier(wiphy, &request);
 #endif
@@ -1574,7 +1578,7 @@ VOS_STATUS vos_nv_getRegDomainFromCountryCode( v_REGDOMAIN_t *pRegDomain,
             vos_set_cc_source(CNSS_SOURCE_USER);
         else
             vos_set_cc_source(CNSS_SOURCE_11D);
-
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)) || !defined(CLD_REGDB)
         INIT_COMPLETION(pHddCtx->reg_init);
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0)) || defined(WITH_BACKPORTS)
         regulatory_hint_user(country_code, NL80211_USER_REG_HINT_USER);
@@ -1604,6 +1608,7 @@ VOS_STATUS vos_nv_getRegDomainFromCountryCode( v_REGDOMAIN_t *pRegDomain,
 
             return VOS_STATUS_E_EXISTS;
         }
+#endif
     }
 
     *pRegDomain = reg_domain_get();
@@ -1953,6 +1958,7 @@ static int create_linux_regulatory_entry(v_REGDOMAIN_t temp_reg_domain,
     const struct ieee80211_regdomain *regd;
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0))
     struct ieee80211_regdomain *rd;
+    bool rtnl_locked = false;
 #endif
 #endif
     pVosContext = vos_get_global_context(VOS_MODULE_ID_SYS, NULL);
@@ -1995,7 +2001,14 @@ static int create_linux_regulatory_entry(v_REGDOMAIN_t temp_reg_domain,
     wiphy->regulatory_flags = REGULATORY_WIPHY_SELF_MANAGED;
     regd = search_regd(pHddCtx->reg.alpha2);
     rd = reg_copy_regd(regd);
-    regulatory_set_wiphy_regd(wiphy, rd);
+    if (!rtnl_is_locked()) {
+        rtnl_lock();
+	printk("regdmn: rtnl locking\n");
+        rtnl_locked = true;
+    }
+    regulatory_set_wiphy_regd_sync_rtnl(wiphy, rd);
+    if (rtnl_locked)
+        rtnl_unlock();
     kfree(rd);
 #endif
 #endif
@@ -2395,6 +2408,9 @@ int __wlan_hdd_linux_reg_notifier(struct wiphy *wiphy,
               request->alpha2[1],
               request->initiator,
               request->dfs_region);
+    printk("regdmn [%s] country: %c%c, initiator %d, dfs_region: %d\n",
+		current->comm, request->alpha2[0], request->alpha2[1],
+		request->initiator, request->dfs_region);
 
     if (TRUE == isWDresetInProgress())
     {
@@ -2521,6 +2537,7 @@ int __wlan_hdd_linux_reg_notifier(struct wiphy *wiphy,
         isVHT80Allowed = pHddCtx->isVHT80Allowed;
         regChannels =
             pnvEFSTable->halnv.tables.regDomains[temp_reg_domain].channels;
+	printk("regdmn: before create reg_flags:%x\n", wiphy->regulatory_flags);
         if (create_linux_regulatory_entry(temp_reg_domain,
                                           wiphy,
                                           nBandCapability,
@@ -2529,6 +2546,7 @@ int __wlan_hdd_linux_reg_notifier(struct wiphy *wiphy,
             VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_INFO,
                       (" regulatory entry created"));
         }
+	printk("regdmn: after create reg_flags:%x\n", wiphy->regulatory_flags);
 
         if (pHddCtx->isVHT80Allowed != isVHT80Allowed)
             hdd_checkandupdate_phymode( pHddCtx);
