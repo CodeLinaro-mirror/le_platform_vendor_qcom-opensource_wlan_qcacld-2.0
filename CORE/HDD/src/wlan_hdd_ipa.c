@@ -3059,7 +3059,7 @@ static void hdd_ipa_destory_rm_resource(struct hdd_ipa_priv *hdd_ipa)
 				"RM CONS resource delete failed %d", ret);
 }
 
-#define IPA_WLAN_RX_SOFTIRQ_THRESH 16
+#define IPA_WLAN_RX_SOFTIRQ_THRESH 32
 
 static void hdd_ipa_send_skb_to_network(adf_nbuf_t skb, hdd_adapter_t *adapter)
 {
