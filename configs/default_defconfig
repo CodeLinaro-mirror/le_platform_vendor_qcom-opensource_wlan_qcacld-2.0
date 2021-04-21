@@ -90,7 +90,9 @@ ifeq ($(KERNEL_BUILD), 0)
 			CONFIG_DPTRACE_ENABLE := y
 		else
 			ifeq ($(findstring perf,$(KERNEL_DEFCONFIG)),)
-				CONFIG_DPTRACE_ENABLE := y
+				ifneq ($(CONFIG_ARCH_SDXNIGHTJAR), y)
+					CONFIG_DPTRACE_ENABLE := y
+				endif
 			endif
 		endif
 	endif
