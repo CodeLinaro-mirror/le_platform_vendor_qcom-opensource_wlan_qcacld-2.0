@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2017-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -1858,6 +1858,12 @@ VOS_STATUS aead_decrypt_assoc_rsp(tpAniSirGlobal mac_ctx,
 	uint32_t data_len, fils_ies_len;
 	uint8_t *fils_ies;
 	struct pe_fils_session *fils_info = (session->fils_info);
+
+	if (*n_frame < FIXED_PARAM_OFFSET_ASSOC_RSP) {
+		limLog(mac_ctx, LOGE,
+		       FL("payload len is less than ASSOC RES offset"));
+		return VOS_STATUS_E_FAILURE;
+	}
 
 	lim_fils_data_dump("Assoc Rsp :", p_frame, *n_frame);
 	status = find_ie_data_after_fils_session_ie(mac_ctx, p_frame +
