@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2015-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -39,7 +39,9 @@
 #elif defined(HIF_SDIO)
 #include "if_ath_sdio.h"
 #endif
+#ifndef CONFIG_X86
 #include <asm/arch_timer.h>
+#endif
 #include <linux/errqueue.h>
 #if defined(CONFIG_NON_QC_PLATFORM)
 #include <linux/gpio.h>
@@ -1209,7 +1211,9 @@ static ssize_t __hdd_wlan_tsf_show(struct device *dev,
 				size = scnprintf(buf, PAGE_SIZE, "%s%llu %llu %pM\n",
 						 buf, target_time, host_time, bssid);
 		}
-	} else {
+	}
+#ifdef WLAN_FEATURE_TSF_SHOW_QTIME
+	else {
 		if (hdd_ctx->cfg_ini->tsf_by_register) {
 			if (hdd_get_tsf_by_register(adapter, host_time,
 					      &target_time))
@@ -1236,6 +1240,7 @@ static ssize_t __hdd_wlan_tsf_show(struct device *dev,
 					 host_time);
 		}
 	}
+#endif
 	return size;
 }
 

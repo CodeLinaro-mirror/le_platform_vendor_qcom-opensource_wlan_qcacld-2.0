@@ -3428,6 +3428,15 @@ void vos_svc_fw_crashed_ind(struct device *dev)
 	hdd_svc_fw_crashed_ind(dev);
 }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0))
+v_U64_t vos_get_monotonic_boottime_ns(void)
+{
+	struct timespec64 ts;
+
+	ktime_get_ts64(&ts);
+	return timespec64_to_ns(&ts);
+}
+#else
 v_U64_t vos_get_monotonic_boottime_ns(void)
 {
 	struct timespec ts;
@@ -3435,6 +3444,7 @@ v_U64_t vos_get_monotonic_boottime_ns(void)
 	ktime_get_ts(&ts);
 	return timespec_to_ns(&ts);
 }
+#endif
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 3, 0))
 v_U64_t vos_get_bootbased_boottime_ns(void)

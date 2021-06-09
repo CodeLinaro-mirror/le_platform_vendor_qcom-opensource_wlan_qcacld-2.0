@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2016, 2018, 2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012, 2016, 2018, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -297,7 +297,8 @@ typedef enum
     RF_CHAN_184,
 #else
     RF_CHAN_173,
-    RF_CHAN_184 = RF_CHAN_173,
+    RF_CHAN_177,
+    RF_CHAN_184 = RF_CHAN_177,
 #endif
 
     //CHANNEL BONDED CHANNELS

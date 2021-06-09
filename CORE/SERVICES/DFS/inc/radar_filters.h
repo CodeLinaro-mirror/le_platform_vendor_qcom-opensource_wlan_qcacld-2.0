@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2014, 2017 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2014, 2017, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -158,4 +158,59 @@ struct dfs_pulse dfs_etsi_radars[] = {
 
     /* 20-30us, 2000-4000 PRF, 20 pulses*/
     {20, 30, 2000, 4000, 0, 4, 6, 19, 33, 24, 0, 0, 0, 24, 0, 36}, /* Type 4 */
+};
+
+/**
+ * dfs_pulse dfs_china_radars - CHINA radar table.
+ */
+static struct dfs_pulse dfs_china_radars[] = {
+
+	/* TYPE staggered pulse */
+	/* Type 5*/
+	/* 0.8-2us, 2-3 bursts,300-400 PRF, 12 pulses each */
+	{36,  2,  300,  400, 2, 30,  3,  0,  5, 15, 0,   0, 1, 51},
+	/* Type 6 */
+	/* 0.8-2us, 2-3 bursts, 400-1200 PRF, 16 pulses each */
+	{48,  2,  400, 1200, 2, 30,  7,  0,  5, 15, 0,   0, 0, 52},
+
+	/* constant PRF based */
+	/* Type 1 */
+	/* 0.5-5us, 200  1000 PRF, 12 pulses */
+	{12, 5,   200,  400, 0, 24,  5,  0,  8, 15, 0,   0, 2, 53},
+	{12, 5,   400,  600, 0, 24,  5,  0,  8, 15, 0,   0, 2, 57},
+	{12, 5,   600,  800, 0, 24,  5,  0,  8, 15, 0,   0, 2, 58},
+	{12, 5,   800, 1000, 0, 24,  5,  0,  8, 15, 0,   0, 2, 59},
+
+	/* Type 2 */
+	/* 0.5-15us, 200-1600 PRF, 16 pulses */
+	{16, 15,  200, 1600, 0, 24, 8,  0, 18, 24, 0,   0, 0, 54},
+
+	/* Type 3 */
+	/* 0.5-30us, 2300-4000 PRF, 24 pulses*/
+	{24, 15, 2300, 4000,  0, 24, 10, 0, 33, 24, 0,   0, 0, 55},
+
+	/* Type 4 */
+	/* 20-30us, 2000-4000 PRF, 20 pulses*/
+	{20, 30, 2000, 4000, 0, 24, 6, 19, 33, 24, 0,   0, 0, 56},
+
+	/* 1us, 1000 PRF, 20 pulses */
+	/* 1000 us PRI */
+	{20,  1, 1000, 1000, 0,  6,  6,  0,  1, 18,  0, 3, 0, 50},
+};
+
+/**
+ * dfs_pulse dfs_korea_radars - KOREA radar table.
+ */
+static struct dfs_pulse dfs_korea_radars[] = {
+	/* Korea Type 1 */
+	{18,  1,  700, 700,  0, 4,  5,  0,  1, 18,  0, 3,  1, 5, 0, 40},
+
+	/* Korea Type 2 */
+	{10,  1, 1800, 1800, 0, 4,  4,  0,  1, 18,  0, 3,  1, 5, 0, 41},
+
+	/* Korea Type 3 */
+	{70,  1,  330, 330,  0, 4, 20,  0,  2, 18,  0, 3,  1, 5, 0, 42},
+
+	/* Korea Type 4 */
+	{3,   1, 3003, 3003, 1, 7,  2,  0,  1, 18,  0, 0, 1,  1000, 0, 43},
 };

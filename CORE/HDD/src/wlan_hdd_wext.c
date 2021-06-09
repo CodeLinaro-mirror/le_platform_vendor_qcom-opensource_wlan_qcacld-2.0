@@ -2736,6 +2736,8 @@ static int __iw_set_genie(struct net_device *dev, struct iw_request_info *info,
                 memcpy( pWextState->WPARSNIE, genie - 2, (eLen + 2));
                 pWextState->roamProfile.pRSNReqIE = pWextState->WPARSNIE;
                 pWextState->roamProfile.nRSNReqIELength = eLen + 2;
+                wlan_hdd_mask_unsupported_rsn_caps(pWextState->WPARSNIE + 2,
+						   eLen);
               break;
 
          default:
@@ -8403,48 +8405,7 @@ static int __iw_get_char_setnone(struct net_device *dev,
         }
         case WE_GET_CHANNEL_LIST:
         {
-            VOS_STATUS status;
-            v_U8_t i, len;
-            char* buf;
-            uint8_t ubuf[WNI_CFG_COUNTRY_CODE_LEN];
-            uint8_t ubuf_len = WNI_CFG_COUNTRY_CODE_LEN;
-            hdd_context_t *hdd_ctx = WLAN_HDD_GET_CTX(pAdapter);
-
-            tChannelListInfo channel_list;
-
-            memset(&channel_list, 0, sizeof(channel_list));
-            status = iw_get_channel_list(dev, info, wrqu, (char *)&channel_list);
-            if (!VOS_IS_STATUS_SUCCESS(status)) {
-                hddLog(LOGE, FL("GetChannelList Failed!!!"));
-                return -EINVAL;
-            }
-            buf = extra;
-            /**
-             * Maximum channels = WNI_CFG_VALID_CHANNEL_LIST_LEN. Maximum buffer
-             * needed = 5 * number of channels. Check if sufficient
-             * buffer is available and then proceed to fill the buffer.
-             */
-            if (WE_MAX_STR_LEN < (5 * WNI_CFG_VALID_CHANNEL_LIST_LEN)) {
-                hddLog(LOGE,
-                       FL("Insufficient Buffer to populate channel list"));
-                return -EINVAL;
-            }
-            len = scnprintf(buf, WE_MAX_STR_LEN, "%u ",
-                    channel_list.num_channels);
-            if (eHAL_STATUS_SUCCESS == sme_GetCountryCode(hdd_ctx->hHal,
-                                                          ubuf, &ubuf_len)) {
-                /* Printing Country code in getChannelList */
-                for (i = 0; i < (ubuf_len - 1); i++)
-                    len += scnprintf(buf + len, WE_MAX_STR_LEN - len,
-                                     "%c", ubuf[i]);
-            }
-
-            for (i = 0; i < channel_list.num_channels; i++) {
-                len += scnprintf(buf + len, WE_MAX_STR_LEN - len,
-                               " %u", channel_list.channels[i]);
-            }
-            wrqu->data.length = strlen(extra) + 1;
-
+            iw_get_channel_list(dev, info, wrqu, extra);
             break;
         }
 #ifdef FEATURE_WLAN_TDLS

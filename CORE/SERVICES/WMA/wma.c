@@ -116,6 +116,8 @@
 #include "adf_trace.h"
 
 #include "wlan_hdd_spectral.h"
+
+#include "ol_rx_reorder.h"
 /* ################### defines ################### */
 /*
  * TODO: Following constant should be shared by firwmare in
@@ -2834,9 +2836,17 @@ static void wma_update_peer_stats(tp_wma_handle wma, wmi_peer_stats *peer_stats)
 					peer_stats->peer_tx_rate/500;
 			}
 
-			classa_stats->tx_rate_flags = node->rate_flags;
+			WMA_LOGD("peer rx rate:%d", peer_stats->peer_rx_rate);
+			/*The linkspeed returned by fw is in kbps so convert
+			 *it in to units of 500kbps which is expected by UMAC*/
+			if (peer_stats->peer_rx_rate) {
+				classa_stats->rx_rate =
+					peer_stats->peer_rx_rate/500;
+			}
+
+			classa_stats->tx_rx_rate_flags = node->rate_flags;
                         if (!(node->rate_flags & eHAL_TX_RATE_LEGACY)) {
-				classa_stats->mcs_index =
+				classa_stats->tx_mcs_index =
 					wma_get_mcs_idx((peer_stats->peer_tx_rate/100),
 							node->rate_flags,
 							node->nss,
@@ -2847,6 +2857,12 @@ static void wma_update_peer_stats(tp_wma_handle wma, wmi_peer_stats *peer_stats)
 				 * rate flags */
 				classa_stats->rx_frag_cnt = node->nss;
 				classa_stats->promiscuous_rx_frag_cnt = mcsRateFlags;
+
+				classa_stats->rx_mcs_index =
+					wma_get_mcs_idx((peer_stats->peer_rx_rate/100),
+							node->rate_flags,
+							node->nss,
+							&mcsRateFlags);
 			}
 			/* FW returns tx power in intervals of 0.5 dBm
 			   Convert it back to intervals of 1 dBm */
@@ -22322,6 +22338,12 @@ static void wma_set_stakey(tp_wma_handle wma_handle, tpSetStaKeyParams key_info)
 			goto out;
 		}
 	}
+
+        WMA_LOGD("%s: QSV2020002, vid(%u), rx cleanup for peer(%pM) after key install",
+            __func__,
+            txrx_vdev->vdev_id,
+            peer->mac_addr.raw);
+        ol_rx_reorder_peer_cleanup(txrx_vdev, peer);
 
         /* In IBSS mode, set the BSS KEY for this peer
          ** BSS key is supposed to be cache into wma_handle
@@ -42292,7 +42314,8 @@ tANI_U8 wma_getFwWlanFeatCaps(tANI_U8 featEnumValue)
 }
 
 void wma_send_regdomain_info(u_int32_t reg_dmn, u_int16_t regdmn2G,
-			     u_int16_t regdmn5G, int8_t ctl2G, int8_t ctl5G)
+			     u_int16_t regdmn5G, int8_t ctl2G, int8_t ctl5G,
+			     u_int32_t ctl_5g_bm)
 {
 	wmi_buf_t buf;
 	wmi_pdev_set_regdomain_cmd_fixed_param *cmd;
@@ -42322,7 +42345,16 @@ void wma_send_regdomain_info(u_int32_t reg_dmn, u_int16_t regdmn2G,
 	cmd->reg_domain_2G = regdmn2G;
 	cmd->reg_domain_5G = regdmn5G;
 	cmd->conformance_test_limit_2G = ctl2G;
-	cmd->conformance_test_limit_5G = ctl5G;
+	cmd->conformance_test_limit_5G = ctl5G | REGDOMAIN_5G_SUBBAND_FLAG_MASK;
+	cmd->conformance_test_limit_5G_subband_UNII1 = CTL_UNII1_INDEX(ctl_5g_bm);
+	cmd->conformance_test_limit_5G_subband_UNII2a = CTL_UNII2a_INDEX(ctl_5g_bm);
+	cmd->conformance_test_limit_5G_subband_UNII2c = CTL_UNII2c_INDEX(ctl_5g_bm);
+	cmd->conformance_test_limit_5G_subband_UNII3 = CTL_UNII3_INDEX(ctl_5g_bm);
+	cmd->conformance_test_limit_5G_subband_UNII4 = CTL_UNII4_INDEX(ctl_5g_bm);
+	cmd->conformance_test_limit_6G_subband_UNII5 = UNUSED;
+	cmd->conformance_test_limit_6G_subband_UNII6 = UNUSED;
+	cmd->conformance_test_limit_6G_subband_UNII7 = UNUSED;
+	cmd->conformance_test_limit_6G_subband_UNII8 = UNUSED;
 
 	if (wmi_unified_cmd_send(wma->wmi_handle, buf, len,
 				WMI_PDEV_SET_REGDOMAIN_CMDID)) {
@@ -42988,11 +43020,42 @@ void wma_dfs_configure(struct ieee80211com *ic)
 		rinfo.b5pulses = dfs_fcc_bin5pulses;
 		rinfo.numb5radars = ARRAY_LENGTH(dfs_fcc_bin5pulses);
 		break;
+	case DFS_CN_DOMAIN:
+		WMA_LOGI("%s: FCC domain -- Country China(156)"
+			 " override FCC radar pattern",__func__);
+		rinfo.dfsdomain = DFS_FCC_DOMAIN;
+		/*
+		 * China uses a radar pattern that is similar to ETSI but it
+		 * follows FCC in all other respect like transmit power, CCA
+		 * threshold etc.
+		 */
+		rinfo.dfs_radars = dfs_china_radars;
+		rinfo.numradars = ARRAY_LENGTH(dfs_china_radars);
+		rinfo.b5pulses = NULL;
+		rinfo.numb5radars = 0;
+		break;
 	case DFS_ETSI_DOMAIN:
 		WMA_LOGI("%s: DFS-ETSI domain",__func__);
 		rinfo.dfsdomain = DFS_ETSI_DOMAIN;
 		rinfo.dfs_radars = dfs_etsi_radars;
 		rinfo.numradars = ARRAY_LENGTH(dfs_etsi_radars);
+		rinfo.b5pulses = NULL;
+		rinfo.numb5radars = 0;
+		break;
+	case DFS_KR_DOMAIN:
+		WMA_LOGI("%s: ETSI domain -- Korea(412)",__func__);
+		rinfo.dfsdomain = DFS_ETSI_DOMAIN;
+
+		/*
+		 * So far we have treated Korea as part of ETSI and did not
+		 * support any radar patters specific to Korea other than
+		 * standard ETSI radar patterns. Ideally we would want to
+		 * treat Korea as a different domain. This is something that
+		 * we will address in the future. However, for now override
+		 * ETSI tables for Korea.
+		 */
+		rinfo.dfs_radars = dfs_korea_radars;
+		rinfo.numradars = ARRAY_LENGTH(dfs_korea_radars);
 		rinfo.b5pulses = NULL;
 		rinfo.numb5radars = 0;
 		break;
@@ -43145,7 +43208,7 @@ wma_dfs_configure_channel(struct ieee80211com *dfs_ic,
 void wma_set_dfs_regdomain(tp_wma_handle wma, uint8_t dfs_region)
 {
 	/* dfs information is passed */
-	if (dfs_region > DFS_MKK4_DOMAIN || dfs_region == DFS_UNINIT_DOMAIN)
+	if (dfs_region >= DFS_UNDEF_DOMAIN || dfs_region == DFS_UNINIT_DOMAIN)
 		/* assign DFS_FCC_DOMAIN as default domain*/
 		wma->dfs_ic->current_dfs_regdomain = DFS_FCC_DOMAIN;
 	else

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2014-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011, 2014-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -257,6 +257,77 @@ typedef struct RegDmnFreqBand {
     u_int8_t    regClassId;    /* Regulatory class id */
 } REG_DMN_FREQ_BAND;
 
+/*
+ * Regdomain 31 added 5G ctl value for each subband,
+ */
+#define CTL_INDEX_SHIFT 4
+#define REGDOMAIN_5G_SUBBAND_FLAG_MASK 0x00010000
+enum {
+	_FCC = 1,
+	_MKK = 4,
+	_ETSI = 3,
+	_CHN = 6,
+	_KOR = 5,
+	_USER_DEF = 7,
+	_IGNORE = 8,
+	_UNUSED = 0xa
+};
+
+/*
+ * UNII1: 5150_5250
+ * UNII2a: 5250_5350
+ * UNII2c: 5470_5725
+ * UNII3: 5725_5850
+ * UNII4: 5850_5925
+ * max 6 only needs 3 bits for each subband,
+ * leave 1 more bit for future use.
+ */
+enum {
+	ctl_4940_4990 = 0,
+	ctl_5040_5080 = 4,
+	ctl_unii1 = 8,
+	ctl_unii2a = 12,
+	ctl_unii2c = 16,
+	ctl_unii3 = 20,
+	ctl_unii4 = 24,
+};
+
+enum {
+	ctl_4940_4990_mask = 0x0000000f,
+	ctl_5040_5080_mask = 0x000000f0,
+	ctl_unii1_mask = 0x00000f00,
+	ctl_unii2a_mask = 0x0000f000,
+	ctl_unii2c_mask = 0x000f0000,
+	ctl_unii3_mask = 0x00f00000,
+	ctl_unii4_mask = 0x0f000000,
+};
+
+#define CTL_BM(a,b,c,d,e,f,g) \
+	(u_int32_t)((a << ctl_4940_4990) | \
+	(b << ctl_5040_5080) | \
+	(c << ctl_unii1) | \
+	(d << ctl_unii2a) | \
+	(e << ctl_unii2c) | \
+	(f << ctl_unii3) | \
+	(g << ctl_unii4))
+
+#define CTL_UNII1_INDEX(bm) \
+	((bm & ctl_unii1_mask) >> (ctl_unii1 - CTL_INDEX_SHIFT))
+
+#define CTL_UNII2a_INDEX(bm) \
+	((bm & ctl_unii2a_mask) >> (ctl_unii2a - CTL_INDEX_SHIFT))
+
+#define CTL_UNII2c_INDEX(bm) \
+	((bm & ctl_unii2c_mask) >> (ctl_unii2c - CTL_INDEX_SHIFT))
+
+#define CTL_UNII3_INDEX(bm) \
+	((bm & ctl_unii3_mask) >> (ctl_unii3 - CTL_INDEX_SHIFT))
+
+#define CTL_UNII4_INDEX(bm) \
+	((bm & ctl_unii4_mask) >> (ctl_unii4 - CTL_INDEX_SHIFT))
+
+#define CTL_BM_ZERO ((u_int32_t)0)
+
 typedef struct reg_domain {
     u_int16_t regDmnEnum;    /* value from EnumRd table */
     u_int8_t conformance_test_limit;
@@ -264,6 +335,7 @@ typedef struct reg_domain {
     u_int64_t pscan;    /* Bitmask for passive scan */
     u_int32_t flags;    /* Requirement flags (AdHoc disallow, noise
                    floor cal needed, etc) */
+    u_int32_t ctl_5g_bm; /* ctl 5g bitmap for subbands*/
     u_int64_t chan11a[BMLEN];/* 128 bit bitmask for channel/band selection */
     u_int64_t chan11a_turbo[BMLEN];/* 128 bit bitmask for channel/band select */
     u_int64_t chan11a_dyn_turbo[BMLEN]; /* 128 bit mask for chan/band select */
@@ -426,12 +498,21 @@ typedef struct ath_hal_reg_dmn_tables {
  *        - country definition: CTRY_COLOMBIA
  *            - country string: CO
  *            - country ID: 170
+ *        - country definition: CTRY_CONGO
+ *            - country string: CG
+ *            - country ID: 178
+ *        - country definition: CTRY_CONGO_DEMO_REPUBLIC
+ *            - country string: CD
+ *            - country ID: 180
  *        - country definition: CTRY_COSTA_RICA
  *            - country string: CR
  *            - country ID: 191
  *        - country definition: CTRY_CROATIA
  *            - country string: HR
  *            - country ID: 191
+ *        - country definition: CTRY_CURACAO
+ *            - country string: CW
+ *            - country ID: 531
  *        - country definition: CTRY_CYPRUS
  *            - country string: CY
  *            - country ID: 196
@@ -931,10 +1012,13 @@ enum CountryCode {
     CTRY_CHINA                = 156,     /* People's Republic of China */
     CTRY_CHRISTMAS_ISLAND                = 162,
     CTRY_COLOMBIA             = 170,     /* Colombia */
+    CTRY_CONGO			= 178,     /* Congo */
+    CTRY_CONGO_DEMO_REPUBLIC	= 180,     /* Congo Democractic Republic */
     CTRY_COOK_ISLANDS         = 184,     /* Cook Islands */
     CTRY_COSTA_RICA           = 188,     /* Costa Rica */
     CTRY_COTE_DIVOIRE           = 384,
     CTRY_CROATIA              = 191,     /* Croatia */
+    CTRY_CURACAO		= 531,	/* Curacao */
     CTRY_CYPRUS               = 196,
     CTRY_CZECH                = 203,     /* Czech Republic */
     CTRY_DENMARK              = 208,     /* Denmark */

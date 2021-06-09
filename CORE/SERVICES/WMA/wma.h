@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1342,7 +1342,7 @@ extern v_BOOL_t sys_validateStaConfig(void *pImage, unsigned long cbFile,
 extern void vos_WDAComplete_cback(v_PVOID_t pVosContext);
 extern void wma_send_regdomain_info(u_int32_t reg_dmn, u_int16_t regdmn2G,
 				    u_int16_t regdmn5G, int8_t ctl2G,
-				    int8_t ctl5G);
+				    int8_t ctl5G, u_int32_t ctl_5g_bm);
 
 void wma_get_modeselect(tp_wma_handle wma, u_int32_t *modeSelect);
 

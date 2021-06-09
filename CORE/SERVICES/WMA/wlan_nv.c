@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012, 2014, 2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012, 2014, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -905,7 +905,8 @@ const sHalNv nvDefaults =
                     {NV_CHANNEL_DISABLE, 30},           //RF_CHAN_183,
                     {NV_CHANNEL_ENABLE, 30},            //RF_CHAN_184,
 #else
-                    {NV_CHANNEL_DISABLE, 30},           //RF_CHAN_173,
+                    {NV_CHANNEL_ENABLE, 30},           //RF_CHAN_173,
+                    {NV_CHANNEL_ENABLE, 30},           //RF_CHAN_177,
 #endif
 
                     //2.4GHz Band, channel bonded channels

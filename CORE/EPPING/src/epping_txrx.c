@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2014-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -143,7 +143,11 @@ end:
    return;
 }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0))
+void epping_tx_queue_timeout(struct net_device *dev, unsigned int txqueue)
+#else
 void epping_tx_queue_timeout(struct net_device *dev)
+#endif
 {
    epping_adapter_t *pAdapter;
 

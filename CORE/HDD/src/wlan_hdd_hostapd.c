@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -6433,13 +6433,6 @@ static int __iw_get_channel_list(struct net_device *dev,
         bandStartChannel = RF_CHAN_36;
         bandEndChannel = RF_CHAN_184;
     }
-    if (curBand != eCSR_BAND_24) {
-        if (hdd_ctx->cfg_ini->dot11p_mode) {
-            bandEndChannel = RF_CHAN_184;
-        } else {
-            bandEndChannel = RF_CHAN_173;
-        }
-    }
 
     if (pHostapdAdapter->device_mode == WLAN_HDD_INFRA_STATION &&
             hdd_ctx->cfg_ini->enableDFSChnlScan) {
@@ -6477,9 +6470,47 @@ int iw_get_channel_list(struct net_device *dev,
                                union iwreq_data *wrqu, char *extra)
 {
 	int ret;
+	v_U8_t i, len;
+	char* buf;
+	hdd_adapter_t *pAdapter = WLAN_HDD_GET_PRIV_PTR(dev);
+	uint8_t ubuf[WNI_CFG_COUNTRY_CODE_LEN];
+	uint8_t ubuf_len = WNI_CFG_COUNTRY_CODE_LEN;
+	hdd_context_t *hdd_ctx = WLAN_HDD_GET_CTX(pAdapter);
+	tChannelListInfo channel_list;
 
 	vos_ssr_protect(__func__);
-	ret = __iw_get_channel_list(dev, info, wrqu, extra);
+	memset(&channel_list, 0, sizeof(channel_list));
+	ret = __iw_get_channel_list(dev, info, wrqu, (char *)&channel_list);
+	if (!VOS_IS_STATUS_SUCCESS(ret)) {
+	    hddLog(LOGE, FL("GetChannelList Failed!!!"));
+	    return -EINVAL;
+	}
+	buf = extra;
+	/**
+	 * Maximum channels = WNI_CFG_VALID_CHANNEL_LIST_LEN. Maximum buffer
+	 * needed = 5 * number of channels. Check if sufficient
+	 * buffer is available and then proceed to fill the buffer.
+	 */
+	if (WE_MAX_STR_LEN < (5 * WNI_CFG_VALID_CHANNEL_LIST_LEN)) {
+	    hddLog(LOGE,
+	           FL("Insufficient Buffer to populate channel list"));
+	    return -EINVAL;
+	}
+	len = scnprintf(buf, WE_MAX_STR_LEN, "%u ",
+	        channel_list.num_channels);
+	if (eHAL_STATUS_SUCCESS == sme_GetCountryCode(hdd_ctx->hHal,
+	                                              ubuf, &ubuf_len)) {
+	    /* Printing Country code in getChannelList */
+	    for (i = 0; i < (ubuf_len - 1); i++)
+	        len += scnprintf(buf + len, WE_MAX_STR_LEN - len,
+	                         "%c", ubuf[i]);
+	}
+
+	for (i = 0; i < channel_list.num_channels; i++) {
+	    len += scnprintf(buf + len, WE_MAX_STR_LEN - len,
+	                   " %u", channel_list.channels[i]);
+	}
+	wrqu->data.length = strlen(extra) + 1;
 	vos_ssr_unprotect(__func__);
 
 	return ret;
@@ -8418,7 +8449,7 @@ static const struct iw_priv_args hostapd_private_args[] = {
     /* handlers for main ioctl */
     {   QCSAP_IOCTL_GET_CHANNEL_LIST,
         0,
-        IW_PRIV_TYPE_BYTE | sizeof(tChannelListInfo),
+        IW_PRIV_TYPE_CHAR | WE_MAX_STR_LEN,
         "getChannelList" },
 
     /* handlers for main ioctl */

@@ -2782,17 +2782,18 @@ static int hdd_ipa_rm_cons_request(void)
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,4,0))
 static int hdd_set_perf_profile(bool is_cons, uint32_t max_supported_bw_mbps)
 {
-	struct ipa_wdi_perf_profile profile;
+	struct ipa_wdi_perf_profile profile = {0};
 
 	if (is_cons)
 		profile.client = IPA_CLIENT_WLAN1_CONS;
 	else
 		profile.client = IPA_CLIENT_WLAN1_PROD;
 	profile.max_supported_bw_mbps = max_supported_bw_mbps;
+
 	return ipa_wdi_set_perf_profile(&profile);
 }
 
-static bool hdd_force_set_perf_level_enabled(struct hdd_ipa_priv *hdd_ipa)
+static bool hdd_is_force_set_perf_level_enabled(struct hdd_ipa_priv *hdd_ipa)
 {
 	hdd_context_t *hdd_ctx = hdd_ipa->hdd_ctx;
 
@@ -2804,7 +2805,7 @@ static bool hdd_force_set_perf_level_enabled(struct hdd_ipa_priv *hdd_ipa)
 #else
 static int hdd_set_perf_profile(bool is_cons, uint32_t max_supported_bw_mbps)
 {
-	struct ipa_rm_perf_profile profile;
+	struct ipa_rm_perf_profile profile = {0};
 	int client;
 
 	memset(&profile, 0, sizeof(profile));
@@ -2813,10 +2814,11 @@ static int hdd_set_perf_profile(bool is_cons, uint32_t max_supported_bw_mbps)
 	else
 		client = IPA_RM_RESOURCE_WLAN_PROD;
 	profile.max_supported_bandwidth_mbps = max_supported_bw_mbps;
+
 	return ipa_rm_set_perf_profile(client, &profile);
 }
 
-static bool hdd_force_set_perf_level_enabled(struct hdd_ipa_priv *hdd_ipa)
+static bool hdd_is_force_set_perf_level_enabled(struct hdd_ipa_priv *hdd_ipa)
 {
 	return false;
 }
@@ -2831,7 +2833,7 @@ int hdd_ipa_set_perf_level(hdd_context_t *hdd_ctx, uint64_t tx_packets,
 
 	if ((!hdd_ipa_is_enabled(hdd_ctx)) ||
 		(!(hdd_ipa_is_clk_scaling_enabled(hdd_ipa) ||
-		   hdd_force_set_perf_level_enabled(hdd_ipa))))
+		   hdd_is_force_set_perf_level_enabled(hdd_ipa))))
 		return 0;
 
 	if (tx_packets > (hdd_ctx->cfg_ini->busBandwidthHighThreshold / 2))
@@ -3071,6 +3073,7 @@ static void hdd_ipa_send_skb_to_network(adf_nbuf_t skb, hdd_adapter_t *adapter)
 #endif
 	struct hdd_ipa_priv *hdd_ipa = ghdd_ipa;
 	unsigned int cpu_index;
+	hdd_context_t *pHddCtx = NULL;
 
 	if (!adapter || adapter->magic != WLAN_HDD_ADAPTER_MAGIC) {
 		HDD_IPA_LOG(VOS_TRACE_LEVEL_INFO_LOW, "Invalid adapter: 0x%pK",
@@ -3084,6 +3087,36 @@ static void hdd_ipa_send_skb_to_network(adf_nbuf_t skb, hdd_adapter_t *adapter)
 		HDD_IPA_INCREASE_INTERNAL_DROP_COUNT(hdd_ipa);
 		adf_nbuf_free(skb);
 		return;
+	}
+
+	pHddCtx = (hdd_context_t *)adapter->pHddCtx;
+	if (pHddCtx->cfg_ini->gEnableSapEapolChecking &&
+		(adapter->device_mode == WLAN_HDD_SOFTAP ||
+		adapter->device_mode == WLAN_HDD_P2P_GO) &&
+		adf_nbuf_is_eapol_pkt(skb)) {
+
+		/* CR 2868053 */
+		HDD_IPA_LOG(VOS_TRACE_LEVEL_INFO,
+				"QSV2020005, dev, mode=%d, session=%u, %s, addr (%pM)",
+				adapter->device_mode,
+				adapter->sessionId,
+				adapter->dev->name,
+				adapter->dev->dev_addr);
+		HDD_IPA_LOG(VOS_TRACE_LEVEL_INFO,
+				"QSV2020005 pkt addr (%pM)",
+				skb->data);
+		if (adf_os_mem_cmp(adapter->dev->dev_addr,
+			skb->data, VOS_MAC_ADDR_SIZE)) {
+			/* CR 2868053, discard this EAPOL */
+			HDD_IPA_LOG(VOS_TRACE_LEVEL_ERROR,
+					"QSV2020005 discard invalid EAPOL frame, dev=%pM, "
+					"pkt_da=%pM",
+					adapter->dev->dev_addr,
+					skb->data);
+
+			adf_nbuf_free(skb);
+			return;
+		}
 	}
 
 	skb->destructor = hdd_ipa_uc_rt_debug_destructor;
@@ -3318,6 +3351,20 @@ static enum hdd_ipa_forward_type hdd_ipa_intrabss_forward(
 				"Forward packet to Tx (fw_desc=%d)", desc);
 		hdd_ipa->ipa_tx_forward++;
 
+		/*
+		* CR 2868053
+		* discard EAPOL frame for intrabss forwarding
+		*/
+		if (adf_nbuf_is_eapol_pkt(skb)) {
+			HDD_IPA_DP_LOG(VOS_TRACE_LEVEL_ERROR,
+					"QSV2020005 EAPOL forwarding discard \n");
+			/* Drop the packet*/
+			hdd_ipa->ipa_rx_internel_drop_count++;
+			hdd_ipa->ipa_rx_discard++;
+			ret = HDD_IPA_FORWARD_PKT_DISCARD;
+			goto out;
+		}
+
 		if ((desc & FW_RX_DESC_DISCARD_M)) {
 			xmit_status = hdd_softap_hard_start_xmit(
 							skb, adapter->dev);
@@ -3336,6 +3383,7 @@ static enum hdd_ipa_forward_type hdd_ipa_intrabss_forward(
 			ret = HDD_IPA_FORWARD_PKT_LOCAL_STACK;
 		}
 
+out:
 		if (NETDEV_TX_OK == xmit_status) {
 			hdd_ipa->stats.num_tx_fwd_ok++;
 		} else {
@@ -3694,13 +3742,15 @@ int hdd_ipa_suspend(hdd_context_t *hdd_ctx)
 	if (atomic_read(&hdd_ipa->tx_ref_cnt))
 		return -EAGAIN;
 
-	adf_os_spin_lock_bh(&hdd_ipa->rm_lock);
+	if (hdd_ipa_is_rm_enabled(hdd_ipa)) {
+		adf_os_spin_lock_bh(&hdd_ipa->rm_lock);
 
-	if (hdd_ipa->rm_state != HDD_IPA_RM_RELEASED) {
+		if (hdd_ipa->rm_state != HDD_IPA_RM_RELEASED) {
+			adf_os_spin_unlock_bh(&hdd_ipa->rm_lock);
+			return -EAGAIN;
+		}
 		adf_os_spin_unlock_bh(&hdd_ipa->rm_lock);
-		return -EAGAIN;
 	}
-	adf_os_spin_unlock_bh(&hdd_ipa->rm_lock);
 
 	adf_os_spin_lock_bh(&hdd_ipa->pm_lock);
 	hdd_ipa->suspended = true;

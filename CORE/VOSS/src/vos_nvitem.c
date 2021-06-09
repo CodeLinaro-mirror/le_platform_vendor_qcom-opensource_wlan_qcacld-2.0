@@ -418,6 +418,7 @@ const tRfChannelProps rfChannels[NUM_RF_CHANNELS] =
     { 5920, 184, RF_SUBBAND_5_HIGH_GHZ},     //RF_CHAN_184,
 #else
     { 5865, 173, RF_SUBBAND_5_HIGH_GHZ},     //RF_CHAN_173,
+    { 5885, 177, RF_SUBBAND_5_HIGH_GHZ},     //RF_CHAN_177,
 #endif
     { 2422, 3  , NUM_RF_SUBBANDS},           //RF_CHAN_BOND_3,
     { 2427, 4  , NUM_RF_SUBBANDS},           //RF_CHAN_BOND_4,
@@ -1956,9 +1957,10 @@ static int create_linux_regulatory_entry(v_REGDOMAIN_t temp_reg_domain,
     const struct ieee80211_reg_rule *reg_rule;
 #ifdef CLD_REGDB
     const struct ieee80211_regdomain *regd;
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)) && defined(CLD_REGDB)
     struct ieee80211_regdomain *rd;
     bool rtnl_locked = false;
+    int ret;
 #endif
 #endif
     pVosContext = vos_get_global_context(VOS_MODULE_ID_SYS, NULL);
@@ -1996,21 +1998,21 @@ static int create_linux_regulatory_entry(v_REGDOMAIN_t temp_reg_domain,
         return -1;
     }
 
-#ifdef CLD_REGDB
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)) && defined(CLD_REGDB)
     wiphy->regulatory_flags = REGULATORY_WIPHY_SELF_MANAGED;
     regd = search_regd(pHddCtx->reg.alpha2);
     rd = reg_copy_regd(regd);
     if (!rtnl_is_locked()) {
         rtnl_lock();
-	printk("regdmn: rtnl locking\n");
         rtnl_locked = true;
     }
-    regulatory_set_wiphy_regd_sync_rtnl(wiphy, rd);
+    ret = regulatory_set_wiphy_regd_sync_rtnl(wiphy, rd);
+    if (ret)
+        VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
+                  "regulatory set wiphy regd err:%d", ret);
     if (rtnl_locked)
         rtnl_unlock();
     kfree(rd);
-#endif
 #endif
 
     vos_mem_zero(pnvEFSTable->halnv.tables.regDomains[temp_reg_domain].channels,
@@ -2380,6 +2382,20 @@ static void hdd_debug_cc_timer_expired_handler(void *arg)
 }
 
 /*
+ * Override cfg80211 regulatory_request dfs_region for CN and KR
+ * which have different pattern table
+ */
+static void vos_set_dfs_region_cn_kr(struct regulatory_request *request)
+{
+	if ((request->alpha2[0] == 'C') &&
+	    (request->alpha2[1] == 'N'))
+		request->dfs_region = DFS_CN_DOMAIN;
+	else if ((request->alpha2[0] == 'K') &&
+	    (request->alpha2[1] == 'R'))
+		request->dfs_region = DFS_KR_DOMAIN;
+}
+
+/*
  * Function: wlan_hdd_linux_reg_notifier
  * This function is called from cfg80211 core to provide regulatory settings
  * after new country is requested or intersected (init, user input or 11d)
@@ -2408,9 +2424,6 @@ int __wlan_hdd_linux_reg_notifier(struct wiphy *wiphy,
               request->alpha2[1],
               request->initiator,
               request->dfs_region);
-    printk("regdmn [%s] country: %c%c, initiator %d, dfs_region: %d\n",
-		current->comm, request->alpha2[0], request->alpha2[1],
-		request->initiator, request->dfs_region);
 
     if (TRUE == isWDresetInProgress())
     {
@@ -2537,7 +2550,6 @@ int __wlan_hdd_linux_reg_notifier(struct wiphy *wiphy,
         isVHT80Allowed = pHddCtx->isVHT80Allowed;
         regChannels =
             pnvEFSTable->halnv.tables.regDomains[temp_reg_domain].channels;
-	printk("regdmn: before create reg_flags:%x\n", wiphy->regulatory_flags);
         if (create_linux_regulatory_entry(temp_reg_domain,
                                           wiphy,
                                           nBandCapability,
@@ -2546,7 +2558,6 @@ int __wlan_hdd_linux_reg_notifier(struct wiphy *wiphy,
             VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_INFO,
                       (" regulatory entry created"));
         }
-	printk("regdmn: after create reg_flags:%x\n", wiphy->regulatory_flags);
 
         if (pHddCtx->isVHT80Allowed != isVHT80Allowed)
             hdd_checkandupdate_phymode( pHddCtx);
@@ -2586,6 +2597,7 @@ int __wlan_hdd_linux_reg_notifier(struct wiphy *wiphy,
             regdmn_set_regval(&pHddCtx->reg);
         }
 
+	vos_set_dfs_region_cn_kr(request);
         /* set dfs_region info */
         vos_nv_set_dfs_region(request->dfs_region);
 

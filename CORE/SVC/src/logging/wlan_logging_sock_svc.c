@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2014-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -274,7 +274,6 @@ static int wlan_queue_logmsg_for_app(void)
 	return ret;
 }
 
-
 int wlan_log_to_user(VOS_TRACE_LEVEL log_level, char *to_be_sent, int length)
 {
 	/* Add the current time stamp */
@@ -284,7 +283,16 @@ int wlan_log_to_user(VOS_TRACE_LEVEL log_level, char *to_be_sent, int length)
 	int total_log_len;
 	unsigned int *pfilled_length;
 	bool wake_up_thread = false;
+	/*
+	 * Kernel 5.0 removed do_gettimeofday, 5.6 removed "struct timeval"
+	 * so we directly use timespec64 the new style and API ktime_get_real_ts64
+	 * starting from 5.0
+	 */
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0))
+	struct timespec64 tv;
+#else
 	struct timeval tv;
+#endif
 	struct rtc_time tm;
 	unsigned long local_time;
 	int radio;
@@ -315,11 +323,19 @@ int wlan_log_to_user(VOS_TRACE_LEVEL log_level, char *to_be_sent, int length)
 		vos_timer_get_timeval(&tv);
 		/* Convert rtc to local time */
 		local_time = (u32)(tv.tv_sec - (sys_tz.tz_minuteswest * 60));
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0))
+		rtc_time64_to_tm(local_time, &tm);
+#else
 		rtc_time_to_tm(local_time, &tm);
+#endif
 		tlen = snprintf(tbuf, sizeof(tbuf),
 				"R%d: [%s][%02d:%02d:%02d.%06lu] ",
 				radio, current->comm, tm.tm_hour,
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0))
+				tm.tm_min, tm.tm_sec, tv.tv_nsec);
+#else
 				tm.tm_min, tm.tm_sec, tv.tv_usec);
+#endif
 
 		/* 1+1 indicate '\n'+'\0' */
 		total_log_len = length + tlen + 1 + 1;

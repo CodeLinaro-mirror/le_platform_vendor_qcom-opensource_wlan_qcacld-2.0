@@ -353,7 +353,11 @@ v_TIME_t vos_timer_get_system_time( v_VOID_t );
  *
  * Return: void
  */
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 0, 0))
+void vos_timer_get_timeval(struct timespec64 *tv);
+#else
 void vos_timer_get_timeval(struct timeval *tv);
+#endif
 
 /**
  * vos_system_ticks() - get system ticks

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011,2013-2014, 2018-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011,2013-2014, 2018-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -512,6 +512,7 @@ void regdmn_get_ctl_info(struct regulatory *reg, u_int32_t modesAvail,
 	const REG_DOMAIN *regdomain2G = NULL;
 	const REG_DOMAIN *regdomain5G = NULL;
 	int8_t ctl_2g, ctl_5g, ctl;
+	uint32_t ctl_5g_bm;
 	const REG_DOMAIN *rd = NULL;
 	const struct cmode *cm;
 	const COUNTRY_CODE_TO_ENUM_RD *country;
@@ -533,6 +534,7 @@ void regdmn_get_ctl_info(struct regulatory *reg, u_int32_t modesAvail,
 	/* find first nible of CTL */
 	ctl_2g = regdomain2G->conformance_test_limit;
 	ctl_5g = regdomain5G->conformance_test_limit;
+	ctl_5g_bm = regdomain5G->ctl_5g_bm;
 
 	/* find second nible of CTL */
 	country = find_country(reg->country_code);
@@ -603,7 +605,7 @@ void regdmn_get_ctl_info(struct regulatory *reg, u_int32_t modesAvail,
 	reg->ctl_2g = ctl_2g;
 
 	wma_send_regdomain_info(reg->reg_domain, regpair->regDmn2GHz,
-				regpair->regDmn5GHz, ctl_2g, ctl_5g);
+				regpair->regDmn5GHz, ctl_2g, ctl_5g, ctl_5g_bm);
 }
 
 /* regdmn_set_dfs_region() - to set the dfs region to wma

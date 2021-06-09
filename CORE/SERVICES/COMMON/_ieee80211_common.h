@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014, 2016 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2014, 2016, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -34,7 +34,10 @@ typedef enum {
 	DFS_UNINIT_DOMAIN	= 0,	/* Uninitialized dfs domain */
 	DFS_FCC_DOMAIN		= 1,	/* FCC3 dfs domain */
 	DFS_ETSI_DOMAIN		= 2,	/* ETSI dfs domain */
-	DFS_MKK4_DOMAIN		= 3	/* Japan dfs domain */
+	DFS_MKK4_DOMAIN		= 3,	/* Japan dfs domain */
+	DFS_CN_DOMAIN		= 4,	/* China dfs domain */
+	DFS_KR_DOMAIN		= 5,	/* Korea dfs domain */
+	DFS_UNDEF_DOMAIN
 }HAL_DFS_DOMAIN;
 
 /* XXX not really a mode; there are really multiple PHY's */
