@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2017, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1403,7 +1403,7 @@ limIbssCoalesce(
     tpPESession         psessionEntry)
 {
     tANI_U16            peerIdx;
-    tSirMacAddr         currentBssId;
+    tSirMacAddr         currentBssId = {0};
     tLimIbssPeerNode    *pPeerNode;
     tpDphHashNode       pStaDs;
     tUpdateBeaconParams beaconParams;

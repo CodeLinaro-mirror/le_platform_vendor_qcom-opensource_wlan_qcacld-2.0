@@ -4632,7 +4632,7 @@ int wlan_hdd_get_link_speed(hdd_adapter_t *sta_adapter, uint32_t *link_speed)
        *link_speed = 0;
     } else {
         VOS_STATUS status;
-        tSirMacAddr bssid;
+        tSirMacAddr bssid = {0};
 
         vos_mem_copy(bssid, hdd_stactx->conn_info.bssId, VOS_MAC_ADDR_SIZE);
 
@@ -15423,7 +15423,7 @@ void hdd_exchange_version_and_caps(hdd_context_t *pHddCtx)
 
    tSirVersionType versionCompiled;
    tSirVersionType versionReported;
-   tSirVersionString versionString;
+   tSirVersionString versionString = {0};
    tANI_U8 fwFeatCapsMsgSupported = 0;
    VOS_STATUS vstatus;
 

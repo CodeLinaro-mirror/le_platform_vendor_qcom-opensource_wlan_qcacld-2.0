@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2017, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1747,7 +1747,7 @@ void limProcessFTAggrQoSRsp(tpAniSirGlobal pMac, tpSirMsgQ limMsg)
     tAddTsParams     addTsParam = {0};
     tpDphHashNode  pSta = NULL;
     tANI_U16  assocId =0;
-    tSirMacAddr  peerMacAddr;
+    tSirMacAddr  peerMacAddr = {0};
     tANI_U8   rspReqd = 1;
     tpPESession  psessionEntry = NULL;
     int i = 0;

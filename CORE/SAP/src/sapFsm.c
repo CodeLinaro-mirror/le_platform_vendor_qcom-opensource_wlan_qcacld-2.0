@@ -3523,6 +3523,9 @@ sapSignalHDDevent
     switch (sapHddevent)
     {
         case eSAP_STA_ASSOC_IND:
+            if (!pCsrRoamInfo)
+                return VOS_STATUS_E_FAILURE;
+
             //  TODO - Indicate the assoc request indication to OS
             sapApAppEvent.sapHddEventCode = eSAP_STA_ASSOC_IND;
 
@@ -3644,6 +3647,9 @@ sapSignalHDDevent
             tSirSmeChanInfo *pChanInfo;
             tSap_StationAssocReassocCompleteEvent *sta_event_ptr;
 
+            if (!pCsrRoamInfo)
+                return VOS_STATUS_E_FAILURE;
+
             sta_event_ptr =
                 &sapApAppEvent.sapevt.sapStationAssocReassocCompleteEvent;
             VOS_TRACE( VOS_MODULE_ID_SAP, VOS_TRACE_LEVEL_INFO_HIGH,
@@ -3714,6 +3720,10 @@ sapSignalHDDevent
             VOS_TRACE( VOS_MODULE_ID_SAP, VOS_TRACE_LEVEL_INFO_HIGH,
                        FL("SAP event callback event = %s"),
                           "eSAP_STA_DISASSOC_EVENT");
+
+            if (!pCsrRoamInfo)
+                return VOS_STATUS_E_FAILURE;
+
             sapApAppEvent.sapHddEventCode = eSAP_STA_DISASSOC_EVENT;
 
             vos_mem_copy( &sapApAppEvent.sapevt.sapStationDisassocCompleteEvent.staMac,
@@ -3732,6 +3742,10 @@ sapSignalHDDevent
             VOS_TRACE( VOS_MODULE_ID_SAP, VOS_TRACE_LEVEL_INFO_HIGH,
                        FL("SAP event callback event = %s"),
                           "eSAP_STA_SET_KEY_EVENT");
+
+            if (!pCsrRoamInfo)
+                return VOS_STATUS_E_FAILURE;
+
             sapApAppEvent.sapHddEventCode = eSAP_STA_SET_KEY_EVENT;
             sapApAppEvent.sapevt.sapStationSetKeyCompleteEvent.status = (eSapStatus )context;
             vos_mem_copy(&sapApAppEvent.sapevt.sapStationSetKeyCompleteEvent.peerMacAddr,
@@ -3752,6 +3766,10 @@ sapSignalHDDevent
             VOS_TRACE( VOS_MODULE_ID_SAP, VOS_TRACE_LEVEL_INFO_HIGH,
                        FL("SAP event callback event = %s"),
                           "eSAP_STA_MIC_FAILURE_EVENT");
+
+            if (!pCsrRoamInfo)
+                return VOS_STATUS_E_FAILURE;
+
             sapApAppEvent.sapHddEventCode = eSAP_STA_MIC_FAILURE_EVENT;
             vos_mem_copy( &sapApAppEvent.sapevt.sapStationMICFailureEvent.srcMacAddr,
                           pCsrRoamInfo->u.pMICFailureInfo->srcMacAddr,
@@ -3780,6 +3798,10 @@ sapSignalHDDevent
             VOS_TRACE( VOS_MODULE_ID_SAP, VOS_TRACE_LEVEL_INFO_HIGH,
                        FL("SAP event callback event = %s"),
                           "eSAP_WPS_PBC_PROBE_REQ_EVENT");
+
+            if (!pCsrRoamInfo)
+                return VOS_STATUS_E_FAILURE;
+
             sapApAppEvent.sapHddEventCode = eSAP_WPS_PBC_PROBE_REQ_EVENT;
 
             vos_mem_copy( &sapApAppEvent.sapevt.sapPBCProbeReqEvent.WPSPBCProbeReq,
@@ -3823,6 +3845,10 @@ sapSignalHDDevent
             VOS_TRACE( VOS_MODULE_ID_SAP, VOS_TRACE_LEVEL_INFO_HIGH,
                        FL("SAP event callback event = %s"),
                           "eSAP_MAX_ASSOC_EXCEEDED");
+
+            if (!pCsrRoamInfo)
+                return VOS_STATUS_E_FAILURE;
+
             sapApAppEvent.sapHddEventCode = eSAP_MAX_ASSOC_EXCEEDED;
             vos_mem_copy((v_PVOID_t)sapApAppEvent.sapevt.sapMaxAssocExceeded.macaddr.bytes,
                     (v_PVOID_t)pCsrRoamInfo->peerMac, sizeof(v_MACADDR_t));
@@ -3878,6 +3904,10 @@ sapSignalHDDevent
             VOS_TRACE( VOS_MODULE_ID_SAP, VOS_TRACE_LEVEL_INFO_HIGH,
                     "In %s, SAP event callback event = %s",
                     __func__, "eSAP_ECSA_CHANGE_CHAN_IND");
+
+            if (!pCsrRoamInfo)
+                return VOS_STATUS_E_FAILURE;
+
             sapApAppEvent.sapHddEventCode = eSAP_ECSA_CHANGE_CHAN_IND;
             sapApAppEvent.sapevt.sap_chan_cng_ind.new_chan =
                                            pCsrRoamInfo->target_channel;
@@ -5379,9 +5409,9 @@ static VOS_STATUS sapGetChannelList(ptSapContext sapContext,
 
             case eCSR_BAND_5G:
                bandStartChannel = RF_CHAN_36;
-               bandEndChannel = RF_CHAN_165;
+               bandEndChannel = WLAN_END_CHANNEL_ENUM;
                startChannelNum = 36;
-               endChannelNum = 165;
+               endChannelNum = WLAN_END_CHANNEL_NUM;
                break;
 
             default:
@@ -5548,7 +5578,7 @@ static VOS_STATUS sapGet5GHzChannelList(ptSapContext sapContext)
                  return VOS_STATUS_E_FAULT;
     }
 
-    for( i = RF_CHAN_36; i <= RF_CHAN_165; i++ )
+    for( i = RF_CHAN_36; i <= WLAN_END_CHANNEL_ENUM; i++ )
     {
         if( regChannels[i].enabled == NV_CHANNEL_ENABLE ||
             regChannels[i].enabled == NV_CHANNEL_DFS )
@@ -5875,7 +5905,7 @@ VOS_STATUS sapInitDfsChannelNolList(ptSapContext sapContext)
         bFound = TRUE;
     }
 
-    for ( i = RF_CHAN_36; i <= RF_CHAN_165; i++ )
+    for ( i = RF_CHAN_36; i <= WLAN_END_CHANNEL_ENUM; i++ )
     {
         if ( regChannels[i].enabled == NV_CHANNEL_DFS )
         {

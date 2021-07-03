@@ -1019,13 +1019,15 @@ VOS_STATUS vos_preStart( v_CONTEXT_t vosContext )
         ol_txrx_pdev_handle pdev =
             (ol_txrx_pdev_handle)vos_get_context(VOS_MODULE_ID_TXRX, gpVosContext);
 
-        if (wmi_unified_register_event_handler(wma_handle->wmi_handle,
-                                               WMI_PDEV_CHECK_CAL_VERSION_EVENTID,
-                                               wma_cal_finish_handler))
-            WMA_LOGE("Failed to register CSA offload event cb");
-        if (cali_init(pdev->htt_pdev))
-            VOS_TRACE(VOS_MODULE_ID_TXRX, VOS_TRACE_LEVEL_ERROR,
-                      "%s: alloc cali mem failed\n", __func__);
+        if (wma_handle && pdev) {
+            if (wmi_unified_register_event_handler(wma_handle->wmi_handle,
+                                                   WMI_PDEV_CHECK_CAL_VERSION_EVENTID,
+                                                   wma_cal_finish_handler))
+                WMA_LOGE("Failed to register CSA offload event cb");
+            if (cali_init(pdev->htt_pdev))
+                VOS_TRACE(VOS_MODULE_ID_TXRX, VOS_TRACE_LEVEL_ERROR,
+                          "%s: alloc cali mem failed\n", __func__);
+        }
     }
 
    HTCSetTargetToSleep(scn);

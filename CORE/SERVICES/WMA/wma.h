@@ -112,7 +112,7 @@
 
 /* 11A/G channel boundary */
 #define WMA_11A_CHANNEL_BEGIN           34
-#define WMA_11A_CHANNEL_END             165
+#define WMA_11A_CHANNEL_END             WLAN_END_CHANNEL_NUM
 #define WMA_11G_CHANNEL_BEGIN           1
 #define WMA_11G_CHANNEL_END             14
 

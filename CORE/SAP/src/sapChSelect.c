@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -184,6 +184,9 @@ sapSafeChannelType safeChannels[NUM_20MHZ_RF_CHANNELS] =
     {157, VOS_TRUE},      //RF_CHAN_157,
     {161, VOS_TRUE},      //RF_CHAN_161,
     {165, VOS_TRUE},      //RF_CHAN_165,
+    {169, VOS_TRUE},      //RF_CHAN_169,
+    {173, VOS_TRUE},      //RF_CHAN_173,
+    {177, VOS_TRUE},      //RF_CHAN_177,
 };
 #endif
 
@@ -3074,7 +3077,7 @@ v_U8_t sapSelectChannel(tHalHandle halHandle, ptSapContext pSapCtx,  tScanResult
         else
         {
             startChannelNum = rfChannels[RF_CHAN_36].channelNum;
-            endChannelNum = rfChannels[RF_CHAN_165].channelNum;
+            endChannelNum = rfChannels[WLAN_END_CHANNEL_ENUM].channelNum;
             operatingBand = eCSR_DOT11_MODE_11a;
         }
     }

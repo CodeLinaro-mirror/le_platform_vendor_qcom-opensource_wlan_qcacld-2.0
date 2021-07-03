@@ -6722,7 +6722,7 @@ static int __wlan_hdd_cfg80211_ll_stats_ext_set_param(struct wiphy *wiphy,
 	if (tb[QCA_WLAN_VENDOR_ATTR_LL_STATS_EXT_PEER_MAC_ADDRESS]) {
 		struct net_device *dev  = wdev->netdev;
 	        hdd_adapter_t *adapter = WLAN_HDD_GET_PRIV_PTR(dev);
-		v_MACADDR_t mac_addr;
+		v_MACADDR_t mac_addr = {0};
 		uint32_t atr_len;
 
 		/* Set primary peer MAC address */
@@ -9763,7 +9763,7 @@ static void wlan_hdd_set_acs_ch_range(tsap_Config_t *sap_cfg, bool ht_enabled,
 	} else if (sap_cfg->acs_cfg.hw_mode == QCA_ACS_MODE_IEEE80211A) {
 		sap_cfg->acs_cfg.hw_mode = eCSR_DOT11_MODE_11a;
 		sap_cfg->acs_cfg.start_ch = rfChannels[RF_CHAN_36].channelNum;
-		sap_cfg->acs_cfg.end_ch = rfChannels[RF_CHAN_165].channelNum;
+		sap_cfg->acs_cfg.end_ch = rfChannels[WLAN_END_CHANNEL_ENUM].channelNum;
 		sap_cfg->target_band = eCSR_BAND_5G;
 	} else {
 		hddLog(LOG1, FL("hw_mode %d"), sap_cfg->acs_cfg.hw_mode);
@@ -9905,7 +9905,7 @@ static int wlan_hdd_cfg80211_relaunch_acs(hdd_adapter_t *adapter)
 		band_end_channel = RF_CHAN_14;
 	} else {
 		band_start_channel = RF_CHAN_36;
-		band_end_channel = RF_CHAN_165;
+		band_end_channel = WLAN_END_CHANNEL_ENUM;
 	}
 
 	for (i = band_start_channel; i <= band_end_channel; i++) {
@@ -13926,7 +13926,7 @@ static int hdd_validate_avoid_freq_chanlist(hdd_context_t *hdd_ctx,
 		if ((channel_list->avoidFreqRange[range_idx].startFreq <
 		     VOS_24_GHZ_CHANNEL_1) ||
 		    (channel_list->avoidFreqRange[range_idx].endFreq >
-		     VOS_5_GHZ_CHANNEL_165) ||
+		     VOS_5_GHZ_CHANNEL_END) ||
 		    (channel_list->avoidFreqRange[range_idx].startFreq >
 		     channel_list->avoidFreqRange[range_idx].endFreq))
 				continue;
@@ -13985,7 +13985,7 @@ __wlan_hdd_cfg80211_avoid_freq(struct wiphy *wiphy,
 	hdd_context_t *hdd_ctx = wiphy_priv(wiphy);
 	int ret;
 	int unsafe_channel_index;
-	tHddAvoidFreqList *channel_list;
+	tHddAvoidFreqList *channel_list = NULL;
 	tVOS_CON_MODE curr_mode;
 	uint8_t num_args = 0;
 
@@ -14001,39 +14001,43 @@ __wlan_hdd_cfg80211_avoid_freq(struct wiphy *wiphy,
 	if (0 != ret)
 		return -EINVAL;
 
-	if (!data || data_len < (sizeof(channel_list->avoidFreqRangeCount) +
+	if (data) {
+		if (data_len < (sizeof(channel_list->avoidFreqRangeCount) +
 				 sizeof(tHddAvoidFreqRange))) {
-		hddLog(LOGE, FL("Avoid frequency channel list empty"));
-		return -EINVAL;
-	}
-	num_args = (data_len - sizeof(channel_list->avoidFreqRangeCount)) /
-		   sizeof(channel_list->avoidFreqRange[0].startFreq);
+			hddLog(LOGE, FL("Avoid frequency channel list empty %d"), data_len);
+			return -EINVAL;
+		}
+		num_args = (data_len - sizeof(channel_list->avoidFreqRangeCount)) /
+			   sizeof(channel_list->avoidFreqRange[0].startFreq);
 
-	if (num_args < 2 || num_args > HDD_MAX_AVOID_FREQ_RANGES * 2 ||
-	    num_args % 2 != 0) {
-		hddLog(LOGE,FL("Invalid avoid frequency channel list"));
-		return -EINVAL;
-	}
+		if (num_args < 2 || num_args > HDD_MAX_AVOID_FREQ_RANGES * 2 ||
+		    num_args % 2 != 0) {
+			hddLog(LOGE,FL("Invalid avoid frequency channel list %d"), num_args);
+			return -EINVAL;
+		}
 
-	channel_list = (tHddAvoidFreqList *)data;
-	if (channel_list->avoidFreqRangeCount == 0 ||
-	    channel_list->avoidFreqRangeCount > HDD_MAX_AVOID_FREQ_RANGES ||
-	    2 * channel_list->avoidFreqRangeCount != num_args) {
-		hddLog(VOS_TRACE_LEVEL_ERROR, "Invalid freq range count %d",
-		       channel_list->avoidFreqRangeCount);
-		return -EINVAL;
+		channel_list = (tHddAvoidFreqList *)data;
+		if (channel_list->avoidFreqRangeCount == 0 ||
+		    channel_list->avoidFreqRangeCount > HDD_MAX_AVOID_FREQ_RANGES ||
+		    2 * channel_list->avoidFreqRangeCount != num_args) {
+			hddLog(VOS_TRACE_LEVEL_ERROR, "Invalid freq range count %d",
+			       channel_list->avoidFreqRangeCount);
+			return -EINVAL;
+		}
 	}
 
 	vos_get_wlan_unsafe_channel(hdd_ctx->unsafe_channel_list,
 			&(hdd_ctx->unsafe_channel_count),
 			sizeof(hdd_ctx->unsafe_channel_list));
 
-	hdd_ctx->unsafe_channel_count =
-		hdd_validate_avoid_freq_chanlist(hdd_ctx,
-						 channel_list);
+	if (channel_list) {
+		hdd_ctx->unsafe_channel_count =
+			hdd_validate_avoid_freq_chanlist(hdd_ctx,
+							 channel_list);
 
-	vos_set_wlan_unsafe_channel(hdd_ctx->unsafe_channel_list,
-			hdd_ctx->unsafe_channel_count);
+		vos_set_wlan_unsafe_channel(hdd_ctx->unsafe_channel_list,
+					    hdd_ctx->unsafe_channel_count);
+	}
 
 	for (unsafe_channel_index = 0;
 		unsafe_channel_index < hdd_ctx->unsafe_channel_count;
@@ -15074,7 +15078,7 @@ __hdd_cfg80211_get_station_cmd(struct wiphy *wiphy,
 	} else if (tb[STATION_ASSOC_FAIL_REASON]) {
 		status = hdd_get_station_assoc_fail(hdd_ctx, adapter);
 	} else if (tb[STATION_REMOTE]) {
-		v_MACADDR_t mac_addr;
+		v_MACADDR_t mac_addr = {0};
 
 		if (adapter->device_mode != WLAN_HDD_SOFTAP) {
 			hddLog(VOS_TRACE_LEVEL_INFO,
@@ -17576,7 +17580,7 @@ int wlan_hdd_cfg80211_update_apies(hdd_adapter_t* pHostapdAdapter)
     v_U16_t total_ielen = 0;
     int ret = 0;
     tsap_Config_t *pConfig;
-    tSirUpdateIE   updateIE;
+    tSirUpdateIE   updateIE = {0};
     beacon_data_t *pBeacon = NULL;
     v_U16_t proberesp_ies_len;
     v_U8_t *proberesp_ies = NULL;
@@ -17758,7 +17762,7 @@ VOS_STATUS wlan_hdd_validate_operation_channel(hdd_adapter_t *pAdapter,int chann
     if ( hdd_pConfig_ini->sapAllowAllChannel)
     {
          /* Validate the channel */
-        for (count = RF_CHAN_1 ; count <= RF_CHAN_165 ; count++)
+        for (count = RF_CHAN_1 ; count <= WLAN_END_CHANNEL_ENUM; count++)
         {
             if ( channel == rfChannels[count].channelNum )
             {
@@ -25830,7 +25834,7 @@ static int __wlan_hdd_cfg80211_join_ibss(struct wiphy *wiphy,
     int status;
     hdd_station_ctx_t *pHddStaCtx = WLAN_HDD_GET_STATION_CTX_PTR(pAdapter);
     hdd_context_t *pHddCtx = WLAN_HDD_GET_CTX(pAdapter);
-    tSirMacAddr bssid;
+    tSirMacAddr bssid = {0};
 
     ENTER();
 
@@ -26022,7 +26026,7 @@ static int __wlan_hdd_cfg80211_leave_ibss(struct wiphy *wiphy,
     tHalHandle hHal = WLAN_HDD_GET_HAL_CTX(pAdapter);
     int status;
     eHalStatus hal_status;
-    tSirUpdateIE updateIE;
+    tSirUpdateIE updateIE = {0};
 
     ENTER();
 
@@ -27412,7 +27416,7 @@ static int wlan_hdd_get_station_remote(struct wiphy *wiphy,
 	hdd_ap_ctx_t *ap_ctx = WLAN_HDD_GET_AP_CTX_PTR(adapter);
 	hdd_station_info_t *stainfo = NULL;
 	hdd_config_t *cfg = hddctx->cfg_ini;
-	v_MACADDR_t macaddr;
+	v_MACADDR_t macaddr = {0};
 	int status;
 	int i;
 

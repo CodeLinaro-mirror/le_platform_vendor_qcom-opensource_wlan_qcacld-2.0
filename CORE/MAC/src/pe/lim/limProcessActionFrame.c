@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2014, 2016-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2014, 2016-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -779,7 +779,7 @@ __limProcessAddTsRsp(tpAniSirGlobal pMac, tANI_U8 *pRxPacketInfo,tpPESession pse
     tpDphHashNode    pStaDs = NULL;
     tANI_U8          rspReqd = 1;
     tANI_U32   cfgLen;
-    tSirMacAddr  peerMacAddr;
+    tSirMacAddr  peerMacAddr = {0};
 
 
     pHdr = WDA_GET_RX_MAC_HEADER(pRxPacketInfo);

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2017, 2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2017, 2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -52,7 +52,7 @@
 
 /// 11h MAC defaults
 #define SIR_11A_CHANNEL_BEGIN           34
-#define SIR_11A_CHANNEL_END             165
+#define SIR_11A_CHANNEL_END             WLAN_END_CHANNEL_NUM
 #define SIR_11B_CHANNEL_BEGIN           1
 #define SIR_11B_CHANNEL_END             14
 #define SIR_11A_FREQUENCY_OFFSET        4

@@ -599,6 +599,7 @@ htt_t2h_lp_msg_handler(void *context, adf_nbuf_t htt_t2h_msg )
                                  freq, frag_num);
                     break;
                 }
+                buf = pdev->chan_cali_data_array[cali_data_idx].buf[frag_num - 1];
                 adf_os_print("additional alloc cali data for idx %d frag %d", cali_data_idx, frag_num);
             }
             /* set the length of the message */

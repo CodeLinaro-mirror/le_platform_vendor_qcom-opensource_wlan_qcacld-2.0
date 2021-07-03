@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2016 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2016, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -114,7 +114,7 @@ limProcessProbeRspFrame(tpAniSirGlobal pMac, tANI_U8 *pRxPacketInfo,tpPESession 
 {
     tANI_U8                 *pBody;
     tANI_U32                frameLen = 0;
-    tSirMacAddr             currentBssId;
+    tSirMacAddr             currentBssId = {0};
     tpSirMacMgmtHdr         pHdr;
     tSirProbeRespBeacon    *pProbeRsp;
     tANI_U8 qosEnabled =    false;

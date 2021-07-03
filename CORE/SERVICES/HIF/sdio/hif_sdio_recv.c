@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2014,2016-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2014,2016-2020, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1048,7 +1048,7 @@ static A_STATUS HIFDevIssueRecvPacketBundle(HIF_SDIO_DEVICE *pDev,
 { A_STATUS status = A_OK;
     int i, totalLength = 0;
     unsigned char    *pBundleBuffer = NULL;
-    HTC_PACKET *pPacket, *pPacketRxBundle;
+    HTC_PACKET *pPacket = NULL, *pPacketRxBundle;
     HTC_TARGET *target = NULL;
     A_UINT32 paddedLength;
 #ifdef HIF_RX_THREAD
@@ -1596,7 +1596,7 @@ static A_STATUS HIFDevProcessPendingIRQs(HIF_SDIO_DEVICE *pDev, A_BOOL *pDone,
 {
     A_STATUS status = A_OK;
     A_UINT8 host_int_status = 0;
-    A_UINT32 lookAhead[MAILBOX_USED_COUNT];
+    A_UINT32 lookAhead[MAILBOX_USED_COUNT] = {0};
     A_UINT32 lookAhead_part2[MAILBOX_USED_COUNT];
     int i;
 

@@ -99,7 +99,8 @@ static inline void vos_pm_wake_lock_init(vos_wake_lock_t *lock,
 	vos_mem_zero(lock, sizeof(*lock));
 	lock->priv = wakeup_source_register(lock->lock.dev, name);
 
-	lock->lock = *(lock->priv);
+	if (lock->priv)
+		lock->lock = *(lock->priv);
 }
 #else
 static inline void vos_pm_wake_lock_init(vos_wake_lock_t *lock,
@@ -145,7 +146,8 @@ static inline void vos_pm_wake_lock_release(vos_wake_lock_t *lock)
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 80))
 static inline void vos_pm_wake_lock_destroy(vos_wake_lock_t *lock)
 {
-	wakeup_source_unregister(lock->priv);
+	if (lock->priv)
+		wakeup_source_unregister(lock->priv);
 }
 #else
 static inline void vos_pm_wake_lock_destroy(vos_wake_lock_t * lock)
@@ -342,7 +344,8 @@ static inline void vos_pm_wake_lock_init(vos_wake_lock_t *lock,
 					 const char *name)
 {
 	cnss_pm_wake_lock_init(&(lock->priv), name);
-	lock->lock = *lock->priv;
+	if (lock->priv)
+		lock->lock = *lock->priv;
 }
 #else
 static inline void vos_pm_wake_lock_init(vos_wake_lock_t *lock,
@@ -370,7 +373,8 @@ static inline void vos_pm_wake_lock_release(vos_wake_lock_t *lock)
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 80))
 static inline void vos_pm_wake_lock_destroy(vos_wake_lock_t *lock)
 {
-	cnss_pm_wake_lock_destroy(lock->priv);
+	if (lock->priv)
+		cnss_pm_wake_lock_destroy(lock->priv);
 }
 
 static inline void vos_get_monotonic_boottime_ts(struct timespec *ts)

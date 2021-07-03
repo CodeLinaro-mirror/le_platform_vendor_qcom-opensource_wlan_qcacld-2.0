@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017, 2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2017, 2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -492,7 +492,7 @@ limDeletePreAuthNode(tpAniSirGlobal pMac, tSirMacAddr macAddr)
 void
 limRestoreFromAuthState(tpAniSirGlobal pMac, tSirResultCodes resultCode, tANI_U16 protStatusCode,tpPESession sessionEntry)
 {
-    tSirMacAddr     currentBssId;
+    tSirMacAddr     currentBssId = {0};
     tLimMlmAuthCnf  mlmAuthCnf;
 
 #ifdef FEATURE_WLAN_DIAG_SUPPORT

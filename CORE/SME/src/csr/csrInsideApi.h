@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2017, 2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2017, 2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -119,7 +119,7 @@
 #define CSR_ACTIVE_LIST_CMD_TIMEOUT_VALUE 1000*30*4  //120s
 #define CSR_MAX_BSSID_COUNT     ((CSR_ACTIVE_LIST_CMD_TIMEOUT_VALUE/4000) * 3)
 #define CSR_CUSTOM_CONC_GO_BI    100
-#define MIN_11P_CHANNEL 170
+#define MAX_SCAN_CHANNEL (WLAN_END_CHANNEL_NUM + 1)
 
 typedef enum
 {

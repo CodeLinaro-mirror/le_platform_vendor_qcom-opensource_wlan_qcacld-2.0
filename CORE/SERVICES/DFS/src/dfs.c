@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014, 2016-2017,2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2002-2014, 2016-2017,2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -244,7 +244,7 @@ OS_TIMER_FUNC(dfs_testtimer_task)
     struct ath_dfs *dfs = from_timer(dfs, t, ath_dfs_task_timer);
     struct ieee80211com *ic = dfs->ic;
 #else
-    struct ieee80211com *ic;
+    struct ieee80211com *ic = NULL;
     struct ath_dfs *dfs = NULL;
 
     OS_GET_TIMER_ARG(ic, struct ieee80211com *);

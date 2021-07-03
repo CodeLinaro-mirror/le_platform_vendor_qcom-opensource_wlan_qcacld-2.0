@@ -1270,7 +1270,7 @@ static void hdd_SendAssociationEvent(struct net_device *dev,tCsrRoamInfo *pCsrRo
     int we_event;
     char *msg;
     int type = -1;
-    v_MACADDR_t peerMacAddr;
+    v_MACADDR_t peerMacAddr = {0};
 
     hdd_adapter_t *mon_adapter = NULL;
 #if defined (WLAN_FEATURE_VOWIFI_11R)
@@ -2440,6 +2440,10 @@ static eHalStatus hdd_AssociationCompletionHandler( hdd_adapter_t *pAdapter, tCs
     hdd_ap_ctx_t *hdd_ap_ctx;
     uint8_t default_sap_channel = 6;
     tSirResultCodes timeout_reason = 0;
+
+    if (!pHddCtx)
+        return eHAL_STATUS_FAILURE;
+
 #ifdef WLAN_FEATURE_ROAM_OFFLOAD
     if (pRoamInfo && pRoamInfo->roamSynchInProgress) {
        /* change logging before release */

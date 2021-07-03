@@ -4264,8 +4264,9 @@ tSirRetStatus limStaSendAddBss( tpAniSirGlobal pMac, tpSirAssocRsp pAssocRsp,
                         pAddBssParams->staContext.vhtLdpcCapable =
                             (tANI_U8)pAssocRsp->VHTCaps.ldpcCodingCap;
                     else
-                        pAddBssParams->staContext.vhtLdpcCapable =
-                            (tANI_U8)vht_caps->ldpcCodingCap;
+                        if (vht_caps)
+                            pAddBssParams->staContext.vhtLdpcCapable =
+                                (tANI_U8)vht_caps->ldpcCodingCap;
                 } else {
                     pAddBssParams->staContext.vhtLdpcCapable = 0;
                 }

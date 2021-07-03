@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1357,7 +1357,7 @@ void wlan_hdd_roc_request_dequeue(struct work_struct *work)
 {
 	VOS_STATUS status;
 	int ret = 0;
-	hdd_roc_req_t *hdd_roc_req;
+	hdd_roc_req_t *hdd_roc_req = NULL;
 	hdd_context_t *hdd_ctx =
 			container_of(work, hdd_context_t, rocReqWork.work);
 

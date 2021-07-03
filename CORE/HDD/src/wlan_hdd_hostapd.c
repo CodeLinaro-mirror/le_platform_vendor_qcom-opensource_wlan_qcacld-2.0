@@ -7623,7 +7623,7 @@ __iw_get_softap_linkspeed(struct net_device *dev, struct iw_request_info *info,
    char *pmacAddress;
    v_U32_t link_speed = 0;
    int len = sizeof(v_U32_t)+1;
-   tSirMacAddr macAddress;
+   tSirMacAddr macAddress = {0};
    VOS_STATUS status = VOS_STATUS_E_FAILURE;
    int rc, valid, i;
 

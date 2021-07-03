@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -766,7 +766,7 @@ limCheckMgmtRegisteredFrames(tpAniSirGlobal pMac, tANI_U8 *pBd,
     tpLimMgmtFrameRegistration pLimMgmtRegistration = NULL, pNext = NULL;
     tANI_U16 frameType;
     tANI_U16 framelen;
-    tANI_U8 type,subType;
+    tANI_U8 type = 0, subType = 0;
     tANI_BOOLEAN match = VOS_FALSE;
     VOS_STATUS vosStatus;
 
@@ -882,6 +882,8 @@ limHandle80211Frames(tpAniSirGlobal pMac, tpSirMsgQ limMsg, tANI_U8 *pDeferMsg)
 
     *pDeferMsg= false;
     limGetBDfromRxPacket(pMac, limMsg->bodyptr, (tANI_U32 **)&pRxPacketInfo);
+    if (!pRxPacketInfo)
+        return;
 
     pHdr = WDA_GET_RX_MAC_HEADER(pRxPacketInfo);
     isFrmFt = WDA_GET_RX_FT_DONE(pRxPacketInfo);

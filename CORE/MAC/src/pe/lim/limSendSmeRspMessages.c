@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2018, 2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2018, 2020, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -2056,8 +2056,10 @@ limSendSmeDeauthNtf(tpAniSirGlobal pMac, tSirMacAddr peerMacAddr, tSirResultCode
     tpPESession         psessionEntry;
     tANI_U8             sessionId;
     tANI_U32            *pMsg;
+    tSirMacAddr null_bssid = { 0, 0, 0, 0, 0, 0 };
 
     psessionEntry = peFindSessionByBssid(pMac,peerMacAddr,&sessionId);
+
     switch (deauthTrigger)
     {
         case eLIM_HOST_DEAUTH:
@@ -2165,7 +2167,10 @@ limSendSmeDeauthNtf(tpAniSirGlobal pMac, tSirMacAddr peerMacAddr, tSirResultCode
             pBuf += sizeof(tSirResultCodes);
 
             //bssId
-            vos_mem_copy( pBuf, psessionEntry->bssId, sizeof(tSirMacAddr));
+	    if (!psessionEntry)
+		vos_mem_copy( pBuf, null_bssid, sizeof(tSirMacAddr));
+	    else
+		vos_mem_copy( pBuf, psessionEntry->bssId, sizeof(tSirMacAddr));
             pBuf += sizeof(tSirMacAddr);
 
             //peerMacAddr

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002-2014,2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2002-2014,2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -79,7 +79,7 @@ OS_TIMER_FUNC(dfs_remove_from_nol)
     struct dfs_nolelem *elem = from_timer(elem, t, nol_timer);
     struct dfs_nol_timer_arg *nol_arg = elem->dfs_timer_arg;
 #else
-    struct dfs_nol_timer_arg *nol_arg;
+    struct dfs_nol_timer_arg *nol_arg = NULL;
 #endif
     struct ath_dfs *dfs;
     struct ieee80211com *ic;

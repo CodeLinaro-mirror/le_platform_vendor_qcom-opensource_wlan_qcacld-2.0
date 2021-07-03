@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2017, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -200,7 +200,7 @@ static void
 radar_summary_parse(struct ath_dfs *dfs, const char *buf, size_t len,
     struct rx_radar_status *rsu)
 {
-   uint32_t rs[2];
+   uint32_t rs[2] = {0};
    int freq_centre, freq;
 
    /* Drop out if we have < 2 DWORDs available */
@@ -278,7 +278,7 @@ static void
 radar_fft_search_report_parse(struct ath_dfs *dfs, const char *buf, size_t len,
     struct rx_search_fft_report *rsfr)
 {
-   uint32_t rs[2];
+   uint32_t rs[2] = {0};
 
    /* Drop out if we have < 2 DWORDs available */
    if (len < sizeof(rs)) {
@@ -332,7 +332,7 @@ tlv_parse_frame(struct ath_dfs *dfs, struct rx_radar_status *rs,
     struct rx_search_fft_report *rsfr, const char *buf, size_t len, u_int8_t rssi)
 {
    int i = 0;
-   uint32_t tlv_hdr[1];
+   uint32_t tlv_hdr[1] = {0};
         bool first_tlv = true;
         bool false_detect = false;
 

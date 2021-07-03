@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -6433,7 +6433,7 @@ eHalStatus csrScanCopyRequest(tpAniSirGlobal pMac, tCsrScanRequest *pDstReq, tCs
                        {
                           NVchannel_state = vos_nv_getChannelEnabledState(
                                   pSrcReq->ChannelInfo.ChannelList[index]);
-                          if (pSrcReq->ChannelInfo.ChannelList[index] < MIN_11P_CHANNEL &&
+                          if (pSrcReq->ChannelInfo.ChannelList[index] < MAX_SCAN_CHANNEL &&
                               ((NV_CHANNEL_ENABLE == NVchannel_state) ||
                                   ((NV_CHANNEL_DFS == NVchannel_state) &&
                                     !skip_dfs_chnl)))
@@ -6464,7 +6464,7 @@ eHalStatus csrScanCopyRequest(tpAniSirGlobal pMac, tCsrScanRequest *pDstReq, tCs
                              * that is the only way to find p2p peers.
                              * This can happen only if band is set to 5Ghz mode.
                              */
-                            if(pSrcReq->ChannelInfo.ChannelList[index] < MIN_11P_CHANNEL &&
+                            if(pSrcReq->ChannelInfo.ChannelList[index] < MAX_SCAN_CHANNEL &&
                                ((csrRoamIsValidChannel(pMac, pSrcReq->ChannelInfo.ChannelList[index])) ||
                                ((eCSR_SCAN_P2P_DISCOVERY == pSrcReq->requestType) &&
                                 CSR_IS_SOCIAL_CHANNEL(pSrcReq->ChannelInfo.ChannelList[index]))))
@@ -6590,7 +6590,7 @@ eHalStatus csrScanCopyRequest(tpAniSirGlobal pMac, tCsrScanRequest *pDstReq, tCs
                                 index++ )
                         {
                             if (pSrcReq->ChannelInfo.ChannelList[index] <
-                                  MIN_11P_CHANNEL)
+                                  MAX_SCAN_CHANNEL)
                             {
                                 pDstReq->ChannelInfo.ChannelList[new_index] =
                                       pSrcReq->ChannelInfo.ChannelList[index];

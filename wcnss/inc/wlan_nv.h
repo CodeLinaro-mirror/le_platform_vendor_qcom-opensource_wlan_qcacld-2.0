@@ -66,6 +66,14 @@ typedef enum
 
 #define NV_FIELD_MAC_ADDR_SIZE      6
 #define NV_FIELD_MFG_SN_SIZE        40
+
+/*
+ * There are too many places define 5G band end channel, use these macros to
+ * unify 11a(c) mode end channel (non-dsrc).
+ */
+#define WLAN_END_CHANNEL_NUM 177
+#define WLAN_END_CHANNEL_ENUM RF_CHAN_177
+
 typedef enum
 {
     PRODUCT_BAND_11_B_G     = 0,    //Gen6.0 is only this setting

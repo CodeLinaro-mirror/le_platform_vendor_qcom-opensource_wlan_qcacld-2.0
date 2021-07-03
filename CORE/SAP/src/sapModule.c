@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -3953,11 +3953,13 @@ v_VOID_t WLANSAP_extend_to_acs_range(v_U8_t *startChannelNum,
                                (*endChannelNum + ACS_2G_EXTEND):14;
     } else {
         *bandStartChannel = RF_CHAN_36;
-        *bandEndChannel = RF_CHAN_165;
+        *bandEndChannel = WLAN_END_CHANNEL_ENUM;
         tmp_startChannelNum = (*startChannelNum - ACS_5G_EXTEND) > 36 ?
                                 (*startChannelNum - ACS_5G_EXTEND):36;
-        tmp_endChannelNum = (*endChannelNum + ACS_5G_EXTEND) <= 165 ?
-                             (*endChannelNum + ACS_5G_EXTEND):165;
+        tmp_endChannelNum = (*endChannelNum + ACS_5G_EXTEND) <=
+				WLAN_END_CHANNEL_NUM ?
+                             (*endChannelNum + ACS_5G_EXTEND):
+			     WLAN_END_CHANNEL_NUM;
     }
 
     /* Note if the ACS range include only DFS channels, do not cross the range.

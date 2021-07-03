@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013-2017 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013-2017, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -486,7 +486,7 @@ A_STATUS HTCAddReceivePktMultiple(HTC_HANDLE HTCHandle, HTC_PACKET_QUEUE *pPktQu
     HTC_ENDPOINT    *pEndpoint;
     HTC_PACKET      *pFirstPacket;
     A_STATUS        status = A_OK;
-    HTC_PACKET      *pPacket;
+    HTC_PACKET      *pPacket = NULL;
 
     pFirstPacket = HTC_GET_PKT_AT_HEAD(pPktQueue);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -722,7 +722,7 @@ void limSetDFSChannelList(tpAniSirGlobal pMac,tANI_U8 channelNum, tSirDFSChannel
 {
 
     tANI_BOOLEAN passiveToActive = TRUE;
-    if ((1 <= channelNum) && (165 >= channelNum))
+    if ((1 <= channelNum) && (WLAN_END_CHANNEL_NUM >= channelNum))
     {
        if (eANI_BOOLEAN_TRUE == limIsconnectedOnDFSChannel(channelNum))
        {
@@ -2426,7 +2426,7 @@ static void
 limProcessMlmAuthReq(tpAniSirGlobal pMac, tANI_U32 *pMsgBuf)
 {
     tANI_U32                numPreAuthContexts;
-    tSirMacAddr             currentBssId;
+    tSirMacAddr             currentBssId = {0};
     tLimMlmAuthCnf          mlmAuthCnf;
     struct tLimPreAuthNode  *preAuthNode;
     tpDphHashNode           pStaDs;
@@ -2875,7 +2875,7 @@ static void
 limProcessMlmDisassocReqNtf(tpAniSirGlobal pMac, eHalStatus suspendStatus, tANI_U32 *pMsgBuf)
 {
     tANI_U16                 aid;
-    tSirMacAddr              currentBssId;
+    tSirMacAddr              currentBssId = {0};
     tpDphHashNode            pStaDs;
     tLimMlmDisassocReq       *pMlmDisassocReq;
     tLimMlmDisassocCnf       mlmDisassocCnf;
@@ -3195,7 +3195,7 @@ static void
 limProcessMlmDeauthReqNtf(tpAniSirGlobal pMac, eHalStatus suspendStatus, tANI_U32 *pMsgBuf)
 {
     tANI_U16                aid;
-    tSirMacAddr             currentBssId;
+    tSirMacAddr             currentBssId = {0};
     tpDphHashNode           pStaDs;
     struct tLimPreAuthNode  *pAuthNode;
     tLimMlmDeauthReq        *pMlmDeauthReq;
@@ -3528,7 +3528,7 @@ limProcessMlmSetKeysReq(tpAniSirGlobal pMac, tANI_U32 *pMsgBuf)
 tANI_U16           aid;
 tANI_U16           staIdx = 0;
 tANI_U32           defaultKeyId = 0;
-tSirMacAddr        currentBssId;
+tSirMacAddr        currentBssId = {0};
 tpDphHashNode      pStaDs;
 tLimMlmSetKeysReq  *pMlmSetKeysReq;
 tLimMlmSetKeysCnf  mlmSetKeysCnf;
@@ -3711,7 +3711,7 @@ limProcessMlmRemoveKeyReq(tpAniSirGlobal pMac, tANI_U32 *pMsgBuf)
 {
 tANI_U16           aid;
 tANI_U16           staIdx = 0;
-tSirMacAddr        currentBssId;
+tSirMacAddr        currentBssId = {0};
 tpDphHashNode      pStaDs;
 tLimMlmRemoveKeyReq  *pMlmRemoveKeyReq;
 tLimMlmRemoveKeyCnf  mlmRemoveKeyCnf;

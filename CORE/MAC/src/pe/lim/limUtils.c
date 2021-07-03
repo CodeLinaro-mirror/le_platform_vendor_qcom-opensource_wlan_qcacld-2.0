@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -74,27 +74,6 @@
  * traffic instead of going into scan.  The recover function limProcessQuietBssTimeout() needs to have
  * this information. */
 static tAniBool glimTriggerBackgroundScanDuringQuietBss_Status = eSIR_TRUE;
-
-/* 11A Channel list to decode RX BD channel information */
-static const tANI_U8 abChannel[]= {36,40,44,48,52,56,60,64,100,104,108,112,116,
-            120,124,128,132,136,140,149,153,157,161,165
-#ifdef FEATURE_WLAN_CH144
-                ,144
-#endif
-};
-#define abChannelSize (sizeof(abChannel)/  \
-        sizeof(abChannel[0]))
-
-#ifdef WLAN_FEATURE_ROAM_SCAN_OFFLOAD
-static const tANI_U8 aUnsortedChannelList[]= {52,56,60,64,100,104,108,112,116,
-            120,124,128,132,136,140,36,40,44,48,149,153,157,161,165
-#ifdef FEATURE_WLAN_CH144
-                ,144
-#endif
-};
-#define aUnsortedChannelListSize (sizeof(aUnsortedChannelList)/  \
-        sizeof(aUnsortedChannelList[0]))
-#endif
 
 #define SUCCESS 1
 
@@ -5063,7 +5042,7 @@ limProcessDelTsInd(tpAniSirGlobal pMac, tpSirMsgQ limMsg)
   tpDphHashNode         pSta;
   tpDelTsParams         pDelTsParam = (tpDelTsParams) (limMsg->bodyptr);
   tpSirDeltsReq         pDelTsReq = NULL;
-  tSirMacAddr           peerMacAddr;
+  tSirMacAddr           peerMacAddr = {0};
   tpSirDeltsReqInfo     pDelTsReqInfo;
   tpLimTspecInfo        pTspecInfo;
   tpPESession           psessionEntry;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2017 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2017, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -356,7 +356,7 @@ limProcessAssocRspFrame(tpAniSirGlobal pMac, tANI_U8 *pRxPacketInfo, tANI_U8 sub
     tANI_U8               *pBody;
     tANI_U16              caps;
     tANI_U32              frameLen;
-    tSirMacAddr           currentBssId;
+    tSirMacAddr           currentBssId = {0};
     tpSirMacMgmtHdr       pHdr = NULL;
     tSirMacCapabilityInfo localCapabilities;
     tpDphHashNode         pStaDs;

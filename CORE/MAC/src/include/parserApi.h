@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -52,7 +52,7 @@
 #define HIGHEST_24GHZ_CHANNEL_NUM  ( 14 )
 
 #define IS_24G_CH(__chNum) ((__chNum > 0) && (__chNum < 15))
-#define IS_5G_CH(__chNum) ((__chNum >= 36) && (__chNum <= 165))
+#define IS_5G_CH(__chNum) ((__chNum >= 36) && (__chNum <= WLAN_END_CHANNEL_NUM))
 #define IS_2X2_CHAIN(__chain) ((__chain & 0x3) == 0x3)
 #define DISABLE_NSS2_MCS 0xC
 

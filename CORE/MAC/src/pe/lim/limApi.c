@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -2800,7 +2800,7 @@ static const struct rsn_oui_akm_type_map rsn_oui_akm_type_mapping_table[] = {
 enum ani_akm_type lim_translate_rsn_oui_to_akm_type(uint8_t auth_suite[4])
 {
 	const struct rsn_oui_akm_type_map *map;
-	enum ani_akm_type akm_type;
+	enum ani_akm_type akm_type = ANI_AKM_TYPE_NONE;
 
 	map = rsn_oui_akm_type_mapping_table;
 	while (true) {

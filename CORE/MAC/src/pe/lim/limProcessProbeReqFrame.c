@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2017, 2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2017, 2019, 2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -356,7 +356,7 @@ limProcessProbeReqFrame(tpAniSirGlobal pMac, tANI_U8 *pRxPacketInfo,tpPESession 
     tANI_U8             *pBody;
     tpSirMacMgmtHdr     pHdr;
     tANI_U32            frameLen;
-    tSirProbeReq        probeReq;
+    tSirProbeReq        probeReq = {0};
     tAniSSID            ssId;
     tSirMsgQ            msgQ;
     tSirSmeProbeReq     *pSirSmeProbeReq;
