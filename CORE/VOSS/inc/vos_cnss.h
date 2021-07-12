@@ -347,13 +347,48 @@ static inline void vos_pm_wake_lock_init(vos_wake_lock_t *lock,
 	if (lock->priv)
 		lock->lock = *lock->priv;
 }
+
+static inline void vos_pm_wake_lock(vos_wake_lock_t *lock)
+{
+	if (lock->priv)
+		cnss_pm_wake_lock(lock->priv);
+}
+
+static inline void vos_pm_wake_lock_timeout(vos_wake_lock_t *lock,
+					    ulong msec)
+{
+	if (lock->priv)
+		cnss_pm_wake_lock_timeout(lock->priv, msec);
+}
+
+static inline void vos_pm_wake_lock_release(vos_wake_lock_t *lock)
+{
+	if (lock->priv)
+		cnss_pm_wake_lock_release(lock->priv);
+}
+
+static inline void vos_pm_wake_lock_destroy(vos_wake_lock_t *lock)
+{
+	if (lock->priv)
+		cnss_pm_wake_lock_destroy(lock->priv);
+}
+
+static inline void vos_get_monotonic_boottime_ts(struct timespec *ts)
+{
+	struct timespec64 ts64;
+
+	cnss_get_monotonic_boottime(&ts64);
+	ts->tv_sec = ts64.tv_sec;
+	ts->tv_nsec = ts64.tv_nsec;
+}
+
 #else
 static inline void vos_pm_wake_lock_init(vos_wake_lock_t *lock,
 					 const char *name)
 {
 	cnss_pm_wake_lock_init(&(lock->lock), name);
 }
-#endif
+
 static inline void vos_pm_wake_lock(vos_wake_lock_t *lock)
 {
 	cnss_pm_wake_lock(&(lock->lock));
@@ -370,22 +405,6 @@ static inline void vos_pm_wake_lock_release(vos_wake_lock_t *lock)
 	cnss_pm_wake_lock_release(&(lock->lock));
 }
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 80))
-static inline void vos_pm_wake_lock_destroy(vos_wake_lock_t *lock)
-{
-	if (lock->priv)
-		cnss_pm_wake_lock_destroy(lock->priv);
-}
-
-static inline void vos_get_monotonic_boottime_ts(struct timespec *ts)
-{
-	struct timespec64 ts64;
-
-	cnss_get_monotonic_boottime(&ts64);
-	ts->tv_sec = ts64.tv_sec;
-	ts->tv_nsec = ts64.tv_nsec;
-}
-#else
 static inline void vos_pm_wake_lock_destroy(vos_wake_lock_t *lock)
 {
 	cnss_pm_wake_lock_destroy(&(lock->lock));
