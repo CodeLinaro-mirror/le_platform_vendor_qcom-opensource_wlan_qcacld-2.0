@@ -2819,6 +2819,26 @@ static eHalStatus hdd_AssociationCompletionHandler( hdd_adapter_t *pAdapter, tCs
                     WLAN_WAKE_ALL_NETIF_QUEUE,
                     WLAN_CONTROL_PATH);
 
+#ifdef QCA_LL_TX_FLOW_CT
+                if (pAdapter->tx_flow_timer_initialized == VOS_FALSE) {
+                   vos_timer_init(&pAdapter->tx_flow_control_timer,
+                                  VOS_TIMER_TYPE_SW,
+                                  hdd_tx_resume_timer_expired_handler,
+                                  pAdapter);
+                   pAdapter->tx_flow_timer_initialized = VOS_TRUE;
+                }
+
+                if ((pAdapter->device_mode == WLAN_HDD_INFRA_STATION)
+                    || (pAdapter->device_mode == WLAN_HDD_P2P_CLIENT)
+                    || (pAdapter->device_mode == WLAN_HDD_P2P_DEVICE))
+                {
+                     WLANTL_RegisterTXFlowControl(pHddCtx->pvosContext,
+                                 hdd_tx_resume_cb,
+                                 pAdapter->sessionId,
+                                (void *)pAdapter);
+                }
+#endif /* QCA_LL_TX_FLOW_CT */
+
                 // Register the Station with TL after associated...
                 vosStatus = hdd_roamRegisterSTA( pAdapter,
                         pRoamInfo,
