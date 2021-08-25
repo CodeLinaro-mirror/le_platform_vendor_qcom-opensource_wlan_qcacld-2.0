@@ -13475,6 +13475,8 @@ A_UINT32 eCsrAuthType_to_rsn_authmode (eCsrAuthType authtype, eCsrEncryptionType
     switch(authtype) {
         case    eCSR_AUTH_TYPE_OPEN_SYSTEM:
             return (WMI_AUTH_OPEN);
+        case    eCSR_AUTH_TYPE_SHARED_KEY:
+            return (WMI_AUTH_SHARED);
         case    eCSR_AUTH_TYPE_WPA:
             return (WMI_AUTH_WPA);
         case    eCSR_AUTH_TYPE_WPA_PSK:
