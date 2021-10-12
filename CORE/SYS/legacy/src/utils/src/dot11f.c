@@ -22765,7 +22765,6 @@ static tANI_U32 UnpackTlvCore( tpAniSirGlobal   pCtx,
            // & length,
            if ( pTlv->sLen == 2)
            {
-              framesntohs(pCtx, &len, pBufRemaining, pTlv->fMsb);
               if ( 2 > nBufRemaining )
               {
                   FRAMES_LOG0( pCtx, FRLOGE, FRFL("This frame reports "
@@ -22774,6 +22773,7 @@ static tANI_U32 UnpackTlvCore( tpAniSirGlobal   pCtx,
                   FRAMES_DBG_BREAK();
                   goto MandatoryCheck;
               }
+              framesntohs(pCtx, &len, pBufRemaining, pTlv->fMsb);
               pBufRemaining += 2;
               nBufRemaining -= 2;
            }else
@@ -22785,9 +22785,16 @@ static tANI_U32 UnpackTlvCore( tpAniSirGlobal   pCtx,
         }
         else
         {
+           if ( TLVs[0].sType > nBufRemaining )
+           {
+               FRAMES_LOG0( pCtx, FRLOGE, FRFL("This frame reports "
+                                               "fewer TLVs[0].sType byte(s) remaining.\n") );
+               status |= DOT11F_INCOMPLETE_TLV;
+               FRAMES_DBG_BREAK();
+               goto MandatoryCheck;
+           }
            pBufRemaining += TLVs[0].sType;
            nBufRemaining -= TLVs[0].sType;
-           framesntohs(pCtx, &len, pBufRemaining, (TLVs[0].sType == 2));
            if ( 2 > nBufRemaining )
            {
               FRAMES_LOG0( pCtx, FRLOGE, FRFL("This frame reports "
@@ -22796,6 +22803,7 @@ static tANI_U32 UnpackTlvCore( tpAniSirGlobal   pCtx,
               FRAMES_DBG_BREAK();
               goto MandatoryCheck;
            }
+           framesntohs(pCtx, &len, pBufRemaining, (TLVs[0].sType == 2));
            pBufRemaining += 2;
            nBufRemaining -= 2;
         }
