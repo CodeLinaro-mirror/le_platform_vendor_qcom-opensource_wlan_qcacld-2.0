@@ -17381,12 +17381,6 @@ int hdd_wlan_startup(struct device *dev, v_VOID_t *hif_sc)
          goto err_vosclose;
       }
 
-#ifdef CLD_REGDB
-      if ((wiphy) && country_code) {
-          regulatory_hint(wiphy, country_code);
-      }
-#endif
-
       if (0 != vos_set_sleep_power_mode(dev,
           pHddCtx->cfg_ini->sleep_power_mode)) {
          hddLog(VOS_TRACE_LEVEL_ERROR,
@@ -17464,16 +17458,6 @@ int hdd_wlan_startup(struct device *dev, v_VOID_t *hif_sc)
               "%s: WMI_PDEV_PARAM_ARP_AC_OVERRIDE failed AC: %d ret: %d",
               __func__, pHddCtx->cfg_ini->arp_ac_category, ret);
    }
-
-#ifdef CLD_REGDB
-   if (country_code)
-   {
-       pHddCtx->reg.alpha2[0] = country_code[0];
-       pHddCtx->reg.alpha2[1] = country_code[1];
-       pHddCtx->reg.cc_src = NL80211_REGDOM_SET_BY_DRIVER;
-       pHddCtx->reg.dfs_region = 0;
-   }
-#endif
 
    status = hdd_set_sme_chan_list(pHddCtx);
    if (status != VOS_STATUS_SUCCESS) {
