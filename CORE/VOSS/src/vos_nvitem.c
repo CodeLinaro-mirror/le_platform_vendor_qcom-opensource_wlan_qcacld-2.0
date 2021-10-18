@@ -567,29 +567,6 @@ void vos_reset_global_reg_params()
 	init_by_reg_core = false;
 }
 
-#ifdef CLD_REGDB
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0))
-static struct ieee80211_regdomain *
-reg_copy_regd(const struct ieee80211_regdomain *src_regd)
-{
-	struct ieee80211_regdomain *regd;
-	unsigned int i;
-
-	regd = kzalloc(struct_size(regd, reg_rules, src_regd->n_reg_rules),
-		       GFP_KERNEL);
-	if (!regd)
-		return ERR_PTR(-ENOMEM);
-
-	memcpy(regd, src_regd, sizeof(struct ieee80211_regdomain));
-	for (i = 0; i < src_regd->n_reg_rules; i++)
-		memcpy(&regd->reg_rules[i], &src_regd->reg_rules[i],
-		       sizeof(struct ieee80211_reg_rule));
-
-	return regd;
-}
-#endif
-#endif
-
 static int regd_init_wiphy(hdd_context_t *pHddCtx, struct regulatory *reg,
 			   struct wiphy *wiphy)
 {
@@ -628,9 +605,8 @@ static int regd_init_wiphy(hdd_context_t *pHddCtx, struct regulatory *reg,
 	pHddCtx->reg.reg_flags = wiphy->flags;
 #endif
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 4, 0))
 	wiphy_apply_custom_regulatory(wiphy, regd);
-#endif
+
 	/*
 	 * restore the driver regulatory flags since
 	 * wiphy_apply_custom_regulatory may have
@@ -1946,10 +1922,7 @@ static int create_linux_regulatory_entry(v_REGDOMAIN_t temp_reg_domain,
 #endif
     const struct ieee80211_reg_rule *reg_rule;
 #ifdef CLD_REGDB
-    const struct ieee80211_regdomain *regd;
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0))
-    struct ieee80211_regdomain *rd;
-#endif
+    const struct ieee80211_regdomain* regd;
 #endif
     pVosContext = vos_get_global_context(VOS_MODULE_ID_SYS, NULL);
 
@@ -1985,17 +1958,6 @@ static int create_linux_regulatory_entry(v_REGDOMAIN_t temp_reg_domain,
                   "error: pnvEFSTable is NULL, probably not parsed nv.bin yet");
         return -1;
     }
-
-#ifdef CLD_REGDB
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0))
-    wiphy->regulatory_flags = REGULATORY_WIPHY_SELF_MANAGED;
-    regd = search_regd(pHddCtx->reg.alpha2);
-    rd = reg_copy_regd(regd);
-    regulatory_set_wiphy_regd(wiphy, rd);
-    kfree(rd);
-#endif
-#endif
-
     vos_mem_zero(pnvEFSTable->halnv.tables.regDomains[temp_reg_domain].channels,
 		 NUM_RF_CHANNELS * sizeof(sRegulatoryChannel));
 
@@ -2277,7 +2239,6 @@ static int create_linux_regulatory_entry(v_REGDOMAIN_t temp_reg_domain,
        return -1;
 
     vos_update_band(nBandCapability);
-
     return 0;
 }
 
