@@ -1999,24 +1999,18 @@ static int create_linux_regulatory_entry(v_REGDOMAIN_t temp_reg_domain,
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)) && defined(CLD_REGDB)
     wiphy->regulatory_flags = REGULATORY_WIPHY_SELF_MANAGED;
     regd = search_regd(pHddCtx->reg.alpha2);
-    if (regd) {
-        rd = reg_copy_regd(regd);
-        if (!rtnl_is_locked()) {
-            rtnl_lock();
-            rtnl_locked = true;
-        }
-        ret = regulatory_set_wiphy_regd_sync_rtnl(wiphy, rd);
-        if (ret)
-            VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                      "regulatory set wiphy regd err:%d", ret);
-        if (rtnl_locked)
-            rtnl_unlock();
-        kfree(rd);
-    } else {
-        VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
-                  "unknown alpha2 %c%c", pHddCtx->reg.alpha2[0],
-		  pHddCtx->reg.alpha2[1]);
+    rd = reg_copy_regd(regd);
+    if (!rtnl_is_locked()) {
+        rtnl_lock();
+        rtnl_locked = true;
     }
+    ret = regulatory_set_wiphy_regd_sync_rtnl(wiphy, rd);
+    if (ret)
+        VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
+                  "regulatory set wiphy regd err:%d", ret);
+    if (rtnl_locked)
+        rtnl_unlock();
+    kfree(rd);
 #endif
 
     vos_mem_zero(pnvEFSTable->halnv.tables.regDomains[temp_reg_domain].channels,
