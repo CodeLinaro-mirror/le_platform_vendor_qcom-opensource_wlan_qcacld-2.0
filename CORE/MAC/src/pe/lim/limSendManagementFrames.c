@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011-2016 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2021 The Linux Foundation. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -2071,10 +2071,14 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
     tANI_U8            *pIe = NULL;
     tANI_U32            ieLen = 0;
     tANI_U32            fixed_param_len = 0;
+    tANI_U8             *rsnx_ie = NULL;
+    tANI_U16            rsnx_ie_len = 0;
+    eHalStatus          status;
 
     if(NULL == psessionEntry)
     {
         limLog(pMac, LOGE, FL("psessionEntry is NULL") );
+        vos_mem_free(pMlmAssocReq);
         return;
     }
 
@@ -2084,6 +2088,7 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
     if(NULL == psessionEntry->pLimJoinReq)
     {
         limLog(pMac, LOGE, FL("psessionEntry->pLimJoinReq is NULL") );
+        vos_mem_free(pMlmAssocReq);
         return;
     }
     nAddIELen = psessionEntry->pLimJoinReq->addIEAssoc.length;
@@ -2093,6 +2098,7 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
     if ( NULL == pFrm )
     {
         limLog(pMac, LOGE, FL("Unable to allocate memory") );
+        vos_mem_free(pMlmAssocReq);
         return;
     }
 
@@ -2355,6 +2361,22 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
                                             &pFrm->QComVendorIE,
                                             psessionEntry);
 
+    /* RSNX IE for SAE PWE derivation based on H2E */
+    if (lim_get_ie_ptr(pAddIE, nAddIELen, WLAN_ELEMID_RSNXE)) {
+        rsnx_ie = vos_mem_malloc(WLAN_MAX_IE_LEN + 2);
+        if (!rsnx_ie)
+            goto end;
+
+        status = lim_strip_ie(pMac, pAddIE, &nAddIELen,
+                              WLAN_ELEMID_RSNXE, ONE_BYTE,
+                              NULL, 0, rsnx_ie, WLAN_MAX_IE_LEN);
+        if (eHAL_STATUS_SUCCESS != status) {
+            limLog(pMac, LOGE,("Failed to strip Vendor IEs"));
+            goto end;
+        }
+        rsnx_ie_len = rsnx_ie[1] + 2;
+    }
+
     nStatus = dot11fGetPackedAssocRequestSize(pMac, pFrm, &nPayload);
     if (DOT11F_FAILED(nStatus))
     {
@@ -2371,7 +2393,7 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
              nStatus);
     }
 
-    nBytes = nPayload + sizeof(tSirMacMgmtHdr) + nAddIELen;
+    nBytes = nPayload + sizeof(tSirMacMgmtHdr) + rsnx_ie_len + nAddIELen;
 
     halstatus = palPktAlloc( pMac->hHdd, HAL_TXRX_FRM_802_11_MGMT,
             ( tANI_U16 )nBytes, ( void** ) &pFrame,
@@ -2393,9 +2415,7 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
 
         limPostSmeMessage( pMac, LIM_MLM_ASSOC_CNF,
                 ( tANI_U32* ) &mlmAssocCnf);
-
-        vos_mem_free(pFrm);
-        return;
+        goto end;
     }
 
     // Paranoia:
@@ -2410,8 +2430,7 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
                     "tor for an Association Request (%d)."),
                 nSirStatus );
         palPktFree( pMac->hHdd, HAL_TXRX_FRM_802_11_MGMT, ( void* ) pFrame, ( void* ) pPacket );
-        vos_mem_free(pFrm);
-        return;
+        goto end;
     }
     // That done, pack the Assoc Request:
     nStatus = dot11fPackAssocRequest( pMac, pFrm, pFrame +
@@ -2424,13 +2443,18 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
                 nStatus );
         palPktFree( pMac->hHdd, HAL_TXRX_FRM_802_11_MGMT,
                 ( void* ) pFrame, ( void* ) pPacket );
-        vos_mem_free(pFrm);
-        return;
+        goto end;
     }
     else if ( DOT11F_WARNED( nStatus ) )
     {
         limLog( pMac, LOGW, FL("There were warnings while packing a Assoc"
                                "Request (0x%08x)."), nStatus );
+    }
+
+    if (rsnx_ie && rsnx_ie_len) {
+        vos_mem_copy(pFrame + sizeof(tSirMacMgmtHdr) + nPayload,
+                     rsnx_ie, rsnx_ie_len);
+        nPayload = nPayload + rsnx_ie_len;
     }
 
     PELOG1(limLog( pMac, LOG1, FL("*** Sending Association Request length %d"
@@ -2497,11 +2521,10 @@ limSendAssocReqMgmtFrame(tpAniSirGlobal   pMac,
         limLog( pMac, LOGE, FL("Failed to send Association Request (%X)!"),
                 halstatus );
         //Pkt will be freed up by the callback
-        vos_mem_free(pFrm);
-        return;
     }
-
+end:
     // Free up buffer allocated for mlmAssocReq
+    vos_mem_free(rsnx_ie);
     vos_mem_free(pMlmAssocReq);
     pMlmAssocReq = NULL;
     vos_mem_free(pFrm);
