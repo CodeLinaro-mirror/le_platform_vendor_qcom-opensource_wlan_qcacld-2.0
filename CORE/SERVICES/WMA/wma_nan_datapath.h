@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2016 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2021 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -30,6 +31,8 @@
 #include "wma.h"
 #include "sirApi.h"
 #include "sme_nan_datapath.h"
+
+#define NDP_APP_INFO_LEN 255
 
 #ifdef WLAN_FEATURE_NAN_DATAPATH
 #define WMA_IS_VDEV_IN_NDI_MODE(intf, vdev_id) \
