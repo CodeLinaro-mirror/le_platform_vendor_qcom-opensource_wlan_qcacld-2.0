@@ -34,6 +34,7 @@
 #include "wma_api.h"
 #include "wlan_hdd_assoc.h"
 #include "sme_nan_datapath.h"
+#include "wma_nan_datapath.h"
 
 /* NLA policy */
 static const struct nla_policy
