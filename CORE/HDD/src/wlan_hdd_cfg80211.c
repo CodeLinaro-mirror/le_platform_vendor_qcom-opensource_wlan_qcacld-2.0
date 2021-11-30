@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2012-2017 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2021 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -15797,7 +15798,7 @@ int wlan_hdd_cfg80211_update_apies(hdd_adapter_t* pHostapdAdapter)
     wlan_hdd_add_extra_ie(pHostapdAdapter, genie, &total_ielen,
                           WLAN_EID_VHT_TX_POWER_ENVELOPE);
     wlan_hdd_add_extra_ie(pHostapdAdapter, genie, &total_ielen,
-                          WLAN_ELEMID_RSNXE);
+                          IEEE80211_ELEMID_RSNXE);
     if (0 != wlan_hdd_add_ie(pHostapdAdapter, genie,
                               &total_ielen, WPS_OUI_TYPE, WPS_OUI_TYPE_SIZE))
     {
@@ -15873,7 +15874,7 @@ int wlan_hdd_cfg80211_update_apies(hdd_adapter_t* pHostapdAdapter)
     wlan_hdd_add_sap_obss_scan_ie(pHostapdAdapter, genie, &total_ielen);
 
     wlan_hdd_add_extra_ie(pHostapdAdapter, genie, &total_ielen,
-                          WLAN_ELEMID_RSNXE);
+                          IEEE80211_ELEMID_RSNXE);
     if (test_bit(SOFTAP_BSS_STARTED, &pHostapdAdapter->event_flags)) {
         updateIE.ieBufferlength = total_ielen;
         updateIE.pAdditionIEBuffer = genie;
@@ -22588,7 +22589,7 @@ int wlan_hdd_cfg80211_set_ie(hdd_adapter_t *pAdapter,
                 }
                 break;
 #endif
-            case WLAN_ELEMID_RSNXE:
+            case IEEE80211_ELEMID_RSNXE:
                 hddLog (VOS_TRACE_LEVEL_INFO, "%s Set RSNXE(len %d)",
                         __func__, eLen + 2);
 
