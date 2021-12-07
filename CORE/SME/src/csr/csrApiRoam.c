@@ -73,6 +73,7 @@
 #include <wlan_logging_sock_svc.h>
 #include "sme_nan_datapath.h"
 #include "cfgApi.h"
+#include  <ieee80211_common.h>
 
 #define MAX_PWR_FCC_CHAN_12 8
 #define MAX_PWR_FCC_CHAN_13 2
@@ -12961,7 +12962,7 @@ static void csrRoamGetBssStartParms(tpAniSirGlobal pMac,
 				&rates_hostapd);
 	}
 	if (pProfile->require_h2e) {
-		h2e = BASIC_RATE_MASK |
+		h2e = WLAN_BASIC_RATE_MASK |
 		      WLAN_BSS_MEMBERSHIP_SELECTOR_SAE_H2E;
 		if (ext_rates->numRates < SIR_MAC_MAX_NUMBER_OF_RATES) {
 			ext_rates->rate[ext_rates->numRates] = h2e;
