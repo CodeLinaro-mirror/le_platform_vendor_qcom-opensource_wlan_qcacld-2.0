@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2021 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2021-2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -16948,6 +16948,9 @@ int hdd_wlan_startup(struct device *dev, v_VOID_t *hif_sc)
 #ifdef QCA_ARP_SPOOFING_WAR
    adf_os_device_t adf_ctx;
 #endif
+#ifdef CLD_REGDB
+   const struct ieee80211_regdomain *regd;
+#endif
    int set_value;
    struct sme_5g_band_pref_params band_pref_params;
    tpAniSirGlobal mac_ptr;
@@ -17469,8 +17472,13 @@ int hdd_wlan_startup(struct device *dev, v_VOID_t *hif_sc)
       pHddCtx->reg.alpha2[0] = country_code[0];
       pHddCtx->reg.alpha2[1] = country_code[1];
       pHddCtx->reg.cc_src = NL80211_REGDOM_SET_BY_DRIVER;
-      pHddCtx->reg.dfs_region = 0;
    }
+   regd = vos_search_regd(pHddCtx->reg.alpha2);
+   if (!regd) {
+      hddLog(LOGE, "unknown alpha2 %c%c", country_code[0], country_code[1]);
+      goto err_wiphy_unregister;
+   }
+   pHddCtx->reg.dfs_region = regd->dfs_region;
 #endif
 
    status = hdd_set_sme_chan_list(pHddCtx);
