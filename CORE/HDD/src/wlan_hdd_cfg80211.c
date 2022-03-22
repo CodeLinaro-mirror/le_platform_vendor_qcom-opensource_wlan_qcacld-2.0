@@ -396,7 +396,6 @@ static struct ieee80211_supported_band wlan_hdd_band_2_4_GHZ =
     .ht_cap.mcs.tx_params  = IEEE80211_HT_MCS_TX_DEFINED,
     .vht_cap.cap = IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_11454
                             | IEEE80211_VHT_CAP_SHORT_GI_80
-                            | IEEE80211_VHT_CAP_TXSTBC
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(3,4,0)) || defined(WITH_BACKPORTS)
                             | (IEEE80211_VHT_CAP_RXSTBC_MASK &
                               ( IEEE80211_VHT_CAP_RXSTBC_1
@@ -427,7 +426,6 @@ static struct ieee80211_supported_band wlan_hdd_band_5_GHZ =
     .vht_cap.vht_supported = 1,
     .vht_cap.cap = IEEE80211_VHT_CAP_MAX_MPDU_LENGTH_11454
                  | IEEE80211_VHT_CAP_SHORT_GI_80
-                 | IEEE80211_VHT_CAP_TXSTBC
 #if (LINUX_VERSION_CODE > KERNEL_VERSION(3,4,0))
                  | (IEEE80211_VHT_CAP_RXSTBC_MASK &
                    ( IEEE80211_VHT_CAP_RXSTBC_1
@@ -16941,6 +16939,23 @@ void wlan_hdd_update_wiphy(struct wiphy *wiphy,
             wiphy->bands[IEEE80211_BAND_5GHZ]->ht_cap.cap |=
                                                     IEEE80211_HT_CAP_TX_STBC;
     }
+
+    status = ccmCfgGetInt(ctx->hHal, WNI_CFG_VHT_TXSTBC, &val32);
+    if (status != eHAL_STATUS_SUCCESS) {
+        VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
+                  "%s: could not get VHT TX STBC",
+                  __func__);
+        val32 = 0;
+    }
+
+    if (val32) {
+        if (NULL != wiphy->bands[IEEE80211_BAND_2GHZ])
+            wiphy->bands[IEEE80211_BAND_2GHZ]->vht_cap.cap |=
+                                                    IEEE80211_VHT_CAP_TXSTBC;
+        if (NULL != wiphy->bands[IEEE80211_BAND_5GHZ])
+            wiphy->bands[IEEE80211_BAND_5GHZ]->vht_cap.cap |=
+                                                    IEEE80211_VHT_CAP_TXSTBC;
+    }
 }
 
 /* In this function we are registering wiphy. */
@@ -18329,6 +18344,27 @@ static inline int wlan_hdd_set_udp_resp_offload(hdd_adapter_t *padapter,
 }
 #endif
 
+/**
+ * wlan_hdd_check_h2e() - check SAE/H2E require flag from support rate sets
+ * @rs: support rate or extended support rate set
+ * @require_h2e: pointer to store require h2e flag
+ *
+ * Return: none
+ */
+static void wlan_hdd_check_h2e(const tSirMacRateSet *rs, bool *require_h2e)
+{
+	uint8_t i;
+
+	if (!rs || !require_h2e)
+		return;
+
+	for (i = 0; i < rs->numRates; i++) {
+		if (rs->rate[i] == (BASIC_RATE_MASK |
+				    WLAN_BSS_MEMBERSHIP_SELECTOR_SAE_H2E))
+			*require_h2e = true;
+	}
+}
+
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,4,0)) && !defined(WITH_BACKPORTS)
 static int wlan_hdd_cfg80211_start_bss(hdd_adapter_t *pHostapdAdapter,
                             struct beacon_parameters *params)
@@ -18899,6 +18935,11 @@ static int wlan_hdd_cfg80211_start_bss(hdd_adapter_t *pHostapdAdapter,
                             pConfig->extended_rates.rate[i]);
                 }
         }
+        pConfig->require_h2e = false;
+        wlan_hdd_check_h2e(&pConfig->supported_rates,
+                           &pConfig->require_h2e);
+        wlan_hdd_check_h2e(&pConfig->extended_rates,
+                           &pConfig->require_h2e);
     }
 
     wlan_hdd_set_sapHwmode(pHostapdAdapter);

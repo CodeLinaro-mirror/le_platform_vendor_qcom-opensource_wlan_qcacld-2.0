@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2021 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2021-2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1535,7 +1535,7 @@ VOS_STATUS vos_nv_getRegDomainFromCountryCode( v_REGDOMAIN_t *pRegDomain,
 	    request.alpha2[0] = pHddCtx->reg.alpha2[0];
 	    request.alpha2[1] = pHddCtx->reg.alpha2[1];
 	    request.initiator = NL80211_REGDOM_SET_BY_DRIVER;
-	    request.dfs_region = 0;
+	    request.dfs_region = pHddCtx->reg.dfs_region;
 	    wiphy->reg_notifier(wiphy, &request);
 #endif
         }
@@ -1792,7 +1792,7 @@ int vos_update_band(v_U8_t  band_capability)
 }
 
 #ifdef CLD_REGDB
-static const struct ieee80211_regdomain *
+const struct ieee80211_regdomain *
 vos_search_regd(const char* alpha2)
 {
 	const struct ieee80211_regdomain *regdomain;
