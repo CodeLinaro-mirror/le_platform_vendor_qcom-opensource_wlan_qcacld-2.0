@@ -7962,6 +7962,10 @@ eHalStatus csrRoamReassoc(tpAniSirGlobal pMac, tANI_U32 sessionId, tCsrRoamProfi
       smsLog(pMac, LOGP, FL("No profile specified"));
       return eHAL_STATUS_FAILURE;
    }
+   if (!pSession) {
+      smsLog(pMac, LOGE, FL("Session id invalid %d"), sessionId);
+      return eHAL_STATUS_FAILURE;
+   }
    smsLog(pMac, LOG1, FL("called  BSSType = %s (%d) authtype = %d "
                                                   "encryType = %d"),
             sme_bss_type_to_string(pProfile->BSSType),
@@ -16018,6 +16022,11 @@ eHalStatus csrSendMBSetContextReqMsg( tpAniSirGlobal pMac, tANI_U32 sessionId,
     tANI_U8 *pBuf = NULL;
     tANI_U8 *p = NULL;
     tCsrRoamSession *pSession = CSR_GET_SESSION( pMac, sessionId );
+
+    if (!pSession) {
+       smsLog(pMac, LOGE, FL("Session id invalid %d"), sessionId);
+       return status;
+    }
     smsLog( pMac, LOG1, FL("keylength is %d, Encry type is : %d"),
                             keyLength, edType);
     do {
@@ -16848,6 +16857,10 @@ void csrCleanupSession(tpAniSirGlobal pMac, tANI_U32 sessionId)
     {
         tCsrRoamSession *pSession = CSR_GET_SESSION( pMac, sessionId );
 
+        if (!pSession) {
+            smsLog(pMac, LOGE, FL("Session id invalid %d"), sessionId);
+	    return;
+	}
         csrRoamStop(pMac, sessionId);
 
         /* Clean up FT related data structures */
@@ -18399,8 +18412,7 @@ eHalStatus csrRoamOffloadScan(tpAniSirGlobal pMac, tANI_U8 sessionId,
                               tANI_U8 command, tANI_U8 reason)
 {
    tSirRoamOffloadScanReq *pRequestBuf;
-   tpCsrNeighborRoamControlInfo pNeighborRoamInfo =
-                                     &pMac->roam.neighborRoamInfo[sessionId];
+   tpCsrNeighborRoamControlInfo pNeighborRoamInfo;
    tCsrRoamSession *pSession;
    tANI_U8 i,j,num_channels = 0, ucDot11Mode;
    tANI_U8 *ChannelList = NULL;
@@ -18417,8 +18429,6 @@ eHalStatus csrRoamOffloadScan(tpAniSirGlobal pMac, tANI_U8 sessionId,
    uint16_t  cnt = 0;
    bool      is_unsafe_chan;
 
-   currChannelListInfo = &pNeighborRoamInfo->roamChannelInfo.currentChannelListInfo;
-
    pSession = CSR_GET_SESSION( pMac, sessionId );
 
    if (NULL == pSession)
@@ -18427,6 +18437,9 @@ eHalStatus csrRoamOffloadScan(tpAniSirGlobal pMac, tANI_U8 sessionId,
                  "%s:pSession is null", __func__);
        return eHAL_STATUS_FAILURE;
    }
+
+   pNeighborRoamInfo = &pMac->roam.neighborRoamInfo[sessionId];
+   currChannelListInfo = &pNeighborRoamInfo->roamChannelInfo.currentChannelListInfo;
 
    if ((ROAM_SCAN_OFFLOAD_START == command) && pSession->pCurRoamProfile &&
        pSession->pCurRoamProfile->do_not_roam) {
@@ -21038,6 +21051,11 @@ static bool csr_is_conn_allow_2g_band(tpAniSirGlobal mac_ctx, uint32_t chnl)
     sap_session_id = csr_find_sap_session(mac_ctx);
     if (CSR_SESSION_ID_INVALID != sap_session_id) {
         sap_session = CSR_GET_SESSION(mac_ctx, sap_session_id);
+        if (!sap_session) {
+            VOS_TRACE(VOS_MODULE_ID_SME, VOS_TRACE_LEVEL_ERROR,
+                      FL("Session id invalid %d"), sap_session_id);
+            return false;
+        }
         if ((0 != sap_session->bssParams.operationChn) &&
             (sap_session->bssParams.operationChn != chnl)) {
 
@@ -21076,6 +21094,11 @@ static bool csr_is_conn_allow_5g_band(tpAniSirGlobal mac_ctx, uint32_t chnl)
     p2pgo_session_id = csr_find_p2pgo_session(mac_ctx);
     if (CSR_SESSION_ID_INVALID != p2pgo_session_id) {
          p2pgo_session = CSR_GET_SESSION(mac_ctx, p2pgo_session_id);
+         if (!p2pgo_session) {
+             VOS_TRACE(VOS_MODULE_ID_SME, VOS_TRACE_LEVEL_ERROR,
+                       FL("Session id invalid %d"), p2pgo_session_id);
+	     return false;
+         }
          if ((0 != p2pgo_session->bssParams.operationChn) &&
              (eCSR_ASSOC_STATE_TYPE_NOT_CONNECTED !=
                   p2pgo_session->connectState) &&
