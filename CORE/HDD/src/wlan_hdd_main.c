@@ -5693,6 +5693,10 @@ static int hdd_driver_command(hdd_adapter_t *pAdapter,
         return -EINVAL;
    }
 
+   if (pAdapter->sessionId >= HDD_SESSION_MAX) {
+       hddLog(LOGE, FL("Session id invalid %d"), pAdapter->sessionId);
+       return -EINVAL;
+   }
    /*
     * Note that valid pointers are provided by caller
     */

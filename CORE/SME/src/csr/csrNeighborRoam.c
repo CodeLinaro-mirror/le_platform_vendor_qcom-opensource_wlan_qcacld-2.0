@@ -354,11 +354,16 @@ csrNeighborRoamUpdateFastRoamingEnabled(tpAniSirGlobal pMac,
                                         tANI_U8       sessionId,
                                         const v_BOOL_t fastRoamEnabled)
 {
-    tpCsrNeighborRoamControlInfo pNeighborRoamInfo =
-                                        &pMac->roam.neighborRoamInfo[sessionId];
+    tCsrRoamSession *pSession = CSR_GET_SESSION(pMac, sessionId);
+    tpCsrNeighborRoamControlInfo pNeighborRoamInfo;
     VOS_STATUS vosStatus = VOS_STATUS_SUCCESS;
     tpFTRoamCallbackUsrCtx     pUsrCtx;
 
+    if (!pSession) {
+        smsLog(pMac, LOGE, FL("Session id invalid %d"), sessionId);
+        return VOS_STATUS_E_FAILURE;
+    }
+    pNeighborRoamInfo = &pMac->roam.neighborRoamInfo[sessionId];
     if (eCSR_NEIGHBOR_ROAM_STATE_CONNECTED == pNeighborRoamInfo->neighborRoamState)
     {
         if (VOS_TRUE == fastRoamEnabled)
@@ -1293,9 +1298,14 @@ eHalStatus csrNeighborRoamAddBssIdToPreauthFailList(tpAniSirGlobal pMac,
                                                     tSirMacAddr bssId)
 {
     tANI_U8 i = 0;
-    tpCsrNeighborRoamControlInfo pNeighborRoamInfo =
-                                 &pMac->roam.neighborRoamInfo[sessionId];
+    tCsrRoamSession *pSession = CSR_GET_SESSION(pMac, sessionId);
+    tpCsrNeighborRoamControlInfo pNeighborRoamInfo;
 
+    if (!pSession) {
+        smsLog(pMac, LOGE, FL("Session id invalid %d"), sessionId);
+        return eHAL_STATUS_FAILURE;
+    }
+    pNeighborRoamInfo = &pMac->roam.neighborRoamInfo[sessionId];
     NEIGHBOR_ROAM_DEBUG(pMac, LOGE, FL("Added BSSID "MAC_ADDRESS_STR
                         " to Preauth failed list"), MAC_ADDR_ARRAY(bssId));
 
@@ -1383,14 +1393,20 @@ tANI_BOOLEAN csrNeighborRoamIsPreauthCandidate(tpAniSirGlobal pMac,
 static eHalStatus csrNeighborRoamIssuePreauthReq(tpAniSirGlobal pMac,
                                                  tANI_U8 sessionId)
 {
-    tpCsrNeighborRoamControlInfo pNeighborRoamInfo =
-                                 &pMac->roam.neighborRoamInfo[sessionId];
+    tCsrRoamSession *pSession = CSR_GET_SESSION(pMac, sessionId);
+    tpCsrNeighborRoamControlInfo pNeighborRoamInfo;
     eHalStatus status = eHAL_STATUS_SUCCESS;
     tpCsrNeighborRoamBSSInfo    pNeighborBssNode;
 
 #ifdef FEATURE_WLAN_LFR_METRICS
     tCsrRoamInfo *roamInfo;
 #endif
+
+    if (!pSession) {
+        smsLog(pMac, LOGW, FL("Session id invalid %d"), sessionId);
+        return eHAL_STATUS_FAILURE;
+    }
+    pNeighborRoamInfo = &pMac->roam.neighborRoamInfo[sessionId];
 
     if (eANI_BOOLEAN_FALSE != pNeighborRoamInfo->FTRoamInfo.preauthRspPending)
     {
@@ -1486,8 +1502,8 @@ eHalStatus csrNeighborRoamPreauthRspHandler(tpAniSirGlobal pMac,
                                             tANI_U8 sessionId,
                                             tSirRetStatus limStatus)
 {
-    tpCsrNeighborRoamControlInfo  pNeighborRoamInfo =
-                                        &pMac->roam.neighborRoamInfo[sessionId];
+    tCsrRoamSession *pSession = CSR_GET_SESSION(pMac, sessionId);
+    tpCsrNeighborRoamControlInfo  pNeighborRoamInfo;
     eHalStatus  status = eHAL_STATUS_SUCCESS;
     VOS_STATUS  vosStatus = VOS_STATUS_SUCCESS;
     eHalStatus  preauthProcessed = eHAL_STATUS_SUCCESS;
@@ -1498,6 +1514,12 @@ eHalStatus csrNeighborRoamPreauthRspHandler(tpAniSirGlobal pMac,
     tCsrRoamInfo *roamInfo;
 #endif
 
+    if (!pSession) {
+        smsLog(pMac, LOGE, FL("Session id invalid %d"), sessionId);
+        preauthProcessed = eHAL_STATUS_FAILURE;
+        goto DEQ_PREAUTH;
+    }
+    pNeighborRoamInfo = &pMac->roam.neighborRoamInfo[sessionId];
     if (eANI_BOOLEAN_FALSE == pNeighborRoamInfo->FTRoamInfo.preauthRspPending)
     {
 
@@ -5795,8 +5817,8 @@ void csrNeighborRoamClose(tpAniSirGlobal pMac, tANI_U8 sessionId)
 void csrNeighborRoamRequestHandoff(tpAniSirGlobal pMac, tANI_U8 sessionId)
 {
     tCsrRoamInfo *roam_info;
-    tpCsrNeighborRoamControlInfo pNeighborRoamInfo =
-                                    &pMac->roam.neighborRoamInfo[sessionId];
+    tCsrRoamSession *pSession = CSR_GET_SESSION(pMac, sessionId);
+    tpCsrNeighborRoamControlInfo pNeighborRoamInfo;
     tCsrNeighborRoamBSSInfo      handoffNode;
 
     extern void csrRoamRoamingStateDisassocRspProcessor( tpAniSirGlobal pMac, tSirSmeDisassocRsp *pSmeDisassocRsp );
@@ -5806,6 +5828,12 @@ void csrNeighborRoamRequestHandoff(tpAniSirGlobal pMac, tANI_U8 sessionId)
 #ifdef FEATURE_WLAN_LFR_METRICS
     tCsrRoamInfo *roamInfoMetrics;
 #endif
+
+    if (!pSession) {
+        smsLog(pMac, LOGE, FL("Session id invalid %d"), sessionId);
+	return;
+    }
+    pNeighborRoamInfo = &pMac->roam.neighborRoamInfo[sessionId];
     VOS_TRACE(VOS_MODULE_ID_SME, VOS_TRACE_LEVEL_DEBUG,"%s sessionId=%d",
               __func__, sessionId);
 
