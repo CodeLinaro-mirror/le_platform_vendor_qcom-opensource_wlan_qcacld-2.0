@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2017, 2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -4945,6 +4946,7 @@ sapconvertToCsrProfile(tsap_Config_t *pconfig_params, eCsrRoamBssType bssType, t
         profile->extended_rates.numRates =
             pconfig_params->extended_rates.numRates;
     }
+    profile->require_h2e = pconfig_params->require_h2e;
 
     return eSAP_STATUS_SUCCESS; /* Success. */
 }
