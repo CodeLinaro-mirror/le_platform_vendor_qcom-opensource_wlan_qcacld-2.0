@@ -4784,6 +4784,10 @@ static int hdd_extscan_epno_fill_network_list(
 
 	expected_networks = req_msg->num_networks;
 	index = 0;
+	if (!tb[QCA_WLAN_VENDOR_ATTR_PNO_SET_LIST_PARAM_EPNO_NETWORKS_LIST]) {
+		hddLog(LOGE, FL("attr networks list failed"));
+		return -EINVAL;
+	}
 	nla_for_each_nested(networks,
 			    tb[QCA_WLAN_VENDOR_ATTR_PNO_SET_LIST_PARAM_EPNO_NETWORKS_LIST],
 			    rem1) {
@@ -14046,15 +14050,24 @@ static int __wlan_hdd_cfg80211_add_key( struct wiphy *wiphy,
         return -EINVAL;
     }
 
+    if (CSR_MAX_RSC_LEN < params->seq_len)
+    {
+        hddLog(VOS_TRACE_LEVEL_ERROR,"%s: Invalid seq length %d", __func__,
+                params->seq_len);
+
+        return -EINVAL;
+    }
+
     hddLog(VOS_TRACE_LEVEL_INFO,
-           "%s: called with key index = %d & key length %d",
-           __func__, key_index, params->key_len);
+           "%s: called with key index = %d & key length %d & seq length %d",
+           __func__, key_index, params->key_len, params->seq_len);
 
     /*extract key idx, key len and key*/
     vos_mem_zero(&setKey,sizeof(tCsrRoamSetKey));
     setKey.keyId = key_index;
     setKey.keyLength = params->key_len;
     vos_mem_copy(&setKey.Key[0],params->key, params->key_len);
+    vos_mem_copy(&setKey.keyRsc[0], params->seq, params->seq_len);
 
     switch (params->cipher)
     {
