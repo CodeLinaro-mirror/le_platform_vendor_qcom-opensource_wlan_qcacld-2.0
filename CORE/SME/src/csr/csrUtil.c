@@ -3173,11 +3173,13 @@ tANI_U8 csrConstructRSNIe( tHalHandle hHal, tANI_U32 sessionId, tCsrRoamProfile 
     tCsrRSNCapabilities RSNCapabilities;
     tCsrRSNPMKIe        *pPMK;
     tANI_U8 PMKId[CSR_RSN_PMKID_SIZE];
+    uint32_t ret;
 #ifdef WLAN_FEATURE_11W
     tANI_U8 *pGroupMgmtCipherSuite;
 #endif
     tDot11fBeaconIEs *pIesLocal = pIes;
     eCsrAuthType negAuthType = eCSR_AUTH_TYPE_UNKNOWN;
+    tDot11fIERSN rsn_ie;
 
     smsLog(pMac, LOGW, "%s called...", __func__);
 
@@ -3189,6 +3191,23 @@ tANI_U8 csrConstructRSNIe( tHalHandle hHal, tANI_U32 sessionId, tCsrRoamProfile 
         {
             break;
         }
+	/*
+	 * Use intersection of the RSN cap sent by user space and
+	 * the AP, so that only common capability are enabled.
+	 */
+	if (pProfile->pRSNReqIE && pProfile->nRSNReqIELength) {
+		ret = dot11fUnpackIeRSN(pMac,
+					   pProfile->pRSNReqIE + 2,
+			  pProfile->nRSNReqIELength -2, &rsn_ie);
+		if (!DOT11F_FAILED(ret)) {
+			pIesLocal->RSN.RSN_Cap[0] =
+					pIesLocal->RSN.RSN_Cap[0] &
+					rsn_ie.RSN_Cap[0];
+			pIesLocal->RSN.RSN_Cap[1] =
+					pIesLocal->RSN.RSN_Cap[1] &
+					rsn_ie.RSN_Cap[1];
+		}
+	}
 
         // See if the cyphers in the Bss description match with the settings in the profile.
         fRSNMatch = csrGetRSNInformation( hHal, &pProfile->AuthType, pProfile->negotiatedUCEncryptionType,
