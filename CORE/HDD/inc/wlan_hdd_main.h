@@ -63,7 +63,8 @@
 #ifdef WLAN_FEATURE_MBSSID
 #include "sapApi.h"
 #endif
-
+#include <adf_os_lock.h>
+#include "vos_utils.h"
 /*---------------------------------------------------------------------------
   Preprocessor definitions and constants
   -------------------------------------------------------------------------*/
@@ -1144,7 +1145,7 @@ struct hdd_adapter_s
 	/* State for synchronous OCB requests to WMI */
 	struct sir_ocb_set_config_response ocb_set_config_resp;
 	struct sir_ocb_get_tsf_timer_response ocb_get_tsf_timer_resp;
-	struct sir_dcc_get_stats_response *dcc_get_stats_resp;
+
 	struct sir_dcc_update_ndl_response dcc_update_ndl_resp;
 
 	/* MAC addresses used for OCB interfaces */
