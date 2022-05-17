@@ -91,6 +91,8 @@ typedef tANI_U8 tSirVersionString[SIR_VERSION_STRING_LEN];
 #define WIFI_SCANNING_MAC_OUI_LENGTH 3
 
 #define MAX_LEN_UDP_RESP_OFFLOAD 128
+/* Maximum peer station number query one time */
+#define MAX_PEER_STA 12
 
 #ifdef FEATURE_WLAN_EXTSCAN
 
@@ -4556,6 +4558,17 @@ struct sir_rssi_info {
 	int8_t rssi;
 };
 
+/**
+ * @sta_num: number of peer station which has valid info
+ * @info: peer information
+ *
+ * all SAP peer station's information retrieved
+ */
+struct sir_peer_sta_info {
+	uint8_t sta_num;
+	struct sir_peer_info info[MAX_PEER_STA];
+};
+
 /*
  * struct sir_rssi_info - all peers rssi information struct
  * @count: peer's number
@@ -5345,7 +5358,6 @@ typedef struct
     tANI_U8     sessionId;
 } tSirExtScanResetBssidHotlistReqParams,
   *tpSirExtScanResetBssidHotlistReqParams;
-
 typedef struct
 {
     tANI_U32              requestId;
