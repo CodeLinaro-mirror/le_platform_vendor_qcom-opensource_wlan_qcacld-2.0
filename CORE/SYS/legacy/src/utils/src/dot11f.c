@@ -489,7 +489,7 @@ static tANI_U32 GetContainerIesLen(tpAniSirGlobal pCtx,
     len += 2;
     while ( len + 1 < nBuf )
     {
-        if( NULL == (pIe =  FindIEDefn(pCtx, pBufRemaining, nBuf + len, IEs)))
+        if( NULL == (pIe =  FindIEDefn(pCtx, pBufRemaining, nBuf - len, IEs)))
              break;
         if( pIe->eid == pIeFirst->eid )
              break;
@@ -497,6 +497,8 @@ static tANI_U32 GetContainerIesLen(tpAniSirGlobal pCtx,
         pBufRemaining += *(pBufRemaining + 1) + 2;
     }
 
+    if ((len > 0xFF) || (len > nBuf))
+        return DOT11F_INTERNAL_ERROR;
     *pnConsumed = len;
     return DOT11F_PARSE_SUCCESS;
 
@@ -18755,12 +18757,13 @@ static tANI_U32 UnpackCore(tpAniSirGlobal pCtx,
 
         if (pIe)
         {
-            if (nBufRemaining < pIe->minSize - pIe->noui - 2U)
+            if ((nBufRemaining < pIe->minSize - pIe->noui - 2U) ||
+                (len < pIe->minSize - pIe->noui - 2U))
             {
                 FRAMES_LOG3(pCtx, FRLOGW, FRFL("The IE %s must be "
-                    "at least %d bytes in size, but there are onl"
-                    "y %d bytes remaining in this frame.\n"),
-                    pIe->name, pIe->minSize, nBufRemaining);
+			"at least %d bytes in size, but there are onl"
+			"y %d bytes remaining in this frame.\n"),
+			pIe->name, pIe->minSize, nBufRemaining);
                 FRAMES_DUMP(pCtx, FRLOG1, pBuf, nBuf);
                 status |= DOT11F_INCOMPLETE_IE;
                 FRAMES_DBG_BREAK();
