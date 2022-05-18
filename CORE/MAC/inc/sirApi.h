@@ -101,6 +101,8 @@ typedef tANI_U8 tSirVersionString[SIR_VERSION_STRING_LEN];
 #define WLAN_EXTSCAN_MAX_HOTLIST_APS              128
 #define WLAN_EXTSCAN_MAX_SIGNIFICANT_CHANGE_APS   64
 
+#define NUM_CHAINS_MAX  2
+
 typedef enum
 {
     eSIR_EXTSCAN_INVALID,
