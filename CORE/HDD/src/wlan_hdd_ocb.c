@@ -49,6 +49,7 @@
 
 /* Maximum time(ms) to wait for OCB operations */
 #define WLAN_WAIT_TIME_OCB_CMD 1500
+#if 0
 #define HDD_OCB_MAGIC 0x489a154f
 
 /**
@@ -63,7 +64,7 @@ struct hdd_ocb_ctxt {
 	struct completion completion_evt;
 	int status;
 };
-
+#endif
 /**
  * hdd_set_dot11p_config() - Set 802.11p config flag
  * @hdd_ctx: HDD Context pointer
