@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2012-2017 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2021 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -15796,6 +15797,8 @@ int wlan_hdd_cfg80211_update_apies(hdd_adapter_t* pHostapdAdapter)
 
     wlan_hdd_add_extra_ie(pHostapdAdapter, genie, &total_ielen,
                           WLAN_EID_VHT_TX_POWER_ENVELOPE);
+    wlan_hdd_add_extra_ie(pHostapdAdapter, genie, &total_ielen,
+                          IEEE80211_ELEMID_RSNXE);
     if (0 != wlan_hdd_add_ie(pHostapdAdapter, genie,
                               &total_ielen, WPS_OUI_TYPE, WPS_OUI_TYPE_SIZE))
     {
@@ -15870,6 +15873,8 @@ int wlan_hdd_cfg80211_update_apies(hdd_adapter_t* pHostapdAdapter)
     }
     wlan_hdd_add_sap_obss_scan_ie(pHostapdAdapter, genie, &total_ielen);
 
+    wlan_hdd_add_extra_ie(pHostapdAdapter, genie, &total_ielen,
+                          IEEE80211_ELEMID_RSNXE);
     if (test_bit(SOFTAP_BSS_STARTED, &pHostapdAdapter->event_flags)) {
         updateIE.ieBufferlength = total_ielen;
         updateIE.pAdditionIEBuffer = genie;
@@ -16497,6 +16502,27 @@ static inline int wlan_hdd_set_udp_resp_offload(hdd_adapter_t *padapter,
 }
 #endif
 
+/**
+ * wlan_hdd_check_h2e() - check SAE/H2E require flag from support rate sets
+ * @rs: support rate or extended support rate set
+ * @require_h2e: pointer to store require h2e flag
+ *
+ * Return: none
+ */
+static void wlan_hdd_check_h2e(const tSirMacRateSet *rs, bool *require_h2e)
+{
+	uint8_t i;
+
+	if (!rs || !require_h2e)
+		return;
+
+	for (i = 0; i < rs->numRates; i++) {
+		if (rs->rate[i] == (BASIC_RATE_MASK |
+				    WLAN_BSS_MEMBERSHIP_SELECTOR_SAE_H2E))
+			*require_h2e = true;
+	}
+}
+
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(3,4,0)) && !defined(WITH_BACKPORTS)
 static int wlan_hdd_cfg80211_start_bss(hdd_adapter_t *pHostapdAdapter,
                             struct beacon_parameters *params)
@@ -17037,6 +17063,11 @@ static int wlan_hdd_cfg80211_start_bss(hdd_adapter_t *pHostapdAdapter,
                             pConfig->extended_rates.rate[i]);
                 }
         }
+        pConfig->require_h2e = false;
+        wlan_hdd_check_h2e(&pConfig->supported_rates,
+                           &pConfig->require_h2e);
+        wlan_hdd_check_h2e(&pConfig->extended_rates,
+                           &pConfig->require_h2e);
     }
 
     wlan_hdd_set_sapHwmode(pHostapdAdapter);
@@ -22558,6 +22589,28 @@ int wlan_hdd_cfg80211_set_ie(hdd_adapter_t *pAdapter,
                 }
                 break;
 #endif
+            case IEEE80211_ELEMID_RSNXE:
+                hddLog (VOS_TRACE_LEVEL_INFO, "%s Set RSNXE(len %d)",
+                        __func__, eLen + 2);
+
+                if (SIR_MAC_MAX_ADD_IE_LENGTH <
+                        (pWextState->assocAddIE.length + eLen)) {
+                   hddLog(VOS_TRACE_LEVEL_FATAL, "Cannot accommodate assocAddIE"
+                                                  "Need bigger buffer space");
+                   VOS_ASSERT(0);
+                   return -ENOMEM;
+                }
+                memcpy(pWextState->assocAddIE.addIEdata +
+                       pWextState->assocAddIE.length,
+                       genie - 2, eLen + 2);
+                pWextState->assocAddIE.length += eLen + 2;
+
+                pWextState->roamProfile.pAddIEAssoc =
+                                pWextState->assocAddIE.addIEdata;
+                pWextState->roamProfile.nAddIEAssocLength =
+                                pWextState->assocAddIE.length;
+                break;
+
             default:
                 hddLog (VOS_TRACE_LEVEL_ERROR,
                         "%s Set UNKNOWN IE %X", __func__, elementId);

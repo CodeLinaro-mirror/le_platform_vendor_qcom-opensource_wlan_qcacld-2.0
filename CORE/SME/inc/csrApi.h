@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2011-2017 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2011-2019, 2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2021 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1029,6 +1030,7 @@ typedef struct tagCsrRoamProfile
     tSirMacRateSet  supported_rates;
     tSirMacRateSet  extended_rates;
     uint8_t sub20_channelwidth;
+    bool require_h2e;
     tCsrBssid bssid_hint;
 }tCsrRoamProfile;
 
