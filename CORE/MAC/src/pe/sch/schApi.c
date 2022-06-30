@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011-2014, 2016-2017 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -601,41 +602,39 @@ tANI_U32 limSendProbeRspTemplateToHal(tpAniSirGlobal pMac,tpPESession psessionEn
  * @timestamp_offset: return for the offset of the timestamp field
  * @time_value_offset: return for the time_value field in the TA IE
  *
- * Return: the length of the buffer.
+ * Return: the length of the buffer on success and error code on failure.
  */
 int schGenTimingAdvertFrame(tpAniSirGlobal mac_ctx, tSirMacAddr self_addr,
     uint8_t **buf, uint32_t *timestamp_offset, uint32_t *time_value_offset)
 {
-    tDot11fTimingAdvertisementFrame frame;
+    tDot11fTimingAdvertisementFrame frame = {0};
     uint32_t payload_size, buf_size;
     int status;
     v_MACADDR_t wildcard_bssid = {
         {0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF},
     };
 
-    vos_mem_zero((uint8_t*)&frame, sizeof(tDot11fTimingAdvertisementFrame));
-
     /* Populate the TA fields */
     status = PopulateDot11fTimingAdvertFrame(mac_ctx, &frame);
     if (status) {
       schLog(mac_ctx, LOGE, FL("Error populating TA frame %x"), status);
-      return status;
+      return -EINVAL;
     }
 
     status = dot11fGetPackedTimingAdvertisementFrameSize(mac_ctx, &frame,
         &payload_size);
     if (DOT11F_FAILED(status)) {
         schLog(mac_ctx, LOGE, FL("Error getting packed frame size %x"), status);
-        return status;
-    } else if (DOT11F_WARNED(status)) {
-        schLog(mac_ctx, LOGW, FL("Warning getting packed frame size"));
+        return -EINVAL;
     }
+    if (DOT11F_WARNED(status))
+        schLog(mac_ctx, LOGW, FL("Warning getting packed frame size"));
 
     buf_size = sizeof(tSirMacMgmtHdr) + payload_size;
     *buf = vos_mem_malloc(buf_size);
     if (*buf == NULL) {
         schLog(mac_ctx, LOGE, FL("Cannot allocate memory"));
-        return eSIR_FAILURE;
+        return -ENOMEM;
     }
     vos_mem_zero(*buf, buf_size);
 
@@ -643,13 +642,13 @@ int schGenTimingAdvertFrame(tpAniSirGlobal mac_ctx, tSirMacAddr self_addr,
     status = dot11fPackTimingAdvertisementFrame(mac_ctx, &frame,
         *buf + sizeof(tSirMacMgmtHdr), buf_size - sizeof(tSirMacMgmtHdr),
         &payload_size);
-    schLog(mac_ctx, LOGE, FL("TA payload size2 = %d"), payload_size);
+    schLog(mac_ctx, LOG1, FL("TA payload size2 = %d"), payload_size);
     if (DOT11F_FAILED(status)) {
         schLog(mac_ctx, LOGE, FL("Error packing frame %x"), status);
         goto fail;
-    } else if (DOT11F_WARNED(status)) {
-        schLog(mac_ctx, LOGE, FL("Warning packing frame"));
     }
+    if (DOT11F_WARNED(status))
+        schLog(mac_ctx, LOGW, FL("Warning packing frame"));
 
     limPopulateMacHeader(mac_ctx, *buf, SIR_MAC_MGMT_FRAME,
         SIR_MAC_MGMT_TIME_ADVERT, wildcard_bssid.bytes, self_addr);
@@ -675,7 +674,7 @@ int schGenTimingAdvertFrame(tpAniSirGlobal mac_ctx, tSirMacAddr self_addr,
     return payload_size + sizeof(tSirMacMgmtHdr);
 
 fail:
-    if (*buf)
-        vos_mem_free(*buf);
-    return status;
+    vos_mem_free(*buf);
+    *buf = NULL;
+    return -EINVAL;
 }
