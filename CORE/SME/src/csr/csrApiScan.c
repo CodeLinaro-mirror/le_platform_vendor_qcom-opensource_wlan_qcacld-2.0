@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011-2018, 2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -8684,9 +8685,15 @@ void csrInitOccupiedChannelsList(tpAniSirGlobal pMac, tANI_U8 sessionId)
   tListElem *pEntry = NULL;
   tCsrScanResult *pBssDesc = NULL;
   tDot11fBeaconIEs *pIes = NULL;
-  tpCsrNeighborRoamControlInfo pNeighborRoamInfo =
-                                      &pMac->roam.neighborRoamInfo[sessionId];
+  tpCsrNeighborRoamControlInfo pNeighborRoamInfo;
 
+  if (!(pMac && pMac->roam.roamSession &&
+      CSR_IS_SESSION_VALID(pMac, sessionId))) {
+      smsLog(pMac, LOGE, FL("Session invalid %d"), sessionId);
+      return;
+  }
+
+  pNeighborRoamInfo = &pMac->roam.neighborRoamInfo[sessionId];
   if (0 != pNeighborRoamInfo->cfgParams.channelInfo.numOfChannels)
   {
        smsLog(pMac, LOG1, FL("Ini file contains neighbor scan channel list, "
