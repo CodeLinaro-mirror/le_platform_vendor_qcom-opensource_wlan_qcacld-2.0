@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2017-2019, 2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -1574,8 +1575,8 @@ static VOS_STATUS find_ie_data_after_fils_session_ie(tpAniSirGlobal mac_ctx,
 		if (elem_len > left)
 			return VOS_STATUS_E_FAILURE;
 
-		if (elem_id == SIR_MAC_REQUEST_EID_MAX &&
-				ptr[2] == SIR_FILS_SESSION_EXT_EID) {
+		if ((elem_id == SIR_MAC_REQUEST_EID_MAX) &&
+		    (left >= 3 && ptr[2] == SIR_FILS_SESSION_EXT_EID)) {
 			(*ie) = ((&ptr[1]) + ptr[1] + 1);
 			(*ie_len) = (left - elem_len);
 			return VOS_STATUS_SUCCESS;
