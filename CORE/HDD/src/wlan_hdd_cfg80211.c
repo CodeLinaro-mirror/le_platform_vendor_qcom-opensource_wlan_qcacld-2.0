@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2021 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2021-2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -16567,6 +16567,8 @@ static void wlan_hdd_cfg80211_set_dfs_offload_feature(struct wiphy *wiphy)
 #endif
 #endif
 
+#define WLAN_HDD_MAX_NUM_CSA_COUNTERS 2
+
 /*
  * FUNCTION: wlan_hdd_cfg80211_init
  * This function is called by hdd_wlan_startup()
@@ -16855,6 +16857,7 @@ int wlan_hdd_cfg80211_init(struct device *dev,
 #ifdef CHANNEL_SWITCH_SUPPORTED
     wiphy->flags |= WIPHY_FLAG_HAS_CHANNEL_SWITCH;
 #endif
+    wiphy->max_num_csa_counters = WLAN_HDD_MAX_NUM_CSA_COUNTERS;
 
     if (pCfg->sub_20_channel_width)
         wiphy->flags |= WIPHY_FLAG_SUPPORTS_5_10_MHZ;
