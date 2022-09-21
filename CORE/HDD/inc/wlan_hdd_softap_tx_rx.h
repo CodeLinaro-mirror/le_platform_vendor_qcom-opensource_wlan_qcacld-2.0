@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2014, 2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -68,7 +69,7 @@
   @return         : NET_XMIT_DROP if packets are dropped
                   : NET_XMIT_SUCCESS if packet is enqueued successfully
   ===========================================================================*/
-extern int hdd_softap_hard_start_xmit(struct sk_buff *skb, struct net_device *dev);
+extern netdev_tx_t hdd_softap_hard_start_xmit(struct sk_buff *skb, struct net_device *dev);
 
 /**============================================================================
   @brief hdd_softap_tx_timeout() - Function called by OS if there is any

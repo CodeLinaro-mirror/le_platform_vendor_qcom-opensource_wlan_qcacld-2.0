@@ -5209,7 +5209,11 @@ static int hdd_extscan_passpoint_fill_network_list(
 			hddLog(LOGE, FL("attr realm failed"));
 			return -EINVAL;
 		}
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 11, 0))
+		len = nla_strscpy(req_msg->networks[index].realm,
+#else
 		len = nla_strlcpy(req_msg->networks[index].realm,
+#endif
 				  network[PARAM_REALM],
 				  SIR_PASSPOINT_REALM_LEN);
 		/* Don't send partial realm to firmware */
@@ -17631,8 +17635,13 @@ int wlan_hdd_cfg80211_update_apies(hdd_adapter_t* pHostapdAdapter)
     wlan_hdd_add_extra_ie(pHostapdAdapter, genie, &total_ielen,
                           WLAN_EID_INTERWORKING);
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,15,0))
+    wlan_hdd_add_extra_ie(pHostapdAdapter, genie, &total_ielen,
+                          WLAN_EID_TX_POWER_ENVELOPE);
+#else
     wlan_hdd_add_extra_ie(pHostapdAdapter, genie, &total_ielen,
                           WLAN_EID_VHT_TX_POWER_ENVELOPE);
+#endif
     wlan_hdd_add_extra_ie(pHostapdAdapter, genie, &total_ielen,
                           IEEE80211_ELEMID_RSNXE);
     if (0 != wlan_hdd_add_ie(pHostapdAdapter, genie,
@@ -19618,8 +19627,14 @@ static int wlan_hdd_cfg80211_del_beacon(struct wiphy *wiphy,
  *
  * Return: zero for success non-zero for failure
  */
+#ifdef CFG80211_SINGLE_NETDEV_MULTI_LINK_SUPPORT
+static int wlan_hdd_cfg80211_stop_ap(struct wiphy *wiphy,
+				     struct net_device *dev,
+				     unsigned int link_id)
+#else
 static int wlan_hdd_cfg80211_stop_ap(struct wiphy *wiphy,
 					struct net_device *dev)
+#endif
 {
 	int ret;
 
@@ -20234,11 +20249,10 @@ static int wlan_hdd_cfg80211_change_bss (struct wiphy *wiphy,
 /* FUNCTION: wlan_hdd_change_country_code_cd
 *  to wait for country code completion
 */
-void* wlan_hdd_change_country_code_cb(void *pAdapter)
+void wlan_hdd_change_country_code_cb(void *pAdapter)
 {
     hdd_adapter_t *call_back_pAdapter = pAdapter;
     complete(&call_back_pAdapter->change_country_code);
-    return NULL;
 }
 
 /*
@@ -20401,7 +20415,6 @@ static int __wlan_hdd_cfg80211_change_iface(struct wiphy *wiphy,
                 hddLog(LOG1, FL("Setting country code from INI"));
                 init_completion(&pAdapter->change_country_code);
                 hstatus = sme_ChangeCountryCode(pHddCtx->hHal,
-                                     (void *)(tSmeChangeCountryCallback)
                                       wlan_hdd_change_country_code_cb,
                                       pConfig->apCntryCode, pAdapter,
                                       pHddCtx->pvosContext,

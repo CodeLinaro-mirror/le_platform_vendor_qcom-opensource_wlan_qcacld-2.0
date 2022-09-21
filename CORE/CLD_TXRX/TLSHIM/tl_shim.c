@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1161,8 +1162,7 @@ static void tlshim_data_rx_handler(void *context, u_int16_t staid,
 					TLSHIM_LOGW("No available Rx message buffer");
 					goto drop_rx_buf;
 				}
-				pkt->callback = (vos_tlshim_cb)
-						tlshim_data_rx_cb;
+				pkt->callback = tlshim_data_rx_cb;
 				pkt->context = (void *) tl_shim;
 				pkt->Rxpkt = (void *) rx_buf_list;
 				pkt->staId = staid;
