@@ -6565,14 +6565,20 @@ tANI_BOOLEAN csrMatchCountryCode( tpAniSirGlobal pMac, tANI_U8 *pCountry, tDot11
 eHalStatus csrGetModifyProfileFields(tpAniSirGlobal pMac, tANI_U32 sessionId,
                                      tCsrRoamModifyProfileFields *pModifyProfileFields)
 {
+   tCsrRoamSession *pSession = CSR_GET_SESSION(pMac, sessionId);
 
    if(!pModifyProfileFields)
    {
       return eHAL_STATUS_FAILURE;
    }
 
+   if (!pSession) {
+      smsLog(pMac, LOGE, FL("Session id invalid %d"), sessionId);
+      return eHAL_STATUS_FAILURE;
+   }
+
    vos_mem_copy(pModifyProfileFields,
-                &pMac->roam.roamSession[sessionId].connectedProfile.modifyProfileFields,
+                &pSession->connectedProfile.modifyProfileFields,
                 sizeof(tCsrRoamModifyProfileFields));
 
    return eHAL_STATUS_SUCCESS;
@@ -6583,6 +6589,10 @@ eHalStatus csrSetModifyProfileFields(tpAniSirGlobal pMac, tANI_U32 sessionId,
 {
    tCsrRoamSession *pSession = CSR_GET_SESSION( pMac, sessionId );
 
+   if (!pSession) {
+      smsLog(pMac, LOGE, FL("Session id invalid %d"), sessionId);
+      return eHAL_STATUS_FAILURE;
+   }
    vos_mem_copy(&pSession->connectedProfile.modifyProfileFields,
                  pModifyProfileFields,
                  sizeof(tCsrRoamModifyProfileFields));
