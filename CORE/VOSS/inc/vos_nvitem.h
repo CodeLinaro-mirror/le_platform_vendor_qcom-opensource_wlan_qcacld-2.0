@@ -321,9 +321,6 @@ bool vos_is_channel_support_sub20(uint16_t operation_channel,
 				  enum phy_ch_width channel_width,
 				  uint16_t secondary_channel);
 uint8_t vos_phy_channel_width_to_sub20(enum phy_ch_width ch_width);
-#ifdef CLD_REGDB
-const struct ieee80211_regdomain* vos_search_regd(const char* alpha2);
-#endif
 
 /**
  * vos_is_etsi_europe_country - check ETSI Europe country or not
