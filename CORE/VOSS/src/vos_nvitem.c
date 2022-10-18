@@ -1535,7 +1535,7 @@ VOS_STATUS vos_nv_getRegDomainFromCountryCode( v_REGDOMAIN_t *pRegDomain,
 	    request.alpha2[0] = pHddCtx->reg.alpha2[0];
 	    request.alpha2[1] = pHddCtx->reg.alpha2[1];
 	    request.initiator = NL80211_REGDOM_SET_BY_DRIVER;
-	    request.dfs_region = pHddCtx->reg.dfs_region;
+	    request.dfs_region = 0;
 	    wiphy->reg_notifier(wiphy, &request);
 #endif
         }
@@ -1792,7 +1792,7 @@ int vos_update_band(v_U8_t  band_capability)
 }
 
 #ifdef CLD_REGDB
-const struct ieee80211_regdomain *
+static const struct ieee80211_regdomain *
 vos_search_regd(const char* alpha2)
 {
 	const struct ieee80211_regdomain *regdomain;
@@ -1905,7 +1905,8 @@ vos_copy_regd(const struct ieee80211_regdomain *regd)
 static int create_linux_regulatory_entry(v_REGDOMAIN_t temp_reg_domain,
                                          struct wiphy *wiphy,
                                          v_U8_t nBandCapability,
-                                         bool reset)
+                                         bool reset,
+                                         struct regulatory_request *request)
 {
     int i, j, m;
     int k = 0, n = 0;
@@ -1968,6 +1969,13 @@ static int create_linux_regulatory_entry(v_REGDOMAIN_t temp_reg_domain,
                   "unknown alpha2 %c%c",
                   pHddCtx->reg.alpha2[0], pHddCtx->reg.alpha2[1]);
         return -1;
+    }
+
+    if (request) {
+        VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_INFO,
+                  "request dfs region change from %d to %d",
+                  request->dfs_region, regd->dfs_region);
+        request->dfs_region = regd->dfs_region;
     }
 
     regd_dup = vos_copy_regd(regd);
@@ -2507,7 +2515,8 @@ int __wlan_hdd_linux_reg_notifier(struct wiphy *wiphy,
         if (create_linux_regulatory_entry(temp_reg_domain,
                                           wiphy,
                                           nBandCapability,
-                                          reset) == 0)
+                                          reset,
+                                          request) == 0)
         {
             VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_INFO,
                       (" regulatory entry created"));
@@ -2630,7 +2639,8 @@ VOS_STATUS vos_init_wiphy_from_eeprom(void)
       if (create_linux_regulatory_entry(temp_reg_domain,
                                         wiphy,
                                         pHddCtx->cfg_ini->nBandCapability,
-                                        true) != 0) {
+                                        true,
+                                        NULL) != 0) {
          VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
                ("Error while creating regulatory entry"));
          return VOS_STATUS_E_FAULT;
