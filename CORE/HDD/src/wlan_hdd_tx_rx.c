@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -454,7 +455,7 @@ static void hdd_get_transmit_sta_id(hdd_adapter_t *adapter,
   @return         : NET_XMIT_DROP if packets are dropped
                   : NET_XMIT_SUCCESS if packet is enqueued successfully
   ===========================================================================*/
-int __hdd_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
+netdev_tx_t __hdd_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
 {
    VOS_STATUS status;
    WLANTL_ACEnumType ac;
@@ -776,7 +777,7 @@ drop_list:
 
 netdev_tx_t hdd_hard_start_xmit(struct sk_buff *skb, struct net_device *dev)
 {
-	int ret;
+	netdev_tx_t ret;
 
 	vos_ssr_protect(__func__);
 	ret = __hdd_hard_start_xmit(skb, dev);

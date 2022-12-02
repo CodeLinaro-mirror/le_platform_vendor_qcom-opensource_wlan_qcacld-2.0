@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2016, 2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -121,7 +122,7 @@ static tANI_U8* __limTraceGetMgmtDropReasonString( tANI_U16 dropReason )
 
 void limTraceInit(tpAniSirGlobal pMac)
 {
-    vosTraceRegister(VOS_MODULE_ID_PE, (tpvosTraceCb)&limTraceDump);
+    vosTraceRegister(VOS_MODULE_ID_PE, limTraceDump);
 }
 
 

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2021 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2021-2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -3710,8 +3710,8 @@ eHalStatus csrRoamPrepareBssConfig(tpAniSirGlobal pMac, tCsrRoamProfile *pProfil
 
         if (((pBssConfig->uCfgDot11Mode == eCSR_CFG_DOT11_MODE_11N)  ||
                          (pBssConfig->uCfgDot11Mode == eCSR_CFG_DOT11_MODE_11AC)) &&
-                         ((pBssConfig->qosType != eCSR_MEDIUM_ACCESS_WMM_eDCF_DSCP) ||
-                          (pBssConfig->qosType != eCSR_MEDIUM_ACCESS_11e_HCF) ||
+                         ((pBssConfig->qosType != eCSR_MEDIUM_ACCESS_WMM_eDCF_DSCP) &&
+                          (pBssConfig->qosType != eCSR_MEDIUM_ACCESS_11e_HCF) &&
                           (pBssConfig->qosType != eCSR_MEDIUM_ACCESS_11e_eDCF) ))
         {
             //Joining BSS is 11n capable and WMM is disabled on AP.
@@ -5687,7 +5687,7 @@ static eHalStatus csrRoamSaveSecurityRspIE(tpAniSirGlobal pMac, tANI_U32 session
                         + 2; //reserved
                     if( pIesLocal->RSN.pmkid_count )
                     {
-                        nIeLen += 2 + pIesLocal->RSN.pmkid_count * 4;  //pmkid
+                        nIeLen += 2 + pIesLocal->RSN.pmkid_count * 16;  //pmkid
                     }
                     //nIeLen doesn't count EID and length fields
                     pSession->pWpaRsnRspIE = vos_mem_malloc(nIeLen + 2);
@@ -5728,9 +5728,15 @@ static eHalStatus csrRoamSaveSecurityRspIE(tpAniSirGlobal pMac, tANI_U32 session
                             pIeBuf += pIesLocal->RSN.akm_suite_cnt * 4;
                         }
                         //copy the rest
-                        vos_mem_copy(pIeBuf,
-                                     pIesLocal->RSN.akm_suite + pIesLocal->RSN.akm_suite_cnt * 4,
-                                     2 + pIesLocal->RSN.pmkid_count * 4);
+                        if( pIesLocal->RSN.pmkid_count )
+                        {
+                            vos_mem_copy(pIeBuf, &pIesLocal->RSN.pmkid_count, 2);
+                            pIeBuf += 2;
+                            vos_mem_copy(pIeBuf,
+                                         pIesLocal->RSN.pmkid,
+                                         pIesLocal->RSN.pmkid_count * 16);
+                            pIeBuf += pIesLocal->RSN.pmkid_count * 16;
+                        }
                         pSession->nWpaRsnRspIeLength = nIeLen + 2;
                     }
                 }
@@ -7486,7 +7492,7 @@ eHalStatus csrRoamCopyConnectedProfile(tpAniSirGlobal pMac, tANI_U32 sessionId, 
     do
     {
         vos_mem_set(pDstProfile, sizeof(tCsrRoamProfile), 0);
-        if(pSrcProfile->bssid)
+        if(pSrcProfile)
         {
             pDstProfile->BSSIDs.bssid = vos_mem_malloc(sizeof(tCsrBssid));
             if ( NULL == pDstProfile->BSSIDs.bssid )
@@ -8074,6 +8080,10 @@ eHalStatus csrRoamReassoc(tpAniSirGlobal pMac, tANI_U32 sessionId, tCsrRoamProfi
    if (NULL == pProfile)
    {
       smsLog(pMac, LOGP, FL("No profile specified"));
+      return eHAL_STATUS_FAILURE;
+   }
+   if (!pSession) {
+      smsLog(pMac, LOGE, FL("Session id invalid %d"), sessionId);
       return eHAL_STATUS_FAILURE;
    }
    smsLog(pMac, LOG1, FL("called  BSSType = %s (%d) authtype = %d "
@@ -16380,6 +16390,11 @@ eHalStatus csrSendMBSetContextReqMsg( tpAniSirGlobal pMac, tANI_U32 sessionId,
     tANI_U8 *pBuf = NULL;
     tANI_U8 *p = NULL;
     tCsrRoamSession *pSession = CSR_GET_SESSION( pMac, sessionId );
+
+    if (!pSession) {
+       smsLog(pMac, LOGE, FL("Session id invalid %d"), sessionId);
+       return status;
+    }
     smsLog( pMac, LOG1, FL("keylength is %d, Encry type is : %d"),
                             keyLength, edType);
     do {
@@ -17217,6 +17232,10 @@ void csrCleanupSession(tpAniSirGlobal pMac, tANI_U32 sessionId)
     {
         tCsrRoamSession *pSession = CSR_GET_SESSION( pMac, sessionId );
 
+        if (!pSession) {
+            smsLog(pMac, LOGE, FL("Session id invalid %d"), sessionId);
+	    return;
+	}
         csrRoamStop(pMac, sessionId);
 
         /* Clean up FT related data structures */
@@ -18769,8 +18788,7 @@ eHalStatus csrRoamOffloadScan(tpAniSirGlobal pMac, tANI_U8 sessionId,
                               tANI_U8 command, tANI_U8 reason)
 {
    tSirRoamOffloadScanReq *pRequestBuf;
-   tpCsrNeighborRoamControlInfo pNeighborRoamInfo =
-                                     &pMac->roam.neighborRoamInfo[sessionId];
+   tpCsrNeighborRoamControlInfo pNeighborRoamInfo;
    tCsrRoamSession *pSession;
    tANI_U8 i,j,num_channels = 0, ucDot11Mode;
    tANI_U8 *ChannelList = NULL;
@@ -18787,8 +18805,6 @@ eHalStatus csrRoamOffloadScan(tpAniSirGlobal pMac, tANI_U8 sessionId,
    uint16_t  cnt = 0;
    bool      is_unsafe_chan;
 
-   currChannelListInfo = &pNeighborRoamInfo->roamChannelInfo.currentChannelListInfo;
-
    pSession = CSR_GET_SESSION( pMac, sessionId );
 
    if (NULL == pSession)
@@ -18797,6 +18813,9 @@ eHalStatus csrRoamOffloadScan(tpAniSirGlobal pMac, tANI_U8 sessionId,
                  "%s:pSession is null", __func__);
        return eHAL_STATUS_FAILURE;
    }
+
+   pNeighborRoamInfo = &pMac->roam.neighborRoamInfo[sessionId];
+   currChannelListInfo = &pNeighborRoamInfo->roamChannelInfo.currentChannelListInfo;
 
    if ((ROAM_SCAN_OFFLOAD_START == command) && pSession->pCurRoamProfile &&
        pSession->pCurRoamProfile->do_not_roam) {
@@ -21411,6 +21430,11 @@ static bool csr_is_conn_allow_2g_band(tpAniSirGlobal mac_ctx, uint32_t chnl)
     sap_session_id = csr_find_sap_session(mac_ctx);
     if (CSR_SESSION_ID_INVALID != sap_session_id) {
         sap_session = CSR_GET_SESSION(mac_ctx, sap_session_id);
+        if (!sap_session) {
+            VOS_TRACE(VOS_MODULE_ID_SME, VOS_TRACE_LEVEL_ERROR,
+                      FL("Session id invalid %d"), sap_session_id);
+            return false;
+        }
         if ((0 != sap_session->bssParams.operationChn) &&
             (sap_session->bssParams.operationChn != chnl)) {
 
@@ -21449,6 +21473,11 @@ static bool csr_is_conn_allow_5g_band(tpAniSirGlobal mac_ctx, uint32_t chnl)
     p2pgo_session_id = csr_find_p2pgo_session(mac_ctx);
     if (CSR_SESSION_ID_INVALID != p2pgo_session_id) {
          p2pgo_session = CSR_GET_SESSION(mac_ctx, p2pgo_session_id);
+         if (!p2pgo_session) {
+             VOS_TRACE(VOS_MODULE_ID_SME, VOS_TRACE_LEVEL_ERROR,
+                       FL("Session id invalid %d"), p2pgo_session_id);
+	     return false;
+         }
          if ((0 != p2pgo_session->bssParams.operationChn) &&
              (eCSR_ASSOC_STATE_TYPE_NOT_CONNECTED !=
                   p2pgo_session->connectState) &&

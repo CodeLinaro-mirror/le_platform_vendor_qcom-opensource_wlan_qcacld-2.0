@@ -1548,7 +1548,9 @@ VOS_STATUS vos_nv_getRegDomainFromCountryCode( v_REGDOMAIN_t *pRegDomain,
 
 #if (LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)) || !defined(CLD_REGDB)
         INIT_COMPLETION(pHddCtx->reg_init);
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0)) || defined(WITH_BACKPORTS)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
+	regulatory_hint(wiphy, country_code);
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(3,9,0)) || defined(WITH_BACKPORTS)
         regulatory_hint_user(country_code, NL80211_USER_REG_HINT_USER);
 #else
         regulatory_hint_user(country_code);

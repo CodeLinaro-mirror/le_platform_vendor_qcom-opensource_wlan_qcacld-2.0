@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -28117,11 +28118,15 @@ static VOS_STATUS wma_feed_allowed_action_frame_patterns(tp_wma_handle wma)
 	cmd->operation = wma->allowed_action_frames.operation;
 
 	for (i = 0; i < MAX_SUPPORTED_ACTION_CATEGORY_ELE_LIST; i++) {
+#ifdef FEATURE_PBM_MAGIC_WOW
+		cmd->action_category_map[i] = 0;
+#else
 		if (i < (SIR_MAC_ACTION_MAX / 32))
 			cmd->action_category_map[i] =
 			     wma->allowed_action_frames.action_category_map[i];
 		else
 			cmd->action_category_map[i] = 0;
+#endif
 
 		WMA_LOGD("%s: %d action Wakeup pattern 0x%x in fw",
 			__func__, i, cmd->action_category_map[i]);

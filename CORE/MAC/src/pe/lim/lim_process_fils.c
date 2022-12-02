@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2017-2019, 2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -1574,8 +1575,8 @@ static VOS_STATUS find_ie_data_after_fils_session_ie(tpAniSirGlobal mac_ctx,
 		if (elem_len > left)
 			return VOS_STATUS_E_FAILURE;
 
-		if (elem_id == SIR_MAC_REQUEST_EID_MAX &&
-				ptr[2] == SIR_FILS_SESSION_EXT_EID) {
+		if ((elem_id == SIR_MAC_REQUEST_EID_MAX) &&
+		    (left >= 3 && ptr[2] == SIR_FILS_SESSION_EXT_EID)) {
 			(*ie) = ((&ptr[1]) + ptr[1] + 1);
 			(*ie_len) = (left - elem_len);
 			return VOS_STATUS_SUCCESS;
@@ -1780,8 +1781,8 @@ static int fils_aead_decrypt(const uint8_t *kek, unsigned int kek_len,
 	}
 
 	if (own_mac == NULL || bssid == NULL || snonce == NULL ||
-			anonce == NULL || data_len == 0 || ciphered_text_len == 0 ||
-			plain_text == NULL) {
+	    anonce == NULL || data_len == 0 || ciphered_text_len < AES_BLOCK_SIZE ||
+	    plain_text == NULL) {
 		VOS_TRACE(VOS_MODULE_ID_PE, VOS_TRACE_LEVEL_ERROR,
 				FL("Error missing params mac:%pK bssid:%pK snonce:%pK"
 				    "anonce:%pK data_len:%zu ciphered_text_len:%zu"
