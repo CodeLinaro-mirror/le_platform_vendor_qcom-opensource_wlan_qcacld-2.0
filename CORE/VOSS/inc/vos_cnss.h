@@ -30,7 +30,11 @@
 #include "i_vos_lock.h"
 
 #ifdef CONFIG_CNSS
+#ifdef CONFIG_CNSS_OUT_OF_TREE
+#include "cnss.h"
+#else
 #include <net/cnss.h>
+#endif
 #endif
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 7, 0))
@@ -170,6 +174,7 @@ static inline void vos_get_boottime_ts(struct timespec *ts)
 	ktime_get_ts64((struct timespec64*)ts);
 }
 #else
+typedef long long   time_t;
 static inline void vos_get_boottime_ts(struct timespec *ts)
 {
 	struct timespec64 ts64;
