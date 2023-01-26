@@ -1668,3 +1668,14 @@ else
 obj-$(CONFIG_QCA_CLD_WLAN) += $(MODNAME).o
 $(MODNAME)-y := $(OBJS)
 endif
+
+# openwrt fixes
+CDEFINES += -w \
+#           -Wno-error=enum-conversion \
+#           -Wno-error=unused-but-set-variable \
+#           -Wno-error=unused-const-variable \
+#           -Wno-error=shift-count-negative \
+#           -Wno-error=shift-count-overflow \
+
+# openwrt set to ccflags-y
+ccflags-y += $(INCS) $(CDEFINES)

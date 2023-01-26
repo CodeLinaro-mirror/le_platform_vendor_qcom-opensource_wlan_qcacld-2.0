@@ -4,7 +4,8 @@ M ?= $(shell pwd)
 
 ifeq ($(WLAN_ROOT),)
 # WLAN_ROOT must contain an absolute path (i.e. not a relative path)
-KBUILD_OPTIONS := WLAN_ROOT=$(shell cd $(KERNEL_SRC); readlink -e $(M))
+WLAN_ROOT ?= $(shell cd $(KERNEL_SRC); readlink -e $(M))
+KBUILD_OPTIONS := WLAN_ROOT=$(WLAN_ROOT)
 endif
 #KBUILD_OPTIONS := WLAN_ROOT=$(PWD)
 KBUILD_OPTIONS += MODNAME?=wlan
