@@ -139,7 +139,11 @@ extern int hdd_hostapd_stop (struct net_device *dev);
 #include "sirApi.h"
 #include "if_smart_antenna.h"
 #ifdef CNSS_GENL
+#ifdef CONFIG_CNSS_OUT_OF_TREE
+#include "cnss_nl.h"
+#else
 #include <net/cnss_nl.h>
+#endif
 #endif
 
 #include <wlan_hdd_spectral.h>

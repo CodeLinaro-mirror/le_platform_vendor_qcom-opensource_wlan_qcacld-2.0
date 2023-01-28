@@ -43,7 +43,11 @@
 #include <net/sock.h>
 #include <linux/netlink.h>
 #ifdef CNSS_GENL
+#ifdef CONFIG_CNSS_OUT_OF_TREE
+#include "cnss_nl.h"
+#else
 #include <net/cnss_nl.h>
+#endif
 #endif
 
 #ifdef WLAN_OPEN_SOURCE
@@ -4529,7 +4533,7 @@ static void cnss_diag_cmd_handler(const void *data, int data_len,
 	 * audit note: it is ok to pass a NULL policy here since a
 	 * length check on the data is added later already
 	 */
-	if (nla_parse(tb, CLD80211_ATTR_MAX, data, data_len, NULL)) {
+	if (wlan_cfg80211_nla_parse(tb, CLD80211_ATTR_MAX, data, data_len, NULL)) {
 		AR_DEBUG_PRINTF(ATH_DEBUG_ERR, ("%s: nla parse fails \n",
 							__func__));
 		return;
