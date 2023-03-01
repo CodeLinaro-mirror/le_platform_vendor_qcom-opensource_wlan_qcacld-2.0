@@ -17281,7 +17281,6 @@ int hdd_wlan_startup(struct device *dev, v_VOID_t *hif_sc)
    /* Initialize the nlink service */
    if (wlan_hdd_nl_init(pHddCtx) != 0) {
       hddLog(LOGP, FL("nl_srv_init failed"));
-      goto err_logging_sock;
    }
    vos_set_radio_index(pHddCtx->radio_index);
 
@@ -18307,7 +18306,6 @@ err_free_ftm_open:
 err_nl_srv:
    nl_srv_exit();
 
-err_logging_sock:
    if (VOS_FTM_MODE != hdd_get_conparam())
        wlan_hdd_logging_sock_deactivate_svc(pHddCtx);
 
