@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2021-2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2021-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -17281,7 +17281,6 @@ int hdd_wlan_startup(struct device *dev, v_VOID_t *hif_sc)
    /* Initialize the nlink service */
    if (wlan_hdd_nl_init(pHddCtx) != 0) {
       hddLog(LOGP, FL("nl_srv_init failed"));
-      goto err_logging_sock;
    }
    vos_set_radio_index(pHddCtx->radio_index);
 
