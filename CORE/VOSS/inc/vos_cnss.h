@@ -314,6 +314,18 @@ static inline int vos_set_sleep_power_mode(struct device *dev, int mode)
 	return 0;
 }
 #else /* END WLAN_OPEN_SOURCE and !CONFIG_CNSS */
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0))
+#ifndef time_t
+typedef   long        time_t;
+#endif
+
+struct timespec {
+	long    tv_sec;         /* seconds */
+	long    tv_nsec;        /* nanoseconds */
+};
+#endif
+
 static inline void vos_dump_stack (struct task_struct *task)
 {
 	cnss_dump_stack(task);
@@ -447,10 +459,21 @@ static inline int vos_wlan_get_dfs_nol(void *info, u16 info_len)
 	return cnss_wlan_get_dfs_nol(info, info_len);
 }
 
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 6, 0))
 static inline void vos_get_boottime_ts(struct timespec *ts)
 {
-        cnss_get_boottime(ts);
+	struct timespec64 ts64;
+
+	ktime_get_ts64(&ts64);
+	ts->tv_sec = (time_t)ts64.tv_sec;
+	ts->tv_nsec = ts64.tv_nsec;
 }
+#else
+static inline void vos_get_boottime_ts(struct timespec *ts)
+{
+	cnss_get_boottime(ts);
+}
+#endif
 
 static inline void vos_set_cc_source(enum cnss_cc_src cc_source)
 {
