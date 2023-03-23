@@ -11,6 +11,7 @@ ifeq ($(KERNEL_BUILD),1)
 endif
 
 CONFIG_QCA_CLD_WLAN_PROFILE ?= default
+WLAN_PLATFORM_INC ?= $(WLAN_ROOT)/../platform/inc
 
 include $(WLAN_ROOT)/configs/$(CONFIG_QCA_CLD_WLAN_PROFILE)_defconfig
 
@@ -1658,4 +1659,30 @@ wlan_prealloc-y := $(OBJS)
 else
 obj-$(CONFIG_QCA_CLD_WLAN) += $(MODNAME).o
 $(MODNAME)-y := $(OBJS)
+endif
+
+ifeq ($(CONFIG_CNSS_OUT_OF_TREE), y)
+CDEFINES += -DCONFIG_CNSS_OUT_OF_TREE
+INCS += -I$(WLAN_PLATFORM_INC)
+endif
+
+ifeq ($(CONFIG_CNSS), y)
+CDEFINES += -DCONFIG_CNSS
+endif
+
+ifdef OPENWRT_BUILD
+# openwrt fixes
+CDEFINES += -Wno-error=format \
+            -Wno-error=enum-conversion \
+            -Wno-error=unused-but-set-variable \
+            -Wno-error=unused-const-variable \
+            -Wno-error=shift-count-negative \
+            -Wno-error=shift-count-overflow \
+            -Wno-error=tautological-constant-out-of-range-compare \
+            -Wno-error=macro-redefined \
+            -Wno-error=parentheses-equality \
+            -Wno-error=unused-value
+
+# openwrt set to ccflags-y
+ccflags-y += $(INCS) $(CDEFINES)
 endif
