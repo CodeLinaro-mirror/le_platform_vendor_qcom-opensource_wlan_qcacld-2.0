@@ -17277,6 +17277,7 @@ int hdd_wlan_startup(struct device *dev, v_VOID_t *hif_sc)
    /* Initialize the nlink service */
    if (wlan_hdd_nl_init(pHddCtx) != 0) {
       hddLog(LOGP, FL("nl_srv_init failed"));
+      goto err_logging_sock;
    }
    vos_set_radio_index(pHddCtx->radio_index);
 
