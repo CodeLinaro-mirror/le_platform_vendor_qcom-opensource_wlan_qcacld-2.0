@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011-2020 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -78,7 +78,11 @@ MODULE_IMPORT_NS(CRYPTO_INTERNAL);
 #include <crypto/aes.h>
 #include <wcnss_api.h>
 #ifdef CONFIG_CNSS
+#ifdef CONFIG_CNSS_OUT_OF_TREE
+#include "qcomwlan_secif.h"
+#else
 #include <linux/qcomwlan_secif.h>
+#endif
 #endif
 #include <linux/errno.h>
 

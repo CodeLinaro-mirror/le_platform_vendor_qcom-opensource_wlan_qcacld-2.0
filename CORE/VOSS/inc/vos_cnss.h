@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2015-2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Permission to use, copy, modify, and/or distribute this software for
  * any purpose with or without fee is hereby granted, provided that the
@@ -30,7 +31,11 @@
 #include "i_vos_lock.h"
 
 #ifdef CONFIG_CNSS
+#ifdef CONFIG_CNSS_OUT_OF_TREE
+#include "cnss.h"
+#else
 #include <net/cnss.h>
+#endif
 #endif
 
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 7, 0))

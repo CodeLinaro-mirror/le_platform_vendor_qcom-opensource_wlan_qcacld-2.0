@@ -50,7 +50,11 @@
 #include "wma.h"
 #include "wlan_hdd_oemdata.h"
 #ifdef CNSS_GENL
+#ifdef CONFIG_CNSS_OUT_OF_TREE
+#include "cnss_nl.h"
+#else
 #include <net/cnss_nl.h>
+#endif
 #endif
 
 static struct hdd_context_s *pHddCtx;

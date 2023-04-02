@@ -42,7 +42,11 @@
 #include <vos_trace.h>
 #include <wlan_hdd_ftm.h>
 #ifdef CNSS_GENL
+#ifdef CONFIG_CNSS_OUT_OF_TREE
+#include "cnss_nl.h"
+#else
 #include <net/cnss_nl.h>
+#endif
 #else
 
 static struct hdd_context_s *hdd_ctx_handle;
