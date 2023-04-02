@@ -78,11 +78,7 @@ MODULE_IMPORT_NS(CRYPTO_INTERNAL);
 #include <crypto/aes.h>
 #include <wcnss_api.h>
 #ifdef CONFIG_CNSS
-#ifdef CONFIG_CNSS_OUT_OF_TREE
-#include "qcomwlan_secif.h"
-#else
 #include <linux/qcomwlan_secif.h>
-#endif
 #endif
 #include <linux/errno.h>
 

@@ -49,11 +49,7 @@
 #include "ol_txrx_api.h"
 #include "csrApi.h"
 #ifdef CNSS_GENL
-#ifdef CONFIG_CNSS_OUT_OF_TREE
-#include "cnss_nl.h"
-#else
 #include <net/cnss_nl.h>
-#endif
 #endif
 
 #define MAX_NUM_PKT_LOG 32
