@@ -27,10 +27,6 @@ ifeq ($(CONFIG_ARCH_SDXNIGHTJAR), y)
 	CONFIG_TGT_NUM_MSDU_DESC := 1024
 endif
 
-ifeq ($(CONFIG_ARCH_SDXBAAGHA), y)
-        CONFIG_TGT_NUM_MSDU_DESC := 1024
-endif
-
 ifeq ($(KERNEL_BUILD), 0)
 	# These are configurable via Kconfig for kernel-based builds
 	# Need to explicitly configure for Android-based builds
@@ -57,11 +53,6 @@ ifeq ($(KERNEL_BUILD), 0)
 	endif
 
 	ifeq ($(CONFIG_ARCH_SDXNIGHTJAR), y)
-	CONFIG_MOBILE_ROUTER := y
-	CONFIG_CLD_REGDB := y
-	endif
-
-	ifeq ($(CONFIG_ARCH_SDXBAAGHA), y)
 	CONFIG_MOBILE_ROUTER := y
 	CONFIG_CLD_REGDB := y
 	endif
@@ -100,9 +91,6 @@ ifeq ($(KERNEL_BUILD), 0)
 		else
 			ifeq ($(findstring perf,$(KERNEL_DEFCONFIG)),)
 				ifneq ($(CONFIG_ARCH_SDXNIGHTJAR), y)
-					CONFIG_DPTRACE_ENABLE := y
-				endif
-				ifneq ($(CONFIG_ARCH_SDXBAAGHA), y)
 					CONFIG_DPTRACE_ENABLE := y
 				endif
 			endif
