@@ -58,8 +58,11 @@
 #endif
 
 #if defined(CONFIG_CNSS_LOGGER)
-
+#ifdef CONFIG_CNSS_OUT_OF_TREE
+#include "cnss_logger.h"
+#else
 #include <net/cnss_logger.h>
+#endif
 
 static int radio_idx = -EINVAL;
 static void *wiphy_ptr;
