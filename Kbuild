@@ -1216,6 +1216,9 @@ CDEFINES += -DIPA_UC_OFFLOAD
 ifeq (y, $(filter y, $(CONFIG_ARCH_MDM9640), $(CONFIG_ARCH_SDXNIGHTJAR)))
 CDEFINES += -DIPA_UC_STA_OFFLOAD
 CDEFINES += -DINTRA_BSS_FWD_OFFLOAD
+else ifeq ($(CONFIG_ARCH_SDXBAAGHA), y)
+CDEFINES += -DIPA_UC_STA_OFFLOAD
+CDEFINES += -DINTRA_BSS_FWD_OFFLOAD
 else
 CDEFINES += -DQCA_CONFIG_SMP
 endif
@@ -1227,6 +1230,10 @@ CDEFINES += -DSYNC_IPA_READY
 endif
 
 ifeq ($(CONFIG_ARCH_SDXNIGHTJAR), y)
+CDEFINES += -DSYNC_IPA_READY
+endif
+
+ifeq ($(CONFIG_ARCH_SDXBAAGHA), y)
 CDEFINES += -DSYNC_IPA_READY
 endif
 
@@ -1681,7 +1688,8 @@ CDEFINES += -Wno-error=format \
             -Wno-error=tautological-constant-out-of-range-compare \
             -Wno-error=macro-redefined \
             -Wno-error=parentheses-equality \
-            -Wno-error=unused-value
+            -Wno-error=unused-value \
+	    -Wno-error=pointer-bool-conversion
 
 # openwrt set to ccflags-y
 ccflags-y += $(INCS) $(CDEFINES)
