@@ -9058,7 +9058,7 @@ VOS_STATUS hdd_register_hostapd( hdd_adapter_t *pAdapter, tANI_U8 rtnl_lock_held
             return VOS_STATUS_E_FAILURE;
          }
       }
-      if (register_netdevice(dev))
+      if (wlan_cfg80211_register_netdevice(dev))
       {
          hddLog(VOS_TRACE_LEVEL_FATAL,
                 "%s:Failed:register_netdevice", __func__);

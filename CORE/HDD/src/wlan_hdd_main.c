@@ -11242,6 +11242,7 @@ static hdd_adapter_t *hdd_alloc_monitor_adapter(hdd_context_t *pHddCtx,
 	return pAdapter;
 }
 
+
 VOS_STATUS hdd_register_interface( hdd_adapter_t *pAdapter, tANI_U8 rtnl_lock_held )
 {
    struct net_device *pWlanDev = pAdapter->dev;
@@ -11255,7 +11256,7 @@ VOS_STATUS hdd_register_interface( hdd_adapter_t *pAdapter, tANI_U8 rtnl_lock_he
             return VOS_STATUS_E_FAILURE;
          }
       }
-      if (register_netdevice(pWlanDev))
+      if (wlan_cfg80211_register_netdevice(pWlanDev))
       {
          hddLog(VOS_TRACE_LEVEL_ERROR,"%s:Failed:register_netdev",__func__);
          return VOS_STATUS_E_FAILURE;
@@ -11637,7 +11638,7 @@ void hdd_cleanup_adapter(hdd_context_t *pHddCtx, hdd_adapter_t *pAdapter,
 
    if (test_bit(NET_DEVICE_REGISTERED, &pAdapter->event_flags)) {
       if (rtnl_held) {
-         unregister_netdevice(pWlanDev);
+         wlan_cfg80211_unregister_netdevice(pWlanDev);
       } else {
          unregister_netdev(pWlanDev);
       }
@@ -12538,7 +12539,7 @@ err_add_adapter_back:
 
 err_malloc_adapter_node:
 	if (rtnl_held)
-		unregister_netdevice(adapter->dev);
+		wlan_cfg80211_unregister_netdevice(adapter->dev);
 	else
 		unregister_netdev(adapter->dev);
 
