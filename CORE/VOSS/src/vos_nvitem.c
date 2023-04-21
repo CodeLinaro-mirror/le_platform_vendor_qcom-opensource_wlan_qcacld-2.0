@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2021-2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2021-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1985,7 +1985,11 @@ static int create_linux_regulatory_entry(v_REGDOMAIN_t temp_reg_domain,
         rtnl_lock();
         rtnl_locked = true;
     }
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(5, 15, 0))
     ret = regulatory_set_wiphy_regd_sync_rtnl(wiphy, regd_dup);
+#else
+    ret = regulatory_set_wiphy_regd_sync(wiphy, regd_dup);
+#endif
     if (ret)
         VOS_TRACE(VOS_MODULE_ID_VOSS, VOS_TRACE_LEVEL_ERROR,
                   "regulatory set wiphy regd err:%d", ret);

@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2017, 2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -49,7 +50,11 @@
 #include <vos_memory.h>
 #include <wlan_nlink_common.h>
 #include <net/genetlink.h>
+#ifdef CONFIG_CNSS_OUT_OF_TREE
+#include "cnss_nl.h"
+#else
 #include <net/cnss_nl.h>
+#endif
 #endif
 
 #if defined(CONFIG_CNSS_LOGGER)

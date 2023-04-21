@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2018 2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -41,7 +42,11 @@
 #include <vos_trace.h>
 #include <wlan_hdd_ftm.h>
 #ifdef CNSS_GENL
+#ifdef CONFIG_CNSS_OUT_OF_TREE
+#include "cnss_nl.h"
+#else
 #include <net/cnss_nl.h>
+#endif
 #else
 
 static struct hdd_context_s *hdd_ctx_handle;
@@ -253,7 +258,7 @@ static void ptt_cmd_handler(const void *data, int data_len, void *ctx, int pid)
 	 * audit note: it is ok to pass a NULL policy here since a
 	 * length check on the data is added later already
 	 */
-	if (nla_parse(tb, CLD80211_ATTR_MAX, data, data_len, NULL)) {
+	if (wlan_cfg80211_nla_parse(tb, CLD80211_ATTR_MAX, data, data_len, NULL)) {
 		PTT_TRACE(VOS_TRACE_LEVEL_ERROR, "Invalid ATTR");
 		return;
 	}

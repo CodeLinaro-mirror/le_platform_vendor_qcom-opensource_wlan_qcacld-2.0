@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2021-2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2021-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -21480,12 +21480,21 @@ static int __wlan_hdd_cfg80211_add_key( struct wiphy *wiphy,
     return 0;
 }
 
-static int wlan_hdd_cfg80211_add_key( struct wiphy *wiphy,
-                                      struct net_device *ndev,
-                                      u8 key_index, bool pairwise,
-                                      const u8 *mac_addr,
-                                      struct key_params *params
-                                      )
+#ifdef CFG80211_SINGLE_NETDEV_MULTI_LINK_SUPPORT
+static int wlan_hdd_cfg80211_add_key(struct wiphy *wiphy,
+                                     struct net_device *ndev,
+                                     int link_id, u8 key_index, bool pairwise,
+                                     const u8 *mac_addr,
+                                     struct key_params *params
+                                     )
+#else
+static int wlan_hdd_cfg80211_add_key(struct wiphy *wiphy,
+                                     struct net_device *ndev,
+                                     u8 key_index, bool pairwise,
+                                     const u8 *mac_addr,
+                                     struct key_params *params
+                                     )
+#endif
 {
     int ret;
     vos_ssr_protect(__func__);
@@ -21573,6 +21582,15 @@ static int __wlan_hdd_cfg80211_get_key(
     return 0;
 }
 
+#ifdef CFG80211_SINGLE_NETDEV_MULTI_LINK_SUPPORT
+static int wlan_hdd_cfg80211_get_key(
+                        struct wiphy *wiphy,
+                        struct net_device *ndev,
+                        int link_id, u8 key_index, bool pairwise,
+                        const u8 *mac_addr, void *cookie,
+                        void (*callback)(void *cookie, struct key_params*)
+                        )
+#else
 static int wlan_hdd_cfg80211_get_key(
                         struct wiphy *wiphy,
                         struct net_device *ndev,
@@ -21580,6 +21598,7 @@ static int wlan_hdd_cfg80211_get_key(
                         const u8 *mac_addr, void *cookie,
                         void (*callback)(void *cookie, struct key_params*)
                         )
+#endif
 {
     int ret;
 
@@ -21718,10 +21737,17 @@ static int __wlan_hdd_cfg80211_del_key(struct wiphy *wiphy,
  *
  * Return: 0 for success, error number on failure.
  */
+#ifdef CFG80211_SINGLE_NETDEV_MULTI_LINK_SUPPORT
 static int wlan_hdd_cfg80211_del_key(struct wiphy *wiphy,
-					struct net_device *dev,
-					u8 key_index,
-					bool pairwise, const u8 *mac_addr)
+				     struct net_device *dev,
+				     int link_id, u8 key_index,
+				     bool pairwise, const u8 *mac_addr)
+#else
+static int wlan_hdd_cfg80211_del_key(struct wiphy *wiphy,
+				     struct net_device *dev,
+				     u8 key_index,
+				     bool pairwise, const u8 *mac_addr)
+#endif
 {
 	int ret;
 
@@ -21853,10 +21879,17 @@ static int __wlan_hdd_cfg80211_set_default_key( struct wiphy *wiphy,
     return status;
 }
 
-static int wlan_hdd_cfg80211_set_default_key( struct wiphy *wiphy,
-                                              struct net_device *ndev,
-                                              u8 key_index,
-                                              bool unicast, bool multicast)
+#ifdef CFG80211_SINGLE_NETDEV_MULTI_LINK_SUPPORT
+static int wlan_hdd_cfg80211_set_default_key(struct wiphy *wiphy,
+                                             struct net_device *ndev,
+                                             int link_id, u8 key_index,
+                                             bool unicast, bool multicast)
+#else
+static int wlan_hdd_cfg80211_set_default_key(struct wiphy *wiphy,
+                                             struct net_device *ndev,
+                                             u8 key_index,
+                                             bool unicast, bool multicast)
+#endif
 {
     int ret;
     vos_ssr_protect(__func__);
@@ -25450,7 +25483,13 @@ static int __wlan_hdd_cfg80211_connect( struct wiphy *wiphy,
                             req->bssid, req->ssid,
                             req->ssid_len);
                 if (bss) {
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
+                    struct cfg80211_assoc_failure data = {
+                        .timeout = true,
+                        .bss[0] = bss,
+                    };
+                    cfg80211_assoc_failure(ndev, &data);
+#elif (LINUX_VERSION_CODE >= KERNEL_VERSION(3, 11, 0))
                     cfg80211_assoc_timeout(ndev,bss);
 #else
                     cfg80211_send_assoc_timeout(ndev, bss->bssid);
@@ -28319,9 +28358,15 @@ static int __wlan_hdd_set_default_mgmt_key(struct wiphy *wiphy,
  *
  * Return: 0 on success, error number on failure
  */
+#ifdef CFG80211_SINGLE_NETDEV_MULTI_LINK_SUPPORT
 static int wlan_hdd_set_default_mgmt_key(struct wiphy *wiphy,
-					   struct net_device *netdev,
-					   u8 key_index)
+					 struct net_device *netdev,
+					 int link_id, u8 key_index)
+#else
+static int wlan_hdd_set_default_mgmt_key(struct wiphy *wiphy,
+					 struct net_device *netdev,
+					 u8 key_index)
+#endif
 {
 	int ret;
 
@@ -32278,10 +32323,18 @@ __wlan_hdd_cfg80211_set_ap_channel_width(struct wiphy *wiphy,
  *
  * Return: 0 for success, non-zero for failure
  */
+#ifdef CFG80211_SINGLE_NETDEV_MULTI_LINK_SUPPORT
+static int
+wlan_hdd_cfg80211_set_ap_channel_width(struct wiphy *wiphy,
+				       struct net_device *dev,
+				       unsigned int link_id,
+				       struct cfg80211_chan_def *chandef)
+#else
 static int
 wlan_hdd_cfg80211_set_ap_channel_width(struct wiphy *wiphy,
 				       struct net_device *dev,
 				       struct cfg80211_chan_def *chandef)
+#endif
 {
 	int ret;
 
