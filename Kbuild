@@ -1681,6 +1681,11 @@ CDEFINES += -DCONFIG_CNSS_LOGGER
 endif
 endif
 
+found = $(shell if grep -qF "unsigned int link_id, u16 punct_bitmap" $(srctree)/include/net/cfg80211.h; then echo "yes" ;else echo "no" ;fi;)
+ifeq ($(findstring yes, $(found)), yes)
+CDEFINES += -DCFG80211_RU_PUNCT_NOTIFY
+endif
+
 ifdef OPENWRT_BUILD
 # openwrt fixes
 CDEFINES += -Wno-error=format \
