@@ -16861,7 +16861,10 @@ int wlan_hdd_cfg80211_init(struct device *dev,
 #ifdef CHANNEL_SWITCH_SUPPORTED
     wiphy->flags |= WIPHY_FLAG_HAS_CHANNEL_SWITCH;
 #endif
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,16,0)
     wiphy->max_num_csa_counters = WLAN_HDD_MAX_NUM_CSA_COUNTERS;
+#endif
 
     if (pCfg->sub_20_channel_width)
         wiphy->flags |= WIPHY_FLAG_SUPPORTS_5_10_MHZ;
