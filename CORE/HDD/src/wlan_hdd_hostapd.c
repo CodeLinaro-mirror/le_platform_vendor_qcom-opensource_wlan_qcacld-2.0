@@ -1493,18 +1493,30 @@ hdd_update_chandef(hdd_adapter_t *hostapd_adapter,
 #endif
 
 #ifdef CFG80211_SINGLE_NETDEV_MULTI_LINK_SUPPORT
-static inline
+#ifdef CFG80211_RU_PUNCT_NOTIFY
 void wlan_cfg80211_ch_switch_notify(struct net_device *dev,
 				    struct cfg80211_chan_def *chandef,
-				    unsigned int link_id)
+				    unsigned int link_id,
+				    uint16_t puncture_bitmap)
 {
-	cfg80211_ch_switch_notify(dev, chandef, link_id);
+        cfg80211_ch_switch_notify(dev, chandef, link_id, puncture_bitmap);
 }
 #else
 static inline
 void wlan_cfg80211_ch_switch_notify(struct net_device *dev,
 				    struct cfg80211_chan_def *chandef,
-				    unsigned int link_id)
+				    unsigned int link_id,
+				    uint16_t puncture_bitmap)
+{
+	cfg80211_ch_switch_notify(dev, chandef, link_id);
+}
+#endif
+#else
+static inline
+void wlan_cfg80211_ch_switch_notify(struct net_device *dev,
+				    struct cfg80211_chan_def *chandef,
+				    unsigned int link_id,
+				    uint16_t puncture_bitmap)
 {
 	cfg80211_ch_switch_notify(dev, chandef);
 }
@@ -1603,7 +1615,7 @@ VOS_STATUS hdd_chan_change_notify(hdd_adapter_t *hostapd_adapter,
 			  chandef.width);
 	}
 
-	wlan_cfg80211_ch_switch_notify(dev, &chandef, 0);
+	wlan_cfg80211_ch_switch_notify(dev, &chandef, 0, 0);
 
 	return VOS_STATUS_SUCCESS;
 }

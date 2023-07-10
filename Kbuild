@@ -1219,6 +1219,7 @@ CDEFINES += -DINTRA_BSS_FWD_OFFLOAD
 else ifeq ($(CONFIG_ARCH_SDXBAAGHA), y)
 CDEFINES += -DIPA_UC_STA_OFFLOAD
 CDEFINES += -DINTRA_BSS_FWD_OFFLOAD
+CDEFINES += -DIPA_UC_GSI_COEXIST
 else
 CDEFINES += -DQCA_CONFIG_SMP
 endif
@@ -1679,6 +1680,11 @@ endif
 ifeq ($(CONFIG_CNSS_LOGGER), y)
 CDEFINES += -DCONFIG_CNSS_LOGGER
 endif
+endif
+
+found = $(shell if grep -qF "unsigned int link_id, u16 punct_bitmap" $(srctree)/include/net/cfg80211.h; then echo "yes" ;else echo "no" ;fi;)
+ifeq ($(findstring yes, $(found)), yes)
+CDEFINES += -DCFG80211_RU_PUNCT_NOTIFY
 endif
 
 ifdef OPENWRT_BUILD

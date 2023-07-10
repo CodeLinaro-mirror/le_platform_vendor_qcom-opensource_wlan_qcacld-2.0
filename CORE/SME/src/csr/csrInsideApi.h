@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011-2017, 2019, 2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1160,3 +1161,5 @@ eHalStatus csrRoamSetBssConfigCfg(tpAniSirGlobal mac_ctx, uint32_t session_id,
                 tBssConfigParam *bss_cfg, tDot11fBeaconIEs *ies,
                 tANI_BOOLEAN reset_country);
 
+void csrProcessUpperLayerAssocCnf(tpAniSirGlobal pMac,
+		tSirSmeAssocIndToUpperLayerCnf *pUpperLayerAssocCnf);
