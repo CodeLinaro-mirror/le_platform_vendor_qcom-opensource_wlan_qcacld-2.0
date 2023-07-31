@@ -243,14 +243,15 @@ enum hdd_ipa_rm_state {
  * 'IPA_CLIENT_WLAN4_CONS' for Rome.
  */
 #ifdef IPA_UC_GSI_COEXIST
-#define HDD_IPA_MAX_IFACE 1
-#define HDD_IPA_MAX_SYSBAM_PIPE 2
+#define HDD_IPA_MAX_IFACE 2
+#define HDD_IPA_MAX_SYSBAM_PIPE 3
 #define HDD_IPA_RX_PIPE  HDD_IPA_MAX_IFACE
 static struct hdd_ipa_adapter_2_client {
-        enum ipa_client_type cons_client;
-        enum ipa_client_type prod_client;
+	enum ipa_client_type cons_client;
+	enum ipa_client_type prod_client;
 } hdd_ipa_adapter_2_client[HDD_IPA_MAX_IFACE] = {
-        {IPA_CLIENT_WLAN4_CONS, IPA_CLIENT_WLAN1_PROD},
+	{IPA_CLIENT_WLAN3_CONS, IPA_CLIENT_WLAN1_PROD},
+	{IPA_CLIENT_WLAN4_CONS, IPA_CLIENT_WLAN1_PROD},
 };
 #else
 #define HDD_IPA_MAX_IFACE 3
