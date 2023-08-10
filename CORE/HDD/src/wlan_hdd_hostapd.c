@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2021-2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2021-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1493,18 +1493,30 @@ hdd_update_chandef(hdd_adapter_t *hostapd_adapter,
 #endif
 
 #ifdef CFG80211_SINGLE_NETDEV_MULTI_LINK_SUPPORT
-static inline
+#ifdef CFG80211_RU_PUNCT_NOTIFY
 void wlan_cfg80211_ch_switch_notify(struct net_device *dev,
 				    struct cfg80211_chan_def *chandef,
-				    unsigned int link_id)
+				    unsigned int link_id,
+				    uint16_t puncture_bitmap)
 {
-	cfg80211_ch_switch_notify(dev, chandef, link_id);
+        cfg80211_ch_switch_notify(dev, chandef, link_id, puncture_bitmap);
 }
 #else
 static inline
 void wlan_cfg80211_ch_switch_notify(struct net_device *dev,
 				    struct cfg80211_chan_def *chandef,
-				    unsigned int link_id)
+				    unsigned int link_id,
+				    uint16_t puncture_bitmap)
+{
+	cfg80211_ch_switch_notify(dev, chandef, link_id);
+}
+#endif
+#else
+static inline
+void wlan_cfg80211_ch_switch_notify(struct net_device *dev,
+				    struct cfg80211_chan_def *chandef,
+				    unsigned int link_id,
+				    uint16_t puncture_bitmap)
 {
 	cfg80211_ch_switch_notify(dev, chandef);
 }
@@ -1603,7 +1615,7 @@ VOS_STATUS hdd_chan_change_notify(hdd_adapter_t *hostapd_adapter,
 			  chandef.width);
 	}
 
-	wlan_cfg80211_ch_switch_notify(dev, &chandef, 0);
+	wlan_cfg80211_ch_switch_notify(dev, &chandef, 0, 0);
 
 	return VOS_STATUS_SUCCESS;
 }
@@ -9058,7 +9070,7 @@ VOS_STATUS hdd_register_hostapd( hdd_adapter_t *pAdapter, tANI_U8 rtnl_lock_held
             return VOS_STATUS_E_FAILURE;
          }
       }
-      if (register_netdevice(dev))
+      if (wlan_cfg80211_register_netdevice(dev))
       {
          hddLog(VOS_TRACE_LEVEL_FATAL,
                 "%s:Failed:register_netdevice", __func__);

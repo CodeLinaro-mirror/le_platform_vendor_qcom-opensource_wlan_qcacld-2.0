@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -2834,4 +2835,26 @@ VOS_STATUS hdd_chan_change_notify(hdd_adapter_t *adapter,
 				  struct net_device *dev,
 				  uint8_t oper_chan,
 				  eCsrPhyMode phy_mode);
+
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 12, 0)
+static inline int wlan_cfg80211_register_netdevice(struct net_device *dev)
+{
+	return cfg80211_register_netdevice(dev);
+}
+
+static inline void wlan_cfg80211_unregister_netdevice(struct net_device *dev)
+{
+	cfg80211_unregister_netdevice(dev);
+}
+#else
+static inline int wlan_cfg80211_register_netdevice(struct net_device *dev)
+{
+	return register_netdevice(dev);
+}
+
+static inline void wlan_cfg80211_unregister_netdevice(struct net_device *dev)
+{
+	unregister_netdevice(dev);
+}
+#endif
 #endif    // end #if !defined( WLAN_HDD_MAIN_H )

@@ -1216,6 +1216,9 @@ CDEFINES += -DIPA_UC_OFFLOAD
 ifeq (y, $(filter y, $(CONFIG_ARCH_MDM9640), $(CONFIG_ARCH_SDXNIGHTJAR)))
 CDEFINES += -DIPA_UC_STA_OFFLOAD
 CDEFINES += -DINTRA_BSS_FWD_OFFLOAD
+else ifeq ($(CONFIG_ARCH_SDXBAAGHA), y)
+CDEFINES += -DIPA_UC_STA_OFFLOAD
+CDEFINES += -DINTRA_BSS_FWD_OFFLOAD
 else
 CDEFINES += -DQCA_CONFIG_SMP
 endif
@@ -1227,6 +1230,10 @@ CDEFINES += -DSYNC_IPA_READY
 endif
 
 ifeq ($(CONFIG_ARCH_SDXNIGHTJAR), y)
+CDEFINES += -DSYNC_IPA_READY
+endif
+
+ifeq ($(CONFIG_ARCH_SDXBAAGHA), y)
 CDEFINES += -DSYNC_IPA_READY
 endif
 
@@ -1664,10 +1671,19 @@ endif
 ifeq ($(CONFIG_CNSS_OUT_OF_TREE), y)
 CDEFINES += -DCONFIG_CNSS_OUT_OF_TREE
 INCS += -I$(WLAN_PLATFORM_INC)
-endif
 
 ifeq ($(CONFIG_CNSS), y)
 CDEFINES += -DCONFIG_CNSS
+endif
+
+ifeq ($(CONFIG_CNSS_LOGGER), y)
+CDEFINES += -DCONFIG_CNSS_LOGGER
+endif
+endif
+
+found = $(shell if grep -qF "unsigned int link_id, u16 punct_bitmap" $(srctree)/include/net/cfg80211.h; then echo "yes" ;else echo "no" ;fi;)
+ifeq ($(findstring yes, $(found)), yes)
+CDEFINES += -DCFG80211_RU_PUNCT_NOTIFY
 endif
 
 ifdef OPENWRT_BUILD
@@ -1681,7 +1697,8 @@ CDEFINES += -Wno-error=format \
             -Wno-error=tautological-constant-out-of-range-compare \
             -Wno-error=macro-redefined \
             -Wno-error=parentheses-equality \
-            -Wno-error=unused-value
+            -Wno-error=unused-value \
+	    -Wno-error=pointer-bool-conversion
 
 # openwrt set to ccflags-y
 ccflags-y += $(INCS) $(CDEFINES)

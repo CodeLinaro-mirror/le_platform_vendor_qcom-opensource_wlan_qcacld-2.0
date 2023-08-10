@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2018, 2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -2593,6 +2594,20 @@ static int hdd_ipa_rm_try_release(struct hdd_ipa_priv *hdd_ipa)
 
 	return ret;
 }
+
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5,15,0))
+static inline int ipa_tx_dp_mul(enum ipa_client_type src,
+	struct ipa_tx_data_desc *data_desc)
+{
+	return -EPERM;
+}
+
+static inline int ipa_rm_create_resource(
+	struct ipa_rm_create_params *create_params)
+{
+	return -EPERM;
+}
+#endif
 
 static void hdd_ipa_send_pkt_to_ipa(struct hdd_ipa_priv *hdd_ipa)
 {
