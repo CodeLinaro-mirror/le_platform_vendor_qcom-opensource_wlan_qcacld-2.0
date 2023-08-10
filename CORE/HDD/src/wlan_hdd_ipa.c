@@ -4710,6 +4710,12 @@ int hdd_ipa_wlan_evt(hdd_adapter_t *adapter, uint8_t sta_id,
 		if ((!hdd_ipa->num_iface) &&
 			(HDD_IPA_UC_NUM_WDI_PIPE == hdd_ipa->activated_fw_pipe) &&
 			!hdd_ipa->ipa_pipes_down) {
+			if (hdd_ipa->sap_num_connected_sta > 0) {
+				HDD_IPA_LOG(VOS_TRACE_LEVEL_ERROR, "force disconnect client, sta num %d",
+					    hdd_ipa->sap_num_connected_sta);
+				hdd_ipa_uc_disconnect_client(adapter);
+				hdd_ipa->sap_num_connected_sta = 0;
+			}
 			if (hdd_ipa->hdd_ctx->isUnloadInProgress) {
 				/* We disable WDI pipes directly here since
 				 * IPA_OPCODE_TX/RX_SUSPEND message will not be
