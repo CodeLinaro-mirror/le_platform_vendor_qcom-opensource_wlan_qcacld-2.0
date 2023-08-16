@@ -2539,6 +2539,11 @@ VOS_STATUS hdd_hostapd_SAPEventCB( tpSap_Event pSapEvent, v_PVOID_t usrDataForCa
             sapCleanupChannelList(WLAN_HDD_GET_SAP_CTX_PTR(pHostapdAdapter));
 
             pHddApCtx->operatingChannel = 0; //Invalidate the channel info.
+
+            /* In case sta isn't cleanup - e.g. interface down, stop ap directly
+             * and don't delete stas, so here check and cleanup sta again.
+             */
+            hdd_sap_indicate_disconnect_for_sta(pHostapdAdapter);
 #ifdef IPA_OFFLOAD
             if (hdd_ipa_is_enabled(pHddCtx))
             {
