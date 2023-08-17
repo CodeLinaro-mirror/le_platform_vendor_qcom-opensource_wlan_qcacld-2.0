@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2019, 2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -4312,6 +4313,7 @@ WLANSAP_ACS_CHSelect(v_PVOID_t pvosGCtx,
     VOS_STATUS vosStatus = VOS_STATUS_E_FAILURE;
     tpAniSirGlobal pMac = NULL;
     tWLAN_SAPEvent sapEvent; /* State machine event */
+    uint32_t sessionId;
 
     sapContext = VOS_GET_SAP_CB( pvosGCtx );
     if (NULL == sapContext) {
@@ -4328,7 +4330,12 @@ WLANSAP_ACS_CHSelect(v_PVOID_t pvosGCtx,
         return VOS_STATUS_E_FAULT;
     }
 
-
+    if (VOS_STATUS_SUCCESS != sme_is_session_valid(hHal,
+        sapContext->sessionId)) {
+        VOS_TRACE( VOS_MODULE_ID_SAP, VOS_TRACE_LEVEL_ERROR,
+                   "%s: open session due to it's invalid now", __func__);
+        sap_OpenSession(hHal, sapContext, &sessionId);
+    }
     pMac = PMAC_STRUCT( hHal );
     sapContext->acs_cfg = &pConfig->acs_cfg;
     sapContext->csrRoamProfile.phyMode = sapContext->acs_cfg->hw_mode;
