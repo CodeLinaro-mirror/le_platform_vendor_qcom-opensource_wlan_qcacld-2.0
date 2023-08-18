@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2020 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1104,7 +1104,7 @@ struct ol_txrx_vdev_t {
 			int depth;
 		} txq;
 		adf_os_spinlock_t mutex;
-		adf_os_timer_t timer;
+		vos_timer_t timer;
 	} bundle_queue;
 
 #ifdef QCA_SUPPORT_TXRX_DRIVER_TCP_DEL_ACK
