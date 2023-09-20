@@ -237,10 +237,26 @@ enum hdd_ipa_rm_state {
 	HDD_IPA_RM_GRANTED,
 };
 
+/*
+ * Some platforms supports both uC and GSI at same time, e.g. Kuno
+ * attached ROME or HSP. IPA and WLAN have agreement to using
+ * 'IPA_CLIENT_WLAN4_CONS' for Rome.
+ */
+#ifdef IPA_UC_GSI_COEXIST
+#define HDD_IPA_MAX_IFACE 2
+#define HDD_IPA_MAX_SYSBAM_PIPE 3
+#define HDD_IPA_RX_PIPE  HDD_IPA_MAX_IFACE
+static struct hdd_ipa_adapter_2_client {
+	enum ipa_client_type cons_client;
+	enum ipa_client_type prod_client;
+} hdd_ipa_adapter_2_client[HDD_IPA_MAX_IFACE] = {
+	{IPA_CLIENT_WLAN3_CONS, IPA_CLIENT_WLAN1_PROD},
+	{IPA_CLIENT_WLAN4_CONS, IPA_CLIENT_WLAN1_PROD},
+};
+#else
 #define HDD_IPA_MAX_IFACE 3
 #define HDD_IPA_MAX_SYSBAM_PIPE 4
 #define HDD_IPA_RX_PIPE  HDD_IPA_MAX_IFACE
-
 static struct hdd_ipa_adapter_2_client {
 	enum ipa_client_type cons_client;
 	enum ipa_client_type prod_client;
@@ -255,6 +271,7 @@ static struct hdd_ipa_adapter_2_client {
 	{IPA_CLIENT_WLAN3_CONS, IPA_CLIENT_WLAN1_PROD},
 #endif
 };
+#endif
 
 struct hdd_ipa_sys_pipe {
 	uint32_t conn_hdl;

@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011-2019, 2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -2728,77 +2728,19 @@ eHalStatus csrScanningStateMsgProcessor( tpAniSirGlobal pMac, void *pMsgBuf )
 	    (eWNI_SME_GET_SCANNED_CHANNEL_RSP == pMsg->type)) {
 		status = csrScanSmeScanResponse( pMac, pMsgBuf );
 	} else {
-		roam_info = vos_mem_malloc(sizeof(*roam_info));
-		if (!roam_info)
-			return eHAL_STATUS_FAILED_ALLOC;
 		switch (pMsg->type) {
 		case eWNI_SME_UPPER_LAYER_ASSOC_CNF:
 		{
-			tSirSmeAssocIndToUpperLayerCnf *pUpperLayerAssocCnf;
-			tANI_U32 sessionId;
-			eHalStatus status;
-
 			smsLog(pMac, LOG1,
 			       FL("Scanning : ASSOCIATION confirmation can be given to upper layer "));
-
-			pUpperLayerAssocCnf =
-				(tSirSmeAssocIndToUpperLayerCnf *)pMsgBuf;
-			status = csrRoamGetSessionIdFromBSSID( pMac,
-					(tCsrBssid *)pUpperLayerAssocCnf->bssId,
-					&sessionId );
-			pSession = CSR_GET_SESSION(pMac, sessionId);
-			if(!pSession) {
-				smsLog(pMac, LOGE,
-					FL("  session %d not found "),
-					sessionId);
-				vos_mem_free(roam_info);
-				return eHAL_STATUS_FAILURE;
-			}
-				//send the status code as Success
-			roam_info->statusCode = eSIR_SME_SUCCESS;
-			roam_info->u.pConnectedProfile =
-				&pSession->connectedProfile;
-			roam_info->staId = (tANI_U8)pUpperLayerAssocCnf->aid;
-			roam_info->rsnIELen =
-				(tANI_U8)pUpperLayerAssocCnf->rsnIE.length;
-			roam_info->prsnIE =
-				pUpperLayerAssocCnf->rsnIE.rsnIEdata;
-			roam_info->addIELen =
-				(tANI_U8)pUpperLayerAssocCnf->addIE.length;
-			roam_info->paddIE =
-				pUpperLayerAssocCnf->addIE.addIEdata;
-			vos_mem_copy(roam_info->peerMac,
-				     pUpperLayerAssocCnf->peerMacAddr,
-				     sizeof(tSirMacAddr));
-			vos_mem_copy(&roam_info->bssid,
-				     pUpperLayerAssocCnf->bssId,
-				     sizeof(tCsrBssid));
-			roam_info->wmmEnabledSta =
-				pUpperLayerAssocCnf->wmmEnabledSta;
-			if (CSR_IS_INFRA_AP(roam_info->u.pConnectedProfile)) {
-				pMac->roam.roamSession[sessionId].connectState =
-					eCSR_ASSOC_STATE_TYPE_INFRA_CONNECTED;
-				roam_info->fReassocReq =
-					pUpperLayerAssocCnf->reassocReq;
-				status = csrRoamCallCallback(pMac, sessionId,
-					roam_info, 0,
-					eCSR_ROAM_INFRA_IND,
-					eCSR_ROAM_RESULT_INFRA_ASSOCIATION_CNF);
-			}
-			if(CSR_IS_WDS_AP( roam_info->u.pConnectedProfile)) {
-				vos_sleep( 100 );
-				pMac->roam.roamSession[sessionId].connectState =
-					//Sta
-					eCSR_ASSOC_STATE_TYPE_WDS_CONNECTED;
-				status = csrRoamCallCallback(pMac,
-					sessionId, roam_info, 0,
-					eCSR_ROAM_WDS_IND,
-					//Sta
-					eCSR_ROAM_RESULT_WDS_ASSOCIATION_IND);
-			}
+			csrProcessUpperLayerAssocCnf(pMac, (tSirSmeAssocIndToUpperLayerCnf *)pMsgBuf);
 			break;
 		}
 		case eWNI_SME_DISCONNECT_DONE_IND:
+			roam_info = vos_mem_malloc(sizeof(*roam_info));
+			if (!roam_info)
+				return eHAL_STATUS_FAILED_ALLOC;
+
 			pDisConDoneInd = (tSirSmeDisConDoneInd *)(pMsg);
 
 			smsLog( pMac, LOG1,
@@ -2845,6 +2787,7 @@ eHalStatus csrScanningStateMsgProcessor( tpAniSirGlobal pMac, void *pMsgBuf )
 					pDisConDoneInd->sessionId);
 				status = eHAL_STATUS_FAILURE;
 			}
+			vos_mem_free(roam_info);
 			break;
 
 		default :
