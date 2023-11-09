@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2002-2014, 2016-2018 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -294,7 +294,7 @@ static void dfs_process_dc_pulse(struct ath_dfs *dfs, struct dfs_event *event,
     if (re.re_chanindex < DFS_NUM_RADAR_STATES)
        rs = &dfs->dfs_radar[re.re_chanindex];
 
-    while ((tabledepth < DFS_MAX_RADAR_OVERLAP) &&
+    while (rs && (tabledepth < DFS_MAX_RADAR_OVERLAP) &&
            ((dfs->dfs_dc_radartable[re.re_dur])[tabledepth] != -1) &&
            (!*retval) && (!*false_radar_found)) {
         ft = dfs->dfs_dc_radarf[((dfs->dfs_dc_radartable
