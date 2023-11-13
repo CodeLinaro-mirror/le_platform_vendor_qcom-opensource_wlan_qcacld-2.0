@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1725,9 +1726,13 @@ ol_rx_offload_paddr_deliver_ind_handler(
     int msdu_iter = 0;
 
     while (msdu_count) {
-        htt_rx_offload_paddr_msdu_pop_ll(
+        if (htt_rx_offload_paddr_msdu_pop_ll(
             htt_pdev, msg_word, msdu_iter, &vdev_id,
-             &peer_id, &tid, &fw_desc, &head_buf, &tail_buf);
+            &peer_id, &tid, &fw_desc, &head_buf, &tail_buf)) {
+            msdu_iter++;
+            msdu_count--;
+            continue;
+        }
 
         peer = ol_txrx_peer_find_by_id(htt_pdev->txrx_pdev, peer_id);
         if (peer && peer->vdev) {
