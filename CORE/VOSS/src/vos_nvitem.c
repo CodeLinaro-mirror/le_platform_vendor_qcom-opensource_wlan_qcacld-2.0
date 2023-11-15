@@ -1859,7 +1859,7 @@ vos_freq_reg_info(struct wiphy *wiphy,
 	bool bw_fit;
 
 	if (!regd)
-		return NULL;
+		return ERR_PTR(-EINVAL);
 
 	for (i = 0; i < regd->n_reg_rules; i++) {
 		reg_rule = &regd->reg_rules[i];
