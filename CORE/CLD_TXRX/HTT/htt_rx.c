@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011-2019, 2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1376,7 +1377,7 @@ htt_rx_offload_paddr_msdu_pop_ll(
 
     if (adf_os_unlikely(NULL == buf)) {
         adf_os_print("%s: netbuf pop failed!\n", __FUNCTION__);
-        return 0;
+        return 1;
     }
     adf_nbuf_set_pktlen(buf, HTT_RX_BUF_SIZE);
 #ifdef DEBUG_DMA_DONE
