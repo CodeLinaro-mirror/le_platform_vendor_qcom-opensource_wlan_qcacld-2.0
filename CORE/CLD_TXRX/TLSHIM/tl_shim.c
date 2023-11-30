@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -2189,6 +2189,11 @@ VOS_STATUS WLANTL_Open(void *vos_ctx, WLANTL_ConfigInfoType *tl_cfg)
 	max_vdev = wdi_out_cfg_max_vdevs(((pVosContextType)vos_ctx)->cfg_ctx);
 	tl_shim->vdev_active = adf_os_mem_alloc(NULL,
 		max_vdev * sizeof(adf_os_atomic_t));
+	if (!tl_shim->vdev_active) {
+		TLSHIM_LOGE("Failed to allocate memory for vdev active");
+		vos_free_context(vos_ctx, VOS_MODULE_ID_TL, tl_shim);
+		return VOS_STATUS_E_NOMEM;
+	}
 	for (i = 0; i < max_vdev; i++) {
 		adf_os_atomic_init(&tl_shim->vdev_active[i]);
 		adf_os_atomic_set(&tl_shim->vdev_active[i], 0);
@@ -2199,6 +2204,7 @@ VOS_STATUS WLANTL_Open(void *vos_ctx, WLANTL_ConfigInfoType *tl_cfg)
 			max_vdev * sizeof(struct tlshim_session_flow_Control));
 	if (!tl_shim->session_flow_control) {
 		TLSHIM_LOGE("Failed to allocate memory for tx flow control");
+		adf_os_mem_free(tl_shim->vdev_active);
 		vos_free_context(vos_ctx, VOS_MODULE_ID_TL, tl_shim);
 		return VOS_STATUS_E_NOMEM;
 	}
@@ -2220,6 +2226,7 @@ VOS_STATUS WLANTL_Open(void *vos_ctx, WLANTL_ConfigInfoType *tl_cfg)
 #ifdef QCA_LL_TX_FLOW_CT
 		adf_os_mem_free(tl_shim->session_flow_control);
 #endif
+		adf_os_mem_free(tl_shim->vdev_active);
 		vos_free_context(vos_ctx, VOS_MODULE_ID_TL, tl_shim);
 		return VOS_STATUS_E_NOMEM;
 	}
@@ -2232,6 +2239,7 @@ VOS_STATUS WLANTL_Open(void *vos_ctx, WLANTL_ConfigInfoType *tl_cfg)
 #ifdef QCA_LL_TX_FLOW_CT
 			adf_os_mem_free(tl_shim->session_flow_control);
 #endif
+			adf_os_mem_free(tl_shim->vdev_active);
 			vos_free_context(vos_ctx, VOS_MODULE_ID_TL, tl_shim);
 			return status;
 		}

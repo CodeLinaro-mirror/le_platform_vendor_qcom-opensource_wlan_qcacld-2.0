@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -41870,6 +41870,10 @@ int wma_utf_rsp(tp_wma_handle wma_handle, u_int8_t **payload, u_int32_t *len)
 		 */
 		*payload = (u_int8_t *)vos_mem_malloc((v_SIZE_t)payload_len
 						      + sizeof(A_UINT32));
+		if (!(*payload)) {
+			WMA_LOGE("%s: alloc failed for payload", __func__);
+			return -1;
+		}
 		*(A_UINT32*)&(*payload[0]) = wma_handle->utf_event_info.length;
 		memcpy(*payload + sizeof(A_UINT32),
 		       wma_handle->utf_event_info.data,
