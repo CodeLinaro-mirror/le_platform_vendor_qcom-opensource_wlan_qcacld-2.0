@@ -121,7 +121,7 @@ static inline void vos_pm_wake_lock(vos_wake_lock_t *lock)
 	__pm_stay_awake(lock->priv);
 }
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(4, 19, 0)
 static inline void vos_pm_wake_lock_timeout(vos_wake_lock_t *lock,
 					    ulong msec)
 {
