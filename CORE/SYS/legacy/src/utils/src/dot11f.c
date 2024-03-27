@@ -3937,7 +3937,7 @@ tANI_U32 dot11fUnpackIeExtCap(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U8 ielen,
     if (!ielen) /* Check to ensure copying of ielen bytes */
         goto endUnpackIeExtCap;
     pDst->num_bytes = (tANI_U8)( ielen );
-    if (ielen > 9){
+    if (ielen > 15){
         pDst->present = 0;
         return DOT11F_SKIPPED_BAD_IE;
     }
@@ -8349,11 +8349,11 @@ tANI_U32 dot11fUnpackAddTSResponse(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32 
         {offsetof(tDot11fAssocRequest, P2PIEOpaque), offsetof(tDot11fIEP2PIEOpaque, present), 0, "P2PIEOpaque" , 0, 8, 255, SigIeP2PIEOpaque, {80, 111, 154, 9, 0}, 4, DOT11F_EID_P2PIEOPAQUE, 0, 0, },
         {offsetof(tDot11fAssocRequest, WFDIEOpaque), offsetof(tDot11fIEWFDIEOpaque, present), 0, "WFDIEOpaque" , 0, 8, 255, SigIeWFDIEOpaque, {80, 111, 154, 10, 0}, 4, DOT11F_EID_WFDIEOPAQUE, 0, 0, },
         {offsetof(tDot11fAssocRequest, VHTCaps), offsetof(tDot11fIEVHTCaps, present), 0, "VHTCaps" , 0, 14, 14, SigIeVHTCaps, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTCAPS, 0, 0, },
-        {offsetof(tDot11fAssocRequest, fils_session), offsetof(tDot11fIEfils_session, present), 0, "fils_session" , 0, 10, 10, SigIefils_session, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_SESSION, 0, 0, },
-        {offsetof(tDot11fAssocRequest, fils_public_key), offsetof(tDot11fIEfils_public_key, present), 0, "fils_public_key" , 0, 3, 258, SigIefils_public_key, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_PUBLIC_KEY, 0, 0, },
-        {offsetof(tDot11fAssocRequest, fils_key_confirmation), offsetof(tDot11fIEfils_key_confirmation, present), 0, "fils_key_confirmation" , 0, 2, 257, SigIefils_key_confirmation, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_KEY_CONFIRMATION, 0, 0, },
-        {offsetof(tDot11fAssocRequest, fils_hlp_container), offsetof(tDot11fIEfils_hlp_container, present), 0, "fils_hlp_container" , 0, 14, 269, SigIefils_hlp_container, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_HLP_CONTAINER, 0, 0, },
-        {offsetof(tDot11fAssocRequest, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 11, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
+        {offsetof(tDot11fAssocRequest, fils_session), offsetof(tDot11fIEfils_session, present), 0, "fils_session" , 0, 10, 10, SigIefils_session, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_SESSION, 4, 0, },
+        {offsetof(tDot11fAssocRequest, fils_public_key), offsetof(tDot11fIEfils_public_key, present), 0, "fils_public_key" , 0, 3, 258, SigIefils_public_key, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_PUBLIC_KEY, 12, 0, },
+        {offsetof(tDot11fAssocRequest, fils_key_confirmation), offsetof(tDot11fIEfils_key_confirmation, present), 0, "fils_key_confirmation" , 0, 2, 257, SigIefils_key_confirmation, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_KEY_CONFIRMATION, 3, 0, },
+        {offsetof(tDot11fAssocRequest, fils_hlp_container), offsetof(tDot11fIEfils_hlp_container, present), 0, "fils_hlp_container" , 0, 14, 269, SigIefils_hlp_container, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_HLP_CONTAINER, 5, 0, },
+        {offsetof(tDot11fAssocRequest, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
         {offsetof(tDot11fAssocRequest, OperatingMode), offsetof(tDot11fIEOperatingMode, present), 0, "OperatingMode" , 0, 3, 3, SigIeOperatingMode, {0, 0, 0, 0, 0}, 0, DOT11F_EID_OPERATINGMODE, 0, 0, },
         {offsetof(tDot11fAssocRequest, QosMapSet), offsetof(tDot11fIEQosMapSet, present), 0, "QosMapSet" , 0, 2, 62, SigIeQosMapSet, {0, 0, 0, 0, 0}, 0, DOT11F_EID_QOSMAPSET, 0, 0, },
         {offsetof(tDot11fAssocRequest, vendor2_ie), offsetof(tDot11fIEvendor2_ie, present), 0, "vendor2_ie" , 0, 7, 28, SigIevendor2_ie, {0, 144, 76, 0, 0}, 3, DOT11F_EID_VENDOR2_IE, 0, 0, },
@@ -8954,14 +8954,14 @@ tANI_U32 dot11fUnpackAssocRequest(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32 n
         {offsetof(tDot11fAssocResponse, P2PAssocRes), offsetof(tDot11fIEP2PAssocRes, present), 0, "P2PAssocRes" , 0, 6, 17, SigIeP2PAssocRes, {80, 111, 154, 9, 0}, 4, DOT11F_EID_P2PASSOCRES, 0, 0, },
         {offsetof(tDot11fAssocResponse, VHTCaps), offsetof(tDot11fIEVHTCaps, present), 0, "VHTCaps" , 0, 14, 14, SigIeVHTCaps, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTCAPS, 0, 0, },
         {offsetof(tDot11fAssocResponse, VHTOperation), offsetof(tDot11fIEVHTOperation, present), 0, "VHTOperation" , 0, 7, 7, SigIeVHTOperation, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTOPERATION, 0, 0, },
-        {offsetof(tDot11fAssocResponse, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 11, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
+        {offsetof(tDot11fAssocResponse, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
         {offsetof(tDot11fAssocResponse, OBSSScanParameters), offsetof(tDot11fIEOBSSScanParameters, present), 0, "OBSSScanParameters" , 0, 16, 16, SigIeOBSSScanParameters, {0, 0, 0, 0, 0}, 0, DOT11F_EID_OBSSSCANPARAMETERS, 0, 0, },
         {offsetof(tDot11fAssocResponse, QosMapSet), offsetof(tDot11fIEQosMapSet, present), 0, "QosMapSet" , 0, 2, 62, SigIeQosMapSet, {0, 0, 0, 0, 0}, 0, DOT11F_EID_QOSMAPSET, 0, 0, },
-        {offsetof(tDot11fAssocResponse, fils_session), offsetof(tDot11fIEfils_session, present), 0, "fils_session" , 0, 10, 10, SigIefils_session, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_SESSION, 0, 0, },
-        {offsetof(tDot11fAssocResponse, fils_public_key), offsetof(tDot11fIEfils_public_key, present), 0, "fils_public_key" , 0, 3, 258, SigIefils_public_key, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_PUBLIC_KEY, 0, 0, },
-        {offsetof(tDot11fAssocResponse, fils_key_confirmation), offsetof(tDot11fIEfils_key_confirmation, present), 0, "fils_key_confirmation" , 0, 2, 257, SigIefils_key_confirmation, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_KEY_CONFIRMATION, 0, 0, },
-        {offsetof(tDot11fAssocResponse, fils_hlp_container), offsetof(tDot11fIEfils_hlp_container, present), 0, "fils_hlp_container" , 0, 14, 269, SigIefils_hlp_container, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_HLP_CONTAINER, 0, 0, },
-        {offsetof(tDot11fAssocResponse, fils_kde), offsetof(tDot11fIEfils_kde, present), 0, "fils_kde" , 0, 10, 265, SigIefils_kde, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_KDE, 0, 0, },
+        {offsetof(tDot11fAssocResponse, fils_session), offsetof(tDot11fIEfils_session, present), 0, "fils_session" , 0, 10, 10, SigIefils_session, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_SESSION, 4, 0, },
+        {offsetof(tDot11fAssocResponse, fils_public_key), offsetof(tDot11fIEfils_public_key, present), 0, "fils_public_key" , 0, 3, 258, SigIefils_public_key, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_PUBLIC_KEY, 12, 0, },
+        {offsetof(tDot11fAssocResponse, fils_key_confirmation), offsetof(tDot11fIEfils_key_confirmation, present), 0, "fils_key_confirmation" , 0, 2, 257, SigIefils_key_confirmation, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_KEY_CONFIRMATION, 3, 0, },
+        {offsetof(tDot11fAssocResponse, fils_hlp_container), offsetof(tDot11fIEfils_hlp_container, present), 0, "fils_hlp_container" , 0, 14, 269, SigIefils_hlp_container, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_HLP_CONTAINER, 5, 0, },
+        {offsetof(tDot11fAssocResponse, fils_kde), offsetof(tDot11fIEfils_kde, present), 0, "fils_kde" , 0, 10, 265, SigIefils_kde, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_KDE, 7, 0, },
         {offsetof(tDot11fAssocResponse, vendor2_ie), offsetof(tDot11fIEvendor2_ie, present), 0, "vendor2_ie" , 0, 7, 28, SigIevendor2_ie, {0, 144, 76, 0, 0}, 3, DOT11F_EID_VENDOR2_IE, 0, 0, },
         {offsetof(tDot11fAssocResponse, QComVendorIE), offsetof(tDot11fIEQComVendorIE, present), 0, "QComVendorIE" , 0, 5, 12, SigIeQComVendorIE, {0, 160, 198, 0, 0}, 3, DOT11F_EID_QCOMVENDORIE, 0, 0, },
     {0, 0, 0, NULL, 0, 0, 0, 0, {0, 0, 0, 0, 0}, 0, 0xff, 0, },    };
@@ -10015,10 +10015,10 @@ tANI_U32 dot11fUnpackAssocResponse(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32 
         {offsetof(tDot11fAuthentication, FTInfo), offsetof(tDot11fIEFTInfo, present), 0, "FTInfo" , 0, 84, 222, SigIeFTInfo, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FTINFO, 0, 0, },
         {offsetof(tDot11fAuthentication, TimeoutInterval), offsetof(tDot11fIETimeoutInterval, present), 0, "TimeoutInterval" , 0, 7, 7, SigIeTimeoutInterval, {0, 0, 0, 0, 0}, 0, DOT11F_EID_TIMEOUTINTERVAL, 0, 0, },
         {offsetof(tDot11fAuthentication, RICDataDesc), offsetof(tDot11fIERICDataDesc, present), offsetof(tDot11fAuthentication, num_RICDataDesc), "RICDataDesc" , 2, 2, 550, SigIeRICDataDesc, {0, 0, 0, 0, 0}, 0, DOT11F_EID_RICDATADESC, 0, 0, },
-        {offsetof(tDot11fAuthentication, fils_nonce), offsetof(tDot11fIEfils_nonce, present), 0, "fils_nonce" , 0, 18, 18, SigIefils_nonce, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_NONCE, 0, 0, },
-        {offsetof(tDot11fAuthentication, fils_session), offsetof(tDot11fIEfils_session, present), 0, "fils_session" , 0, 10, 10, SigIefils_session, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_SESSION, 0, 0, },
-        {offsetof(tDot11fAuthentication, fils_wrapped_data), offsetof(tDot11fIEfils_wrapped_data, present), 0, "fils_wrapped_data" , 0, 2, 257, SigIefils_wrapped_data, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_WRAPPED_DATA, 0, 0, },
-        {offsetof(tDot11fAuthentication, fils_assoc_delay_info), offsetof(tDot11fIEfils_assoc_delay_info, present), 0, "fils_assoc_delay_info" , 0, 3, 3, SigIefils_assoc_delay_info, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_ASSOC_DELAY_INFO, 0, 0, },
+        {offsetof(tDot11fAuthentication, fils_nonce), offsetof(tDot11fIEfils_nonce, present), 0, "fils_nonce" , 0, 18, 18, SigIefils_nonce, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_NONCE, 13, 0, },
+        {offsetof(tDot11fAuthentication, fils_session), offsetof(tDot11fIEfils_session, present), 0, "fils_session" , 0, 10, 10, SigIefils_session, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_SESSION, 4, 0, },
+        {offsetof(tDot11fAuthentication, fils_wrapped_data), offsetof(tDot11fIEfils_wrapped_data, present), 0, "fils_wrapped_data" , 0, 2, 257, SigIefils_wrapped_data, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_WRAPPED_DATA, 8, 0, },
+        {offsetof(tDot11fAuthentication, fils_assoc_delay_info), offsetof(tDot11fIEfils_assoc_delay_info, present), 0, "fils_assoc_delay_info" , 0, 3, 3, SigIefils_assoc_delay_info, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_ASSOC_DELAY_INFO, 1, 0, },
     {0, 0, 0, NULL, 0, 0, 0, 0, {0, 0, 0, 0, 0}, 0, 0xff, 0, },    };
 
 tANI_U32 dot11fUnpackAuthentication(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32 nBuf, tDot11fAuthentication *pFrm)
@@ -10500,7 +10500,7 @@ tANI_U32 dot11fUnpackAuthentication(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32
         {offsetof(tDot11fBeacon, VHTCaps), offsetof(tDot11fIEVHTCaps, present), 0, "VHTCaps" , 0, 14, 14, SigIeVHTCaps, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTCAPS, 0, 0, },
         {offsetof(tDot11fBeacon, VHTOperation), offsetof(tDot11fIEVHTOperation, present), 0, "VHTOperation" , 0, 7, 7, SigIeVHTOperation, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTOPERATION, 0, 0, },
         {offsetof(tDot11fBeacon, VHTExtBssLoad), offsetof(tDot11fIEVHTExtBssLoad, present), 0, "VHTExtBssLoad" , 0, 7, 7, SigIeVHTExtBssLoad, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTEXTBSSLOAD, 0, 0, },
-        {offsetof(tDot11fBeacon, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 11, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
+        {offsetof(tDot11fBeacon, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
         {offsetof(tDot11fBeacon, OperatingMode), offsetof(tDot11fIEOperatingMode, present), 0, "OperatingMode" , 0, 3, 3, SigIeOperatingMode, {0, 0, 0, 0, 0}, 0, DOT11F_EID_OPERATINGMODE, 0, 0, },
         {offsetof(tDot11fBeacon, WiderBWChanSwitchAnn), offsetof(tDot11fIEWiderBWChanSwitchAnn, present), 0, "WiderBWChanSwitchAnn" , 0, 5, 5, SigIeWiderBWChanSwitchAnn, {0, 0, 0, 0, 0}, 0, DOT11F_EID_WIDERBWCHANSWITCHANN, 0, 0, },
         {offsetof(tDot11fBeacon, OBSSScanParameters), offsetof(tDot11fIEOBSSScanParameters, present), 0, "OBSSScanParameters" , 0, 16, 16, SigIeOBSSScanParameters, {0, 0, 0, 0, 0}, 0, DOT11F_EID_OBSSSCANPARAMETERS, 0, 0, },
@@ -11685,7 +11685,7 @@ tANI_U32 dot11fUnpackBeacon1(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32 nBuf, 
         {offsetof(tDot11fBeacon2, VHTCaps), offsetof(tDot11fIEVHTCaps, present), 0, "VHTCaps" , 0, 14, 14, SigIeVHTCaps, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTCAPS, 0, 0, },
         {offsetof(tDot11fBeacon2, VHTOperation), offsetof(tDot11fIEVHTOperation, present), 0, "VHTOperation" , 0, 7, 7, SigIeVHTOperation, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTOPERATION, 0, 0, },
         {offsetof(tDot11fBeacon2, VHTExtBssLoad), offsetof(tDot11fIEVHTExtBssLoad, present), 0, "VHTExtBssLoad" , 0, 7, 7, SigIeVHTExtBssLoad, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTEXTBSSLOAD, 0, 0, },
-        {offsetof(tDot11fBeacon2, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 11, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
+        {offsetof(tDot11fBeacon2, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
         {offsetof(tDot11fBeacon2, OperatingMode), offsetof(tDot11fIEOperatingMode, present), 0, "OperatingMode" , 0, 3, 3, SigIeOperatingMode, {0, 0, 0, 0, 0}, 0, DOT11F_EID_OPERATINGMODE, 0, 0, },
         {offsetof(tDot11fBeacon2, WiderBWChanSwitchAnn), offsetof(tDot11fIEWiderBWChanSwitchAnn, present), 0, "WiderBWChanSwitchAnn" , 0, 5, 5, SigIeWiderBWChanSwitchAnn, {0, 0, 0, 0, 0}, 0, DOT11F_EID_WIDERBWCHANSWITCHANN, 0, 0, },
         {offsetof(tDot11fBeacon2, OBSSScanParameters), offsetof(tDot11fIEOBSSScanParameters, present), 0, "OBSSScanParameters" , 0, 16, 16, SigIeOBSSScanParameters, {0, 0, 0, 0, 0}, 0, DOT11F_EID_OBSSSCANPARAMETERS, 0, 0, },
@@ -12638,7 +12638,7 @@ tANI_U32 dot11fUnpackBeacon2(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32 nBuf, 
         {offsetof(tDot11fBeaconIEs, VHTCaps), offsetof(tDot11fIEVHTCaps, present), 0, "VHTCaps" , 0, 14, 14, SigIeVHTCaps, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTCAPS, 0, 0, },
         {offsetof(tDot11fBeaconIEs, VHTOperation), offsetof(tDot11fIEVHTOperation, present), 0, "VHTOperation" , 0, 7, 7, SigIeVHTOperation, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTOPERATION, 0, 0, },
         {offsetof(tDot11fBeaconIEs, VHTExtBssLoad), offsetof(tDot11fIEVHTExtBssLoad, present), 0, "VHTExtBssLoad" , 0, 7, 7, SigIeVHTExtBssLoad, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTEXTBSSLOAD, 0, 0, },
-        {offsetof(tDot11fBeaconIEs, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 11, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
+        {offsetof(tDot11fBeaconIEs, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
         {offsetof(tDot11fBeaconIEs, OperatingMode), offsetof(tDot11fIEOperatingMode, present), 0, "OperatingMode" , 0, 3, 3, SigIeOperatingMode, {0, 0, 0, 0, 0}, 0, DOT11F_EID_OPERATINGMODE, 0, 0, },
         {offsetof(tDot11fBeaconIEs, WiderBWChanSwitchAnn), offsetof(tDot11fIEWiderBWChanSwitchAnn, present), 0, "WiderBWChanSwitchAnn" , 0, 5, 5, SigIeWiderBWChanSwitchAnn, {0, 0, 0, 0, 0}, 0, DOT11F_EID_WIDERBWCHANSWITCHANN, 0, 0, },
         {offsetof(tDot11fBeaconIEs, OBSSScanParameters), offsetof(tDot11fIEOBSSScanParameters, present), 0, "OBSSScanParameters" , 0, 16, 16, SigIeOBSSScanParameters, {0, 0, 0, 0, 0}, 0, DOT11F_EID_OBSSSCANPARAMETERS, 0, 0, },
@@ -15665,7 +15665,7 @@ tANI_U32 dot11fUnpackPresenceRes(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32 nB
         {offsetof(tDot11fProbeRequest, WFATPC), offsetof(tDot11fIEWFATPC, present), 0, "WFATPC" , 0, 9, 9, SigIeWFATPC, {0, 80, 242, 8, 0}, 5, DOT11F_EID_WFATPC, 0, 0, },
         {offsetof(tDot11fProbeRequest, P2PProbeReq), offsetof(tDot11fIEP2PProbeReq, present), 0, "P2PProbeReq" , 0, 6, 43, SigIeP2PProbeReq, {80, 111, 154, 9, 0}, 4, DOT11F_EID_P2PPROBEREQ, 0, 0, },
         {offsetof(tDot11fProbeRequest, VHTCaps), offsetof(tDot11fIEVHTCaps, present), 0, "VHTCaps" , 0, 14, 14, SigIeVHTCaps, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTCAPS, 0, 0, },
-        {offsetof(tDot11fProbeRequest, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 11, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
+        {offsetof(tDot11fProbeRequest, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
     {0, 0, 0, NULL, 0, 0, 0, 0, {0, 0, 0, 0, 0}, 0, 0xff, 0, },    };
 
 tANI_U32 dot11fUnpackProbeRequest(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32 nBuf, tDot11fProbeRequest *pFrm)
@@ -16133,7 +16133,7 @@ tANI_U32 dot11fUnpackProbeRequest(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32 n
         {offsetof(tDot11fProbeResponse, VHTCaps), offsetof(tDot11fIEVHTCaps, present), 0, "VHTCaps" , 0, 14, 14, SigIeVHTCaps, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTCAPS, 0, 0, },
         {offsetof(tDot11fProbeResponse, VHTOperation), offsetof(tDot11fIEVHTOperation, present), 0, "VHTOperation" , 0, 7, 7, SigIeVHTOperation, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTOPERATION, 0, 0, },
         {offsetof(tDot11fProbeResponse, VHTExtBssLoad), offsetof(tDot11fIEVHTExtBssLoad, present), 0, "VHTExtBssLoad" , 0, 7, 7, SigIeVHTExtBssLoad, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTEXTBSSLOAD, 0, 0, },
-        {offsetof(tDot11fProbeResponse, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 11, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
+        {offsetof(tDot11fProbeResponse, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
         {offsetof(tDot11fProbeResponse, OBSSScanParameters), offsetof(tDot11fIEOBSSScanParameters, present), 0, "OBSSScanParameters" , 0, 16, 16, SigIeOBSSScanParameters, {0, 0, 0, 0, 0}, 0, DOT11F_EID_OBSSSCANPARAMETERS, 0, 0, },
         {offsetof(tDot11fProbeResponse, fils_indication), offsetof(tDot11fIEfils_indication, present), 0, "fils_indication" , 0, 7, 259, SigIefils_indication, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FILS_INDICATION, 0, 0, },
         {offsetof(tDot11fProbeResponse, Vendor1IE), offsetof(tDot11fIEVendor1IE, present), 0, "Vendor1IE" , 0, 5, 5, SigIeVendor1IE, {0, 16, 24, 0, 0}, 3, DOT11F_EID_VENDOR1IE, 0, 0, },
@@ -17654,7 +17654,7 @@ tANI_U32 dot11fUnpackRadioMeasurementRequest(tpAniSirGlobal pCtx, tANI_U8 *pBuf,
         {offsetof(tDot11fReAssocRequest, P2PIEOpaque), offsetof(tDot11fIEP2PIEOpaque, present), 0, "P2PIEOpaque" , 0, 8, 255, SigIeP2PIEOpaque, {80, 111, 154, 9, 0}, 4, DOT11F_EID_P2PIEOPAQUE, 0, 0, },
         {offsetof(tDot11fReAssocRequest, WFDIEOpaque), offsetof(tDot11fIEWFDIEOpaque, present), 0, "WFDIEOpaque" , 0, 8, 255, SigIeWFDIEOpaque, {80, 111, 154, 10, 0}, 4, DOT11F_EID_WFDIEOPAQUE, 0, 0, },
         {offsetof(tDot11fReAssocRequest, VHTCaps), offsetof(tDot11fIEVHTCaps, present), 0, "VHTCaps" , 0, 14, 14, SigIeVHTCaps, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTCAPS, 0, 0, },
-        {offsetof(tDot11fReAssocRequest, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 11, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
+        {offsetof(tDot11fReAssocRequest, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
         {offsetof(tDot11fReAssocRequest, OperatingMode), offsetof(tDot11fIEOperatingMode, present), 0, "OperatingMode" , 0, 3, 3, SigIeOperatingMode, {0, 0, 0, 0, 0}, 0, DOT11F_EID_OPERATINGMODE, 0, 0, },
         {offsetof(tDot11fReAssocRequest, QosMapSet), offsetof(tDot11fIEQosMapSet, present), 0, "QosMapSet" , 0, 2, 62, SigIeQosMapSet, {0, 0, 0, 0, 0}, 0, DOT11F_EID_QOSMAPSET, 0, 0, },
         {offsetof(tDot11fReAssocRequest, vendor2_ie), offsetof(tDot11fIEvendor2_ie, present), 0, "vendor2_ie" , 0, 7, 28, SigIevendor2_ie, {0, 144, 76, 0, 0}, 3, DOT11F_EID_VENDOR2_IE, 0, 0, },
@@ -18590,7 +18590,7 @@ tANI_U32 dot11fUnpackReAssocRequest(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32
         {offsetof(tDot11fReAssocResponse, P2PAssocRes), offsetof(tDot11fIEP2PAssocRes, present), 0, "P2PAssocRes" , 0, 6, 17, SigIeP2PAssocRes, {80, 111, 154, 9, 0}, 4, DOT11F_EID_P2PASSOCRES, 0, 0, },
         {offsetof(tDot11fReAssocResponse, VHTCaps), offsetof(tDot11fIEVHTCaps, present), 0, "VHTCaps" , 0, 14, 14, SigIeVHTCaps, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTCAPS, 0, 0, },
         {offsetof(tDot11fReAssocResponse, VHTOperation), offsetof(tDot11fIEVHTOperation, present), 0, "VHTOperation" , 0, 7, 7, SigIeVHTOperation, {0, 0, 0, 0, 0}, 0, DOT11F_EID_VHTOPERATION, 0, 0, },
-        {offsetof(tDot11fReAssocResponse, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 11, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
+        {offsetof(tDot11fReAssocResponse, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
         {offsetof(tDot11fReAssocResponse, OBSSScanParameters), offsetof(tDot11fIEOBSSScanParameters, present), 0, "OBSSScanParameters" , 0, 16, 16, SigIeOBSSScanParameters, {0, 0, 0, 0, 0}, 0, DOT11F_EID_OBSSSCANPARAMETERS, 0, 0, },
         {offsetof(tDot11fReAssocResponse, QosMapSet), offsetof(tDot11fIEQosMapSet, present), 0, "QosMapSet" , 0, 2, 62, SigIeQosMapSet, {0, 0, 0, 0, 0}, 0, DOT11F_EID_QOSMAPSET, 0, 0, },
         {offsetof(tDot11fReAssocResponse, vendor2_ie), offsetof(tDot11fIEvendor2_ie, present), 0, "vendor2_ie" , 0, 7, 28, SigIevendor2_ie, {0, 144, 76, 0, 0}, 3, DOT11F_EID_VENDOR2_IE, 0, 0, },
@@ -19754,7 +19754,7 @@ tANI_U32 dot11fUnpackTDLSDisReq(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32 nBu
         {offsetof(tDot11fTDLSDisRsp, SuppChannels), offsetof(tDot11fIESuppChannels, present), 0, "SuppChannels" , 0, 2, 98, SigIeSuppChannels, {0, 0, 0, 0, 0}, 0, DOT11F_EID_SUPPCHANNELS, 0, 0, },
         {offsetof(tDot11fTDLSDisRsp, SuppOperatingClasses), offsetof(tDot11fIESuppOperatingClasses, present), 0, "SuppOperatingClasses" , 0, 3, 34, SigIeSuppOperatingClasses, {0, 0, 0, 0, 0}, 0, DOT11F_EID_SUPPOPERATINGCLASSES, 0, 0, },
         {offsetof(tDot11fTDLSDisRsp, RSN), offsetof(tDot11fIERSN, present), 0, "RSN" , 0, 4, 116, SigIeRSN, {0, 0, 0, 0, 0}, 0, DOT11F_EID_RSN, 0, 0, },
-        {offsetof(tDot11fTDLSDisRsp, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 11, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
+        {offsetof(tDot11fTDLSDisRsp, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
         {offsetof(tDot11fTDLSDisRsp, FTInfo), offsetof(tDot11fIEFTInfo, present), 0, "FTInfo" , 0, 84, 222, SigIeFTInfo, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FTINFO, 0, 0, },
         {offsetof(tDot11fTDLSDisRsp, TimeoutInterval), offsetof(tDot11fIETimeoutInterval, present), 0, "TimeoutInterval" , 0, 7, 7, SigIeTimeoutInterval, {0, 0, 0, 0, 0}, 0, DOT11F_EID_TIMEOUTINTERVAL, 0, 0, },
         {offsetof(tDot11fTDLSDisRsp, RICData), offsetof(tDot11fIERICData, present), 0, "RICData" , 0, 6, 6, SigIeRICData, {0, 0, 0, 0, 0}, 0, DOT11F_EID_RICDATA, 0, 0, },
@@ -20476,7 +20476,7 @@ tANI_U32 dot11fUnpackTDLSSetupCnf(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32 n
         {offsetof(tDot11fTDLSSetupReq, ExtSuppRates), offsetof(tDot11fIEExtSuppRates, present), 0, "ExtSuppRates" , 0, 3, 14, SigIeExtSuppRates, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTSUPPRATES, 0, 0, },
         {offsetof(tDot11fTDLSSetupReq, SuppChannels), offsetof(tDot11fIESuppChannels, present), 0, "SuppChannels" , 0, 2, 98, SigIeSuppChannels, {0, 0, 0, 0, 0}, 0, DOT11F_EID_SUPPCHANNELS, 0, 0, },
         {offsetof(tDot11fTDLSSetupReq, RSN), offsetof(tDot11fIERSN, present), 0, "RSN" , 0, 4, 116, SigIeRSN, {0, 0, 0, 0, 0}, 0, DOT11F_EID_RSN, 0, 0, },
-        {offsetof(tDot11fTDLSSetupReq, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 11, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
+        {offsetof(tDot11fTDLSSetupReq, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
         {offsetof(tDot11fTDLSSetupReq, SuppOperatingClasses), offsetof(tDot11fIESuppOperatingClasses, present), 0, "SuppOperatingClasses" , 0, 3, 34, SigIeSuppOperatingClasses, {0, 0, 0, 0, 0}, 0, DOT11F_EID_SUPPOPERATINGCLASSES, 0, 0, },
         {offsetof(tDot11fTDLSSetupReq, QOSCapsStation), offsetof(tDot11fIEQOSCapsStation, present), 0, "QOSCapsStation" , 0, 3, 3, SigIeQOSCapsStation, {0, 0, 0, 0, 0}, 0, DOT11F_EID_QOSCAPSSTATION, 0, 0, },
         {offsetof(tDot11fTDLSSetupReq, FTInfo), offsetof(tDot11fIEFTInfo, present), 0, "FTInfo" , 0, 84, 222, SigIeFTInfo, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FTINFO, 0, 0, },
@@ -20861,7 +20861,7 @@ tANI_U32 dot11fUnpackTDLSSetupReq(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32 n
         {offsetof(tDot11fTDLSSetupRsp, ExtSuppRates), offsetof(tDot11fIEExtSuppRates, present), 0, "ExtSuppRates" , 0, 3, 14, SigIeExtSuppRates, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTSUPPRATES, 0, 0, },
         {offsetof(tDot11fTDLSSetupRsp, SuppChannels), offsetof(tDot11fIESuppChannels, present), 0, "SuppChannels" , 0, 2, 98, SigIeSuppChannels, {0, 0, 0, 0, 0}, 0, DOT11F_EID_SUPPCHANNELS, 0, 0, },
         {offsetof(tDot11fTDLSSetupRsp, RSN), offsetof(tDot11fIERSN, present), 0, "RSN" , 0, 4, 116, SigIeRSN, {0, 0, 0, 0, 0}, 0, DOT11F_EID_RSN, 0, 0, },
-        {offsetof(tDot11fTDLSSetupRsp, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 11, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
+        {offsetof(tDot11fTDLSSetupRsp, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
         {offsetof(tDot11fTDLSSetupRsp, SuppOperatingClasses), offsetof(tDot11fIESuppOperatingClasses, present), 0, "SuppOperatingClasses" , 0, 3, 34, SigIeSuppOperatingClasses, {0, 0, 0, 0, 0}, 0, DOT11F_EID_SUPPOPERATINGCLASSES, 0, 0, },
         {offsetof(tDot11fTDLSSetupRsp, QOSCapsStation), offsetof(tDot11fIEQOSCapsStation, present), 0, "QOSCapsStation" , 0, 3, 3, SigIeQOSCapsStation, {0, 0, 0, 0, 0}, 0, DOT11F_EID_QOSCAPSSTATION, 0, 0, },
         {offsetof(tDot11fTDLSSetupRsp, FTInfo), offsetof(tDot11fIEFTInfo, present), 0, "FTInfo" , 0, 84, 222, SigIeFTInfo, {0, 0, 0, 0, 0}, 0, DOT11F_EID_FTINFO, 0, 0, },
@@ -21452,7 +21452,7 @@ tANI_U32 dot11fUnpackTPCRequest(tpAniSirGlobal pCtx, tANI_U8 *pBuf, tANI_U32 nBu
         {offsetof(tDot11fTimingAdvertisementFrame, Country), offsetof(tDot11fIECountry, present), 0, "Country" , 0, 5, 257, SigIeCountry, {0, 0, 0, 0, 0}, 0, DOT11F_EID_COUNTRY, 0, 0, },
         {offsetof(tDot11fTimingAdvertisementFrame, PowerConstraints), offsetof(tDot11fIEPowerConstraints, present), 0, "PowerConstraints" , 0, 3, 3, SigIePowerConstraints, {0, 0, 0, 0, 0}, 0, DOT11F_EID_POWERCONSTRAINTS, 0, 0, },
         {offsetof(tDot11fTimingAdvertisementFrame, TimeAdvertisement), offsetof(tDot11fIETimeAdvertisement, present), 0, "TimeAdvertisement" , 0, 18, 18, SigIeTimeAdvertisement, {0, 0, 0, 0, 0}, 0, DOT11F_EID_TIMEADVERTISEMENT, 0, 0, },
-        {offsetof(tDot11fTimingAdvertisementFrame, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 11, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
+        {offsetof(tDot11fTimingAdvertisementFrame, ExtCap), offsetof(tDot11fIEExtCap, present), 0, "ExtCap" , 0, 3, 17, SigIeExtCap, {0, 0, 0, 0, 0}, 0, DOT11F_EID_EXTCAP, 0, 0, },
         {offsetof(tDot11fTimingAdvertisementFrame, Vendor1IE), offsetof(tDot11fIEVendor1IE, present), 0, "Vendor1IE" , 0, 5, 5, SigIeVendor1IE, {0, 16, 24, 0, 0}, 3, DOT11F_EID_VENDOR1IE, 0, 0, },
         {offsetof(tDot11fTimingAdvertisementFrame, vendor2_ie), offsetof(tDot11fIEvendor2_ie, present), 0, "vendor2_ie" , 0, 7, 28, SigIevendor2_ie, {0, 144, 76, 0, 0}, 3, DOT11F_EID_VENDOR2_IE, 0, 0, },
         {offsetof(tDot11fTimingAdvertisementFrame, Vendor3IE), offsetof(tDot11fIEVendor3IE, present), 0, "Vendor3IE" , 0, 5, 5, SigIeVendor3IE, {0, 22, 50, 0, 0}, 3, DOT11F_EID_VENDOR3IE, 0, 0, },
@@ -33313,6 +33313,8 @@ tANI_U32 dot11fPackIefils_assoc_delay_info(tpAniSirGlobal pCtx,
         ++pBuf; ++(*pnConsumed);
         pIeLen = pBuf;
         ++pBuf; ++(*pnConsumed);
+        *pBuf = 1;
+        ++pBuf; ++(*pnConsumed);
         *pBuf = pSrc->assoc_delay_info;
         *pnConsumed += 1;
         // fieldsEndFlag = 1
@@ -33342,6 +33344,8 @@ tANI_U32 dot11fPackIefils_hlp_container(tpAniSirGlobal pCtx,
         *pBuf = 255;
         ++pBuf; ++(*pnConsumed);
         pIeLen = pBuf;
+        ++pBuf; ++(*pnConsumed);
+        *pBuf = 5;
         ++pBuf; ++(*pnConsumed);
         DOT11F_MEMCPY(pCtx, pBuf, pSrc->dest_mac, 6);
         *pnConsumed += 6;
@@ -33427,6 +33431,8 @@ tANI_U32 dot11fPackIefils_kde(tpAniSirGlobal pCtx,
         ++pBuf; ++(*pnConsumed);
         pIeLen = pBuf;
         ++pBuf; ++(*pnConsumed);
+        *pBuf = 7;
+        ++pBuf; ++(*pnConsumed);
         DOT11F_MEMCPY(pCtx, pBuf, pSrc->key_rsc, 8);
         *pnConsumed += 8;
         pBuf += 8;
@@ -33460,6 +33466,8 @@ tANI_U32 dot11fPackIefils_key_confirmation(tpAniSirGlobal pCtx,
         ++pBuf; ++(*pnConsumed);
         pIeLen = pBuf;
         ++pBuf; ++(*pnConsumed);
+        *pBuf = 3;
+        ++pBuf; ++(*pnConsumed);
         DOT11F_MEMCPY(pCtx, pBuf, &( pSrc->key_auth ), pSrc->num_key_auth);
         *pnConsumed += pSrc->num_key_auth;
         // fieldsEndFlag = 1
@@ -33490,6 +33498,8 @@ tANI_U32 dot11fPackIefils_nonce(tpAniSirGlobal pCtx,
         ++pBuf; ++(*pnConsumed);
         pIeLen = pBuf;
         ++pBuf; ++(*pnConsumed);
+        *pBuf = 13;
+        ++pBuf; ++(*pnConsumed);
         DOT11F_MEMCPY(pCtx, pBuf, pSrc->nonce, 16);
         *pnConsumed += 16;
         // fieldsEndFlag = 1
@@ -33519,6 +33529,8 @@ tANI_U32 dot11fPackIefils_public_key(tpAniSirGlobal pCtx,
         *pBuf = 255;
         ++pBuf; ++(*pnConsumed);
         pIeLen = pBuf;
+        ++pBuf; ++(*pnConsumed);
+        *pBuf = 12;
         ++pBuf; ++(*pnConsumed);
         *pBuf = pSrc->key_type;
         *pnConsumed += 1;
@@ -33553,6 +33565,8 @@ tANI_U32 dot11fPackIefils_session(tpAniSirGlobal pCtx,
         ++pBuf; ++(*pnConsumed);
         pIeLen = pBuf;
         ++pBuf; ++(*pnConsumed);
+        *pBuf = 4;
+        ++pBuf; ++(*pnConsumed);
         DOT11F_MEMCPY(pCtx, pBuf, pSrc->session, 8);
         *pnConsumed += 8;
         // fieldsEndFlag = 1
@@ -33582,6 +33596,8 @@ tANI_U32 dot11fPackIefils_wrapped_data(tpAniSirGlobal pCtx,
         *pBuf = 255;
         ++pBuf; ++(*pnConsumed);
         pIeLen = pBuf;
+        ++pBuf; ++(*pnConsumed);
+        *pBuf = 8;
         ++pBuf; ++(*pnConsumed);
         DOT11F_MEMCPY(pCtx, pBuf, &( pSrc->wrapped_data ), pSrc->num_wrapped_data);
         *pnConsumed += pSrc->num_wrapped_data;

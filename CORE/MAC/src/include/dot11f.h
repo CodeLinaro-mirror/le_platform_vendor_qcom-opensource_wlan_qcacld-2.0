@@ -3234,7 +3234,7 @@ tANI_U32 dot11fGetPackedIEESEVersion(tpAniSirGlobal, tDot11fIEESEVersion*, tANI_
 typedef struct sDot11fIEExtCap {
     tANI_U8      present;
     tANI_U8      num_bytes;
-    tANI_U8      bytes[9];
+    tANI_U8      bytes[15];
 } tDot11fIEExtCap;
 
 #define DOT11F_EID_EXTCAP ( 127 )
@@ -3242,7 +3242,7 @@ typedef struct sDot11fIEExtCap {
 // N.B. These #defines do *not* include the EID & length
 #define DOT11F_IE_EXTCAP_MIN_LEN ( 1 )
 
-#define DOT11F_IE_EXTCAP_MAX_LEN ( 9 )
+#define DOT11F_IE_EXTCAP_MAX_LEN ( 15 )
 
 #ifdef __cplusplus
 extern "C" {
@@ -5887,7 +5887,7 @@ tANI_U32 dot11fGetPackedIEext_chan_switch_ann(tpAniSirGlobal, tDot11fIEext_chan_
 #ifdef __cplusplus
 }; /* End extern "C". */
 #endif /* C++ */
-// EID 255 (0xff)
+// EID 255 (0xff) Extended EID 1 (0x01)
 typedef struct sDot11fIEfils_assoc_delay_info {
     tANI_U8      present;
     tANI_U8      assoc_delay_info;
@@ -5912,7 +5912,7 @@ tANI_U32 dot11fGetPackedIEfils_assoc_delay_info(tpAniSirGlobal, tDot11fIEfils_as
 #ifdef __cplusplus
 }; /* End extern "C". */
 #endif /* C++ */
-// EID 255 (0xff)
+// EID 255 (0xff) Extended EID 5 (0x05)
 typedef struct sDot11fIEfils_hlp_container {
     tANI_U8      present;
     tANI_U8      dest_mac[6];
@@ -5975,7 +5975,7 @@ tANI_U32 dot11fGetPackedIEfils_indication(tpAniSirGlobal, tDot11fIEfils_indicati
 #ifdef __cplusplus
 }; /* End extern "C". */
 #endif /* C++ */
-// EID 255 (0xff)
+// EID 255 (0xff) Extended EID 7 (0x07)
 typedef struct sDot11fIEfils_kde {
     tANI_U8      present;
     tANI_U8      key_rsc[8];
@@ -6002,7 +6002,7 @@ tANI_U32 dot11fGetPackedIEfils_kde(tpAniSirGlobal, tDot11fIEfils_kde*, tANI_U32*
 #ifdef __cplusplus
 }; /* End extern "C". */
 #endif /* C++ */
-// EID 255 (0xff)
+// EID 255 (0xff) Extended EID 3 (0x03)
 typedef struct sDot11fIEfils_key_confirmation {
     tANI_U8      present;
     tANI_U8      num_key_auth;
@@ -6028,7 +6028,7 @@ tANI_U32 dot11fGetPackedIEfils_key_confirmation(tpAniSirGlobal, tDot11fIEfils_ke
 #ifdef __cplusplus
 }; /* End extern "C". */
 #endif /* C++ */
-// EID 255 (0xff)
+// EID 255 (0xff) Extended EID 13 (0x0d)
 typedef struct sDot11fIEfils_nonce {
     tANI_U8      present;
     tANI_U8      nonce[16];
@@ -6053,7 +6053,7 @@ tANI_U32 dot11fGetPackedIEfils_nonce(tpAniSirGlobal, tDot11fIEfils_nonce*, tANI_
 #ifdef __cplusplus
 }; /* End extern "C". */
 #endif /* C++ */
-// EID 255 (0xff)
+// EID 255 (0xff) Extended EID 12 (0x0c)
 typedef struct sDot11fIEfils_public_key {
     tANI_U8      present;
     tANI_U8      key_type;
@@ -6080,7 +6080,7 @@ tANI_U32 dot11fGetPackedIEfils_public_key(tpAniSirGlobal, tDot11fIEfils_public_k
 #ifdef __cplusplus
 }; /* End extern "C". */
 #endif /* C++ */
-// EID 255 (0xff)
+// EID 255 (0xff) Extended EID 4 (0x04)
 typedef struct sDot11fIEfils_session {
     tANI_U8      present;
     tANI_U8      session[8];
@@ -6105,7 +6105,7 @@ tANI_U32 dot11fGetPackedIEfils_session(tpAniSirGlobal, tDot11fIEfils_session*, t
 #ifdef __cplusplus
 }; /* End extern "C". */
 #endif /* C++ */
-// EID 255 (0xff)
+// EID 255 (0xff) Extended EID 8 (0x08)
 typedef struct sDot11fIEfils_wrapped_data {
     tANI_U8      present;
     tANI_U8      num_wrapped_data;
