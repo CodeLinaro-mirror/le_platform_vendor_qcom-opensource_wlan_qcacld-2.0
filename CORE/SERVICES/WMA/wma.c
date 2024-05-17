@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -7332,6 +7332,7 @@ static int wma_csa_offload_handler(void *handle, u_int8_t *event, u_int32_t len)
 	tpCSAOffloadParams csa_offload_event;
 	struct ieee80211_extendedchannelswitch_ie *xcsa_ie;
 	struct ieee80211_ie_wide_bw_switch *wb_ie;
+	tpAniSirGlobal mac_ctx;
 
 	param_buf = (WMI_CSA_HANDLING_EVENTID_param_tlvs *) event;
 
@@ -7406,6 +7407,16 @@ static int wma_csa_offload_handler(void *handle, u_int8_t *event, u_int32_t len)
 			 sub20width_ie.new_sub20_channelwidth);
 		csa_offload_event->new_sub20_channelwidth =
 			 sub20width_ie.new_sub20_channelwidth;
+	} else {
+		mac_ctx = (tpAniSirGlobal)vos_get_context(VOS_MODULE_ID_PE,
+							  wma->vos_context);
+		if (!mac_ctx) {
+			WMA_LOGE("%s: Invalid mac context", __func__);
+			return -EINVAL;
+		}
+
+		csa_offload_event->new_sub20_channelwidth =
+			mac_ctx->sub20_channelwidth;
 	}
 
 	csa_offload_event->ies_present_flag = csa_event->ies_present_flag;
