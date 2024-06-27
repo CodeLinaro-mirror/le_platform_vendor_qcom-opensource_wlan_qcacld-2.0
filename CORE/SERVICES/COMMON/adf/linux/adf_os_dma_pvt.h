@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013,2018,2020 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022,2024 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -43,7 +43,7 @@
 #include <adf_os_types.h>
 #include <adf_os_util.h>
 
-#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0)
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5, 10, 0)
 #define __adf_os_dma_alloc_noncoherent(dev, size, daddr, flag) dma_alloc_pages(dev, size, daddr, DMA_BIDIRECTIONAL, flag)
 #define __adf_os_dma_free_noncoherent(dev, size, vddr, daddr) dma_free_pages(dev, size, vddr, daddr, DMA_BIDIRECTIONAL)
 #elif LINUX_VERSION_CODE >= KERNEL_VERSION(4, 12, 0)
