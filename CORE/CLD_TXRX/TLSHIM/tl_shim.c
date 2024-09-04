@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2013-2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022-2023 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022-2024 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1427,6 +1427,12 @@ adf_nbuf_t WLANTL_SendIPA_DataFrame(void *vos_ctx, void *vdev,
 
 	if (!adf_os_atomic_read(&tl_shim->vdev_active[interface_id])) {
 		TLSHIM_LOGW("INACTIVE VDEV");
+		return skb;
+	}
+
+	if (((struct ol_txrx_vdev_t *)vdev)->vdev_id >= WMA_MAX_SUPPORTED_BSS) {
+		TLSHIM_LOGW("Invalid vdev_id %d",
+			    ((struct ol_txrx_vdev_t *)vdev)->vdev_id);
 		return skb;
 	}
 
