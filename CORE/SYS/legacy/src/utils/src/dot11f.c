@@ -23988,7 +23988,7 @@ tANI_U32 dot11fGetPackedDisassociationSize(tpAniSirGlobal pCtx, tDot11fDisassoci
 tANI_U32 dot11fGetPackedGODiscoverabilityReqSize(tpAniSirGlobal pCtx, tDot11fGODiscoverabilityReq *pFrm, tANI_U32 *pnNeeded)
 {
     tANI_U32 status = 0;
-    *pnNeeded = 7;
+    *pnNeeded = 8;
     status = GetPackedSizeCore(pCtx, ( tANI_U8* )pFrm, pnNeeded, IES_GODiscoverabilityReq);
     return status;
 } /* End dot11fGetPackedGODiscoverabilityReqSize. */
