@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -3660,9 +3661,11 @@ static int qca_readwrite_file(const char *filename,
 {
     int ret = 0;
     struct file *filp = (struct file *)-ENOENT;
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0)) || (defined(CONFIG_SET_FS))
     mm_segment_t oldfs;
     oldfs = get_fs();
     set_fs(KERNEL_DS);
+#endif
 
     hddLog(VOS_TRACE_LEVEL_INFO, "%s: filename %s \n", __func__, filename);
 
@@ -3710,7 +3713,9 @@ static int qca_readwrite_file(const char *filename,
     if (!IS_ERR(filp)) {
         filp_close(filp, NULL);
     }
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(5, 10, 0)) || (defined(CONFIG_SET_FS))
     set_fs(oldfs);
+#endif
 
     return ret;
 }
