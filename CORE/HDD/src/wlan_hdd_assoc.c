@@ -2395,6 +2395,25 @@ static void hdd_clear_fils_connection_info(hdd_adapter_t *adapter)
 #endif
 
 /**
+ * hdd_channel_is_unsafe() - to check whether chan is unsafe
+ * @hdd_ctx: HDD context
+ * @chan: channel number to be checked
+ *
+ * Return: true if chan is unsafe, otherwise false
+ */
+static bool hdd_channel_is_unsafe(hdd_context_t *hdd_ctx, v_U16_t chan)
+{
+	v_U16_t idx;
+
+	for (idx = 0; idx < hdd_ctx->unsafe_channel_count; idx++) {
+		if (hdd_ctx->unsafe_channel_list[idx] == chan)
+			return true;
+	}
+
+	return false;
+}
+
+/**
  * hdd_sap_restart_handle() - to handle restarting of SAP
  * @work: name of the work
  *
@@ -2405,6 +2424,8 @@ static void hdd_clear_fils_connection_info(hdd_adapter_t *adapter)
  */
 void hdd_sap_restart_handle(struct work_struct *work)
 {
+    VOS_STATUS status;
+    hdd_adapter_list_node_t *adapter_node = NULL, *next = NULL;
     hdd_adapter_t *sap_adapter;
     hdd_context_t *hdd_ctx = container_of(work,
                                           hdd_context_t,
@@ -2424,8 +2445,20 @@ void hdd_sap_restart_handle(struct work_struct *work)
     }
 
     if (hdd_ctx->is_ch_avoid_in_progress) {
-        sap_adapter->sessionCtx.ap.sapConfig.channel = AUTO_CHANNEL_SELECT;
-        wlan_hdd_restart_sap(sap_adapter);
+        status = hdd_get_front_adapter(hdd_ctx, &adapter_node);
+        while (NULL != adapter_node && VOS_STATUS_SUCCESS == status) {
+            sap_adapter = adapter_node->pAdapter;
+            if (sap_adapter->device_mode == WLAN_HDD_SOFTAP &&
+                test_bit(SOFTAP_BSS_STARTED, &sap_adapter->event_flags) &&
+                hdd_channel_is_unsafe(hdd_ctx,
+                        sap_adapter->sessionCtx.ap.operatingChannel)) {
+                sap_adapter->sessionCtx.ap.sapConfig.channel =
+                        AUTO_CHANNEL_SELECT;
+                wlan_hdd_restart_sap(sap_adapter);
+            }
+            status = hdd_get_next_adapter(hdd_ctx, adapter_node, &next);
+            adapter_node = next;
+        }
         hdd_change_ch_avoidance_status(hdd_ctx, false);
     } else {
         wlan_hdd_start_sap(sap_adapter, false);
