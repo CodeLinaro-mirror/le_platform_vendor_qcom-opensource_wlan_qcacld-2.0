@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011-2020 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -518,6 +519,7 @@ typedef struct
     tPowerdBm txMgmtPower; //HAL fills in the tx power used for mgmt frames in this field.
     tPowerdBm maxTxPower;  //max power to be used after applying the power constraint, if any
 #endif
+    tPowerdBm  regMax;
 
 #if defined WLAN_FEATURE_VOWIFI_11R
     tANI_U8 extSetStaKeyParamValid; //Ext Bss Config Msg if set
@@ -999,6 +1001,7 @@ typedef struct
     tPowerdBm txMgmtPower; //HAL fills in the tx power used for mgmt frames in this field.
     tPowerdBm maxTxPower;
 #endif
+    tPowerdBm  regMax;
     tSirMacAddr selfStaMacAddr;
                         //the request has power constraints, this should be applied only to that session
     /* VO Wifi comment: BSSID is needed to identify which session issued this request. As the

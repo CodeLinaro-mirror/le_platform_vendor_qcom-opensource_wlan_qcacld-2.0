@@ -92,6 +92,7 @@ static struct proc_ops pktlog_fops = {
 	proc_open:pktlog_open,
 	proc_release:pktlog_release,
 	proc_read:pktlog_read,
+	proc_lseek:default_llseek,
 };
 #else
 static struct file_operations pktlog_fops = {
