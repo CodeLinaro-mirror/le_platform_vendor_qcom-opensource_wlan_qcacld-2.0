@@ -8994,7 +8994,6 @@ static int wma_stats_ext_event_handler(void *handle, u_int8_t *event_buf,
 	}
 
 	stats_ext_info =  param_buf->fixed_param;
-	buf_ptr = (u_int8_t *)stats_ext_info;
 
 	alloc_len = sizeof(tSirStatsExtEvent);
 	alloc_len += stats_ext_info->data_len;
@@ -9014,7 +9013,7 @@ static int wma_stats_ext_event_handler(void *handle, u_int8_t *event_buf,
 		return -ENOMEM;
 	}
 
-	buf_ptr +=  sizeof(wmi_stats_ext_event_fixed_param) + WMI_TLV_HDR_SIZE ;
+	buf_ptr = (u_int8_t *)param_buf->data;
 
 	stats_ext_event->vdev_id = stats_ext_info->vdev_id;
 	stats_ext_event->event_data_len = stats_ext_info->data_len;
