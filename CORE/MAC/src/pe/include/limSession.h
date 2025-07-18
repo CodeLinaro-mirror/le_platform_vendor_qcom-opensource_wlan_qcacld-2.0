@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2012-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -294,6 +295,7 @@ typedef struct sPESession           // Added to Support BT-AMP
     tANI_U32           lim11hEnable;
 
     tPowerdBm  maxTxPower;   //MIN (Regulatory and local power constraint)
+    tPowerdBm  regMax;
     tVOS_CON_MODE      pePersona;
 #if defined WLAN_FEATURE_VOWIFI
     tPowerdBm  txMgmtPower;

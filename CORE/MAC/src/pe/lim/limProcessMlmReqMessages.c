@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2011-2019, 2021 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022,2024 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1720,6 +1720,7 @@ limMlmAddBss (
 #if defined WLAN_FEATURE_VOWIFI
     pAddBssParams->maxTxPower = psessionEntry->maxTxPower;
 #endif
+    pAddBssParams->regMax = psessionEntry->regMax;
     mlm_add_sta(pMac, &pAddBssParams->staContext,
                 pAddBssParams->bssId, pAddBssParams->htCapable,psessionEntry);
 

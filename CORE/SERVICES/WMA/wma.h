@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2013-2019, 2021 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -1418,6 +1419,7 @@ struct wma_vdev_start_req {
 	u_int32_t beacon_intval;
 	u_int32_t dtim_period;
 	int32_t max_txpow;
+	tPowerdBm  regMax;
 	ePhyChanBondState chan_offset;
 	bool is_dfs;
 	u_int8_t vdev_id;

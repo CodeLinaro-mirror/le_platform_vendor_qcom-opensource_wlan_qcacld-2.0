@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2012-2020 The Linux Foundation. All rights reserved.
- * Copyright (c) 2022 Qualcomm Innovation Center, Inc. All rights reserved.
+ * Copyright (c) 2022,2024 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -712,6 +712,7 @@ __limHandleSmeStartBssRequest(tpAniSirGlobal pMac, tANI_U32 *pMsgBuf)
 
         psessionEntry->maxTxPower = cfgGetRegulatoryMaxTransmitPower( pMac,
             psessionEntry->currentOperChannel );
+        psessionEntry->regMax = psessionEntry->maxTxPower;
         /* Store the dot 11 mode in to the session Table*/
         psessionEntry->dot11mode = pSmeStartBssReq->dot11mode;
 #ifdef FEATURE_WLAN_MCC_TO_SCC_SWITCH
@@ -2373,6 +2374,7 @@ __limProcessSmeJoinReq(tpAniSirGlobal pMac, tANI_U32 *pMsgBuf)
 
         psessionEntry->maxTxPower = limGetMaxTxPower(regMax,
                    localPowerConstraint, pMac->roam.configParam.nTxPowerCap);
+        psessionEntry->regMax = regMax;
 
         limLog(pMac, LOG1,
                 FL("regMax = %d, localPowerConstraint = %d,"

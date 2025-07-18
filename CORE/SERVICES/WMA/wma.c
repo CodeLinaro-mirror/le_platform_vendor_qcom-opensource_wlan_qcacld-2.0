@@ -8994,7 +8994,6 @@ static int wma_stats_ext_event_handler(void *handle, u_int8_t *event_buf,
 	}
 
 	stats_ext_info =  param_buf->fixed_param;
-	buf_ptr = (u_int8_t *)stats_ext_info;
 
 	alloc_len = sizeof(tSirStatsExtEvent);
 	alloc_len += stats_ext_info->data_len;
@@ -9014,7 +9013,7 @@ static int wma_stats_ext_event_handler(void *handle, u_int8_t *event_buf,
 		return -ENOMEM;
 	}
 
-	buf_ptr +=  sizeof(wmi_stats_ext_event_fixed_param) + WMI_TLV_HDR_SIZE ;
+	buf_ptr = (u_int8_t *)param_buf->data;
 
 	stats_ext_event->vdev_id = stats_ext_info->vdev_id;
 	stats_ext_event->event_data_len = stats_ext_info->data_len;
@@ -15310,7 +15309,7 @@ VOS_STATUS wma_switch_channel(tp_wma_handle wma, struct wma_vdev_start_req *req)
 		 req->is_quarter_rate, req->is_half_rate);
 
 	/* Find out min, max and regulatory power levels */
-	WMI_SET_CHANNEL_REG_POWER(cmd, req->max_txpow);
+	WMI_SET_CHANNEL_REG_POWER(cmd, req->regMax);
 	WMI_SET_CHANNEL_MAX_TX_POWER(cmd, req->max_txpow);
 
 
@@ -15554,7 +15553,7 @@ VOS_STATUS wma_vdev_start(tp_wma_handle wma,
 	}
 
 	/* FIXME: Find out min, max and regulatory power levels */
-	WMI_SET_CHANNEL_REG_POWER(chan, req->max_txpow);
+	WMI_SET_CHANNEL_REG_POWER(chan, req->regMax);
 	WMI_SET_CHANNEL_MAX_TX_POWER(chan, req->max_txpow);
 
 	/* TODO: Handle regulatory class, max antenna */
@@ -16284,6 +16283,7 @@ static void wma_set_channel(tp_wma_handle wma, tpSwitchChannelParams params)
 #else
 	req.max_txpow = params->localPowerConstraint;
 #endif
+	req.regMax = params->regMax;
 	req.beacon_intval = 100;
 	req.dtim_period = 1;
 	req.is_dfs = params->isDfsChannel;
@@ -20351,6 +20351,7 @@ static void wma_add_bss_ap_mode(tp_wma_handle wma, tpAddBssParams add_bss)
 	req.max_txpow = 0;
 	maxTxPower = 0;
 #endif
+	req.regMax = add_bss->regMax;
 #ifdef WLAN_FEATURE_11W
 	if (add_bss->rmfEnabled) {
 		/*
@@ -20777,6 +20778,7 @@ static void wma_add_bss_sta_mode(tp_wma_handle wma, tpAddBssParams add_bss)
 #else
 			req.max_txpow = 0;
 #endif
+			req.regMax = add_bss->regMax;
 			req.beacon_intval = add_bss->beaconInterval;
 			req.dtim_period = add_bss->dtimPeriod;
 			req.hidden_ssid = add_bss->bHiddenSSIDEn;

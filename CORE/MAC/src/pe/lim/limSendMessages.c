@@ -1,5 +1,6 @@
 /*
  * Copyright (c) 2011-2014, 2016-2019 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2024 Qualcomm Innovation Center, Inc. All rights reserved.
  *
  * Previously licensed under the ISC license by Qualcomm Atheros, Inc.
  *
@@ -201,6 +202,7 @@ tSirRetStatus limSendSwitchChnlParams(tpAniSirGlobal pMac,
 #else
     pChnlParams->localPowerConstraint = localPwrConstraint;
 #endif
+    pChnlParams->regMax =  cfgGetRegulatoryMaxTransmitPower( pMac,chnlNumber);
     vos_mem_copy(  pChnlParams->bssId, pSessionEntry->bssId, sizeof(tSirMacAddr) );
     pChnlParams->peSessionId = peSessionId;
     pChnlParams->vhtCapable = pSessionEntry->vhtCapability;
