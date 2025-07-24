@@ -907,7 +907,7 @@ endif
 
 ifeq (y,$(findstring y,$(CONFIG_ARCH_MSM) $(CONFIG_ARCH_QCOM)))
 CDEFINES += -DMSM_PLATFORM
-ifeq ($(CONFIG_CNSS), y)
+ifeq (y,$(findstring y,$(CONFIG_CNSS) $(CONFIG_CNSS_MODULE)))
 ifeq ($(CONFIG_HIF_PCI), 1)
 CDEFINES += -DFEATURE_BUS_BANDWIDTH
 endif
@@ -1220,6 +1220,9 @@ else ifeq ($(CONFIG_ARCH_SDXBAAGHA), y)
 CDEFINES += -DIPA_UC_STA_OFFLOAD
 CDEFINES += -DINTRA_BSS_FWD_OFFLOAD
 CDEFINES += -DIPA_UC_GSI_COEXIST
+else ifeq ($(CONFIG_ARCH_SDXLEMUR), y)
+CDEFINES += -DIPA_UC_STA_OFFLOAD
+CDEFINES += -DINTRA_BSS_FWD_OFFLOAD
 else
 CDEFINES += -DQCA_CONFIG_SMP
 endif
@@ -1235,6 +1238,10 @@ CDEFINES += -DSYNC_IPA_READY
 endif
 
 ifeq ($(CONFIG_ARCH_SDXBAAGHA), y)
+CDEFINES += -DSYNC_IPA_READY
+endif
+
+ifeq ($(CONFIG_ARCH_SDXLEMUR), y)
 CDEFINES += -DSYNC_IPA_READY
 endif
 
@@ -1680,6 +1687,11 @@ endif
 ifeq ($(CONFIG_CNSS_LOGGER), y)
 CDEFINES += -DCONFIG_CNSS_LOGGER
 endif
+endif
+
+ifeq ($(CONFIG_CNSS_MODULE), y)
+CDEFINES += -DCONFIG_CNSS
+CDEFINES += -DCONFIG_CNSS_LOGGER
 endif
 
 found = $(shell if grep -qF "unsigned int link_id, u16 punct_bitmap" $(srctree)/include/net/cfg80211.h; then echo "yes" ;else echo "no" ;fi;)
