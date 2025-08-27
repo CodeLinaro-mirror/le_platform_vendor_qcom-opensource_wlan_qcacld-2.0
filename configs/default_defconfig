@@ -79,6 +79,11 @@ ifeq ($(KERNEL_BUILD), 0)
 	CONFIG_CLD_REGDB := y
 	endif
 
+	ifeq ($(CONFIG_ARCH_SDXPRAIRIE), y)
+	CONFIG_MOBILE_ROUTER := y
+	CONFIG_CLD_REGDB := y
+	endif
+
 	ifeq ($(CONFIG_ARCH_MSM8917), y)
 		ifeq ($(CONFIG_ROME_IF), sdio)
 			CONFIG_WLAN_SYNC_TSF_PLUS := y
@@ -119,6 +124,9 @@ ifeq ($(KERNEL_BUILD), 0)
 					CONFIG_DPTRACE_ENABLE := y
 				endif
 				ifneq ($(CONFIG_ARCH_SDXLEMUR), y)
+					CONFIG_DPTRACE_ENABLE := y
+				endif
+				ifneq ($(CONFIG_ARCH_SDXPRAIRIE), y)
 					CONFIG_DPTRACE_ENABLE := y
 				endif
 			endif
