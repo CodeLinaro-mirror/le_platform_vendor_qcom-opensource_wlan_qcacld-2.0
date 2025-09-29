@@ -1439,7 +1439,7 @@ VOS_STATUS vos_nv_getRegDomainFromCountryCode( v_REGDOMAIN_t *pRegDomain,
     v_CONTEXT_t pVosContext = NULL;
     hdd_context_t *pHddCtx = NULL;
     struct wiphy *wiphy = NULL;
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)) || !defined(CLD_REGDB)
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)) || !defined(CLD_REGDB)
     int wait_result;
 #endif
     v_REGDOMAIN_t temp_reg_domain;
@@ -1525,7 +1525,7 @@ VOS_STATUS vos_nv_getRegDomainFromCountryCode( v_REGDOMAIN_t *pRegDomain,
         init_by_driver = VOS_TRUE;
 
         if (('0' != country_code[0]) || ('0' != country_code[1])) {
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)) || !defined(CLD_REGDB)
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)) || !defined(CLD_REGDB)
             INIT_COMPLETION(pHddCtx->reg_init);
             regulatory_hint(wiphy, country_code);
             wait_for_completion_timeout(&pHddCtx->reg_init,
@@ -1546,7 +1546,7 @@ VOS_STATUS vos_nv_getRegDomainFromCountryCode( v_REGDOMAIN_t *pRegDomain,
         else
             vos_set_cc_source(CNSS_SOURCE_11D);
 
-#if (LINUX_VERSION_CODE < KERNEL_VERSION(5, 4, 0)) || !defined(CLD_REGDB)
+#if (LINUX_VERSION_CODE < KERNEL_VERSION(4, 14, 0)) || !defined(CLD_REGDB)
         INIT_COMPLETION(pHddCtx->reg_init);
 #if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 15, 0))
 	regulatory_hint(wiphy, country_code);
@@ -1878,7 +1878,7 @@ vos_freq_reg_info(struct wiphy *wiphy,
 	return ERR_PTR(-EINVAL);
 }
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0))
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0))
 static struct ieee80211_regdomain *
 vos_copy_regd(const struct ieee80211_regdomain *regd)
 {
@@ -1920,7 +1920,7 @@ static int create_linux_regulatory_entry(v_REGDOMAIN_t temp_reg_domain,
     const struct ieee80211_reg_rule *reg_rule;
 #ifdef CLD_REGDB
     const struct ieee80211_regdomain *regd;
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)) && defined(CLD_REGDB)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)) && defined(CLD_REGDB)
     struct ieee80211_regdomain *regd_dup;
     bool rtnl_locked = false;
     int ret;
@@ -1963,7 +1963,7 @@ static int create_linux_regulatory_entry(v_REGDOMAIN_t temp_reg_domain,
     vos_mem_zero(pnvEFSTable->halnv.tables.regDomains[temp_reg_domain].channels,
 		 NUM_RF_CHANNELS * sizeof(sRegulatoryChannel));
 
-#if (LINUX_VERSION_CODE >= KERNEL_VERSION(5, 4, 0)) && defined(CLD_REGDB)
+#if (LINUX_VERSION_CODE >= KERNEL_VERSION(4, 14, 0)) && defined(CLD_REGDB)
     wiphy->regulatory_flags = REGULATORY_WIPHY_SELF_MANAGED;
     regd = vos_search_regd(pHddCtx->reg.alpha2);
     if (!regd) {
