@@ -6909,8 +6909,12 @@ static void wma_update_beacon_noa_ie(
 			/* TODO: Assuming p2p noa ie is last ie in the beacon */
 			vos_mem_zero(bcn->noa_ie, (bcn->noa_sub_ie_len +
 						sizeof(struct p2p_ie)) );
-			bcn->len -= (bcn->noa_sub_ie_len +
-					sizeof(struct p2p_ie));
+			if (bcn->len < (bcn->noa_sub_ie_len +
+					sizeof(struct p2p_ie)))
+				bcn->len = 0;
+			else
+				bcn->len -= (bcn->noa_sub_ie_len +
+					     sizeof(struct p2p_ie));
 			bcn->noa_ie = NULL;
 			bcn->noa_sub_ie_len = 0;
 		}
@@ -6919,12 +6923,16 @@ static void wma_update_beacon_noa_ie(
 	}
 
 	if (bcn->noa_sub_ie_len && bcn->noa_ie) {
+		if (bcn->len < (bcn->noa_sub_ie_len + sizeof(struct p2p_ie)))
+			bcn->len = 0;
+		else
+			bcn->len -= (bcn->noa_sub_ie_len +
+				     sizeof(struct p2p_ie));
 		/* NoA present in previous beacon, update it */
 		WMA_LOGD("%s: NoA present in previous beacon, "
 			"update the NoA IE, bcn->len %u"
 			"bcn->noa_sub_ie_len %u",
 			__func__, bcn->len, bcn->noa_sub_ie_len);
-		bcn->len -= (bcn->noa_sub_ie_len + sizeof(struct p2p_ie)) ;
 		vos_mem_zero(bcn->noa_ie,
 				(bcn->noa_sub_ie_len + sizeof(struct p2p_ie)));
 	} else { /* NoA is not present in previous beacon */
