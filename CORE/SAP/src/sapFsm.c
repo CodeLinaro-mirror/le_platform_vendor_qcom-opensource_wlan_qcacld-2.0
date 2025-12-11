@@ -2990,7 +2990,7 @@ sapGotoChannelSel
 
     return VOS_STATUS_SUCCESS;
 }// sapGotoChannelSel
-#define SAP_OPEN_SESSION_TIMEOUT 500
+#define SAP_OPEN_SESSION_TIMEOUT 3500
 
 /**
  * sap_OpenSession() - Opens a SAP session
