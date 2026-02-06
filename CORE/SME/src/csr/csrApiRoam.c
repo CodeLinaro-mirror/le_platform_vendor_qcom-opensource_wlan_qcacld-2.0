@@ -7223,8 +7223,11 @@ static tANI_BOOLEAN csrRoamProcessResults( tpAniSirGlobal pMac, tSmeCmd *pComman
         }
     }
 #ifdef WLAN_FEATURE_FILS_SK
-    vos_mem_free(roam_info->fils_join_rsp->fils_pmk);
-    vos_mem_free(roam_info->fils_join_rsp);
+    if ( roam_info && roam_info->fils_join_rsp ) {
+        if ( roam_info->fils_join_rsp->fils_pmk )
+            vos_mem_free( roam_info->fils_join_rsp->fils_pmk );
+        vos_mem_free( roam_info->fils_join_rsp );
+    }
 #endif
     vos_mem_free(roam_info);
 
