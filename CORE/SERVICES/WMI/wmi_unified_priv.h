@@ -79,6 +79,7 @@ struct wmi_unified {
 	void *htc_handle;
 	adf_os_spinlock_t eventq_lock;
 	adf_nbuf_queue_t event_queue;
+	struct workqueue_struct *rx_event_wq;
 	struct work_struct rx_event_work;
 #ifdef WLAN_OPEN_SOURCE
        struct fwdebug dbglog;

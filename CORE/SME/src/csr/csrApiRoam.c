@@ -3321,7 +3321,10 @@ eHalStatus csrRoamIssueDisassociate( tpAniSirGlobal pMac, tANI_U32 sessionId,
     tCsrBssid bssId = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff};
     tANI_U16 reasonCode;
     tCsrRoamSession *pSession = CSR_GET_SESSION( pMac, sessionId );
-
+#ifdef WLAN_FEATURE_VOWIFI_11R
+    tpCsrNeighborRoamControlInfo pNeighborRoamInfo =
+                                    &pMac->roam.neighborRoamInfo[sessionId];
+#endif
     if(!pSession)
     {
         smsLog(pMac, LOGE, FL("  session %d not found "), sessionId);
@@ -3349,11 +3352,10 @@ eHalStatus csrRoamIssueDisassociate( tpAniSirGlobal pMac, tANI_U32 sessionId,
         reasonCode = eSIR_MAC_UNSPEC_FAILURE_REASON;
     }
 #ifdef WLAN_FEATURE_VOWIFI_11R
-    if ( (csrRoamIsHandoffInProgress(pMac, sessionId)) &&
+    if ((pNeighborRoamInfo->csrNeighborRoamProfile.BSSIDs.bssid) &&
+         (csrRoamIsHandoffInProgress(pMac, sessionId)) &&
          (NewSubstate != eCSR_ROAM_SUBSTATE_DISASSOC_HANDOFF))
     {
-        tpCsrNeighborRoamControlInfo pNeighborRoamInfo =
-                                        &pMac->roam.neighborRoamInfo[sessionId];
         vos_mem_copy(&bssId,
                      pNeighborRoamInfo->csrNeighborRoamProfile.BSSIDs.bssid,
                      sizeof(tSirMacAddr));
@@ -6943,7 +6945,7 @@ static tANI_BOOLEAN csrRoamProcessResults( tpAniSirGlobal pMac, tSmeCmd *pComman
             //We are here because we try to connect to the same AP
             //No message to PE
             smsLog(pMac, LOGW, FL("receives silently stop roaming indication"));
-            vos_mem_set(roam_info, sizeof(roam_info), 0);
+            vos_mem_set(roam_info, sizeof(*roam_info), 0);
 
             /* To avoid resetting the substate to NONE */
             pMac->roam.curState[sessionId] = eCSR_ROAMING_STATE_JOINED;
@@ -7220,6 +7222,13 @@ static tANI_BOOLEAN csrRoamProcessResults( tpAniSirGlobal pMac, tSmeCmd *pComman
             break;
         }
     }
+#ifdef WLAN_FEATURE_FILS_SK
+    if ( roam_info && roam_info->fils_join_rsp ) {
+        if ( roam_info->fils_join_rsp->fils_pmk )
+            vos_mem_free( roam_info->fils_join_rsp->fils_pmk );
+        vos_mem_free( roam_info->fils_join_rsp );
+    }
+#endif
     vos_mem_free(roam_info);
 
     return ( fReleaseCommand );
@@ -16235,8 +16244,10 @@ eHalStatus csrSendAssocCnfMsg(tpAniSirGlobal pMac, tpSirSmeAssocInd pAssocInd,
         /* OWE IE */
         if (pAssocInd->owe_ie_len) {
             pMsg->owe_ie = vos_mem_malloc(pAssocInd->owe_ie_len);
-            if (!pMsg->owe_ie)
+            if (!pMsg->owe_ie) {
+                vos_mem_free(pMsg);
                 return eHAL_STATUS_FAILED_ALLOC;
+            }
             vos_mem_copy(pMsg->owe_ie, pAssocInd->owe_ie,
             pAssocInd->owe_ie_len);
             pMsg->owe_ie_len = pAssocInd->owe_ie_len;
@@ -20496,6 +20507,7 @@ void csrRoamFTPreAuthRspProcessor( tHalHandle hHal, tpSirFTPreAuthRsp pFTPreAuth
       status = csrRoamReadTSF(pMac, (tANI_U8 *)roam_info->timestamp,
                        pFTPreAuthRsp->smeSessionId);
       if (eHAL_STATUS_SUCCESS != status) {
+         vos_mem_free(roam_info);
          smsLog(pMac, LOGE, FL("TSF read failed.Timestamp may be invalid"));
          return;
       }
