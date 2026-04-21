@@ -1706,6 +1706,11 @@ ifeq ($(findstring yes, $(found)), yes)
 CDEFINES += -DCFG80211_RU_PUNCT_NOTIFY
 endif
 
+found = $(shell if grep -qF "int assoc_link_id;" $(srctree)/include/net/cfg80211.h; then echo "yes" ;else echo "no" ;fi;)
+ifeq ($(findstring yes, $(found)), yes)
+CDEFINES += -DCFG80211_OWE_INFO_ASSOC_LINK_ID_SUPPORT
+endif
+
 ifdef OPENWRT_BUILD
 # openwrt fixes
 CDEFINES += -Wno-error=format \
