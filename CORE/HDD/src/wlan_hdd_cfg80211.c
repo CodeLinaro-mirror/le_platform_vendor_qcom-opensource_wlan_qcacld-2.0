@@ -33765,6 +33765,9 @@ void hdd_send_update_owe_info_event(hdd_adapter_t *adapter,
 	vos_mem_copy(owe_info.peer, sta_addr, ETH_ALEN);
 	owe_info.ie = owe_ie;
 	owe_info.ie_len = owe_ie_len;
+#ifdef CFG80211_OWE_INFO_ASSOC_LINK_ID_SUPPORT
+	owe_info.assoc_link_id = -1;
+#endif
 
 	cfg80211_update_owe_info_event(dev, &owe_info, GFP_KERNEL);
 
