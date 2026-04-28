@@ -1252,7 +1252,7 @@ void wmi_control_rx(void *ctx, HTC_PACKET *htc_packet)
 	adf_os_spin_lock_bh(&wmi_handle->eventq_lock);
 	adf_nbuf_queue_add(&wmi_handle->event_queue, evt_buf);
 	adf_os_spin_unlock_bh(&wmi_handle->eventq_lock);
-	schedule_work(&wmi_handle->rx_event_work);
+	queue_work(wmi_handle->rx_event_wq, &wmi_handle->rx_event_work);
 }
 
 void __wmi_control_rx(struct wmi_unified *wmi_handle, wmi_buf_t evt_buf)
@@ -1385,6 +1385,17 @@ wmi_unified_attach(ol_scn_t scn_handle, wma_wow_tx_complete_cbk func)
 #endif
     adf_os_spinlock_init(&wmi_handle->eventq_lock);
     adf_nbuf_queue_init(&wmi_handle->event_queue);
+
+    wmi_handle->rx_event_wq = alloc_workqueue("rx_event_queue",
+					      WQ_UNBOUND |
+					      WQ_SYSFS, 0);
+
+    if (!wmi_handle->rx_event_wq) {
+	    WMA_LOGE("Failed to create workqueue\n");
+	    OS_FREE(wmi_handle);
+	    return NULL;
+    }
+
     vos_init_work(&wmi_handle->rx_event_work, wmi_rx_event_work);
 #ifdef WMI_INTERFACE_EVENT_LOGGING
     adf_os_spinlock_init(&wmi_handle->wmi_record_lock);
@@ -1403,6 +1414,11 @@ wmi_unified_detach(struct wmi_unified* wmi_handle)
 	while (buf) {
 		adf_nbuf_free(buf);
 		buf = adf_nbuf_queue_remove(&wmi_handle->event_queue);
+	}
+
+	if (wmi_handle->rx_event_wq) {
+		destroy_workqueue(wmi_handle->rx_event_wq);
+	        WMA_LOGE("rx_event_wq: Workqueue destroyed\n");
 	}
 
 	OS_FREE(wmi_handle);
