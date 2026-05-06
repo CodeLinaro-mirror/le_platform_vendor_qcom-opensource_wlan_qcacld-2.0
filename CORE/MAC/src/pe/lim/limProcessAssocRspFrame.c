@@ -1130,6 +1130,8 @@ assocReject:
     WLANTL_AssocFailed (psessionEntry->staId);
 
     vos_mem_free(pBeaconStruct);
+    if (psessionEntry->limAssocResponseData == pAssocRsp)
+        psessionEntry->limAssocResponseData = NULL;
     vos_mem_free(pAssocRsp);
     return;
 } /*** end limProcessAssocRspFrame() ***/
