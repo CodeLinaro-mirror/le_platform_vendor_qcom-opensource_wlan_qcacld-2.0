@@ -730,7 +730,6 @@ CDEFINES :=	-DANI_LITTLE_BYTE_ENDIAN \
 		-DFEATURE_WLAN_PAL_TIMER_DISABLE \
 		-DFEATURE_WLAN_PAL_MEM_DISABLE \
 		-DQCA_SUPPORT_TX_THROTTLE \
-		-DWMI_INTERFACE_EVENT_LOGGING \
 		-DATH_SUPPORT_WAPI \
 		-DWLAN_FEATURE_LINK_LAYER_STATS \
 		-DFEATURE_WLAN_EXTSCAN \
@@ -738,6 +737,10 @@ CDEFINES :=	-DANI_LITTLE_BYTE_ENDIAN \
 		-DFEATURE_WLAN_CH144 \
 		-DATH_SUPPORT_DFS \
 		-DWMI_COEX_BTC_DUTYCYCLE
+
+ifeq ($(CONFIG_WMI_INTERFACE_EVENT_LOGGING), y)
+CDEFINES += -DWMI_INTERFACE_EVENT_LOGGING
+endif
 
 ifeq ($(CONFIG_WLAN_POWER_DEBUGFS), y)
 CDEFINES += -DWLAN_POWER_DEBUGFS
@@ -1704,6 +1707,11 @@ endif
 found = $(shell if grep -qF "unsigned int link_id, u16 punct_bitmap" $(srctree)/include/net/cfg80211.h; then echo "yes" ;else echo "no" ;fi;)
 ifeq ($(findstring yes, $(found)), yes)
 CDEFINES += -DCFG80211_RU_PUNCT_NOTIFY
+endif
+
+found = $(shell if grep -qF "int assoc_link_id;" $(srctree)/include/net/cfg80211.h; then echo "yes" ;else echo "no" ;fi;)
+ifeq ($(findstring yes, $(found)), yes)
+CDEFINES += -DCFG80211_OWE_INFO_ASSOC_LINK_ID_SUPPORT
 endif
 
 ifdef OPENWRT_BUILD

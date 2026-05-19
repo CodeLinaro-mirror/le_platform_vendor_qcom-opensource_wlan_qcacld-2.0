@@ -15397,6 +15397,7 @@ eHalStatus sme_ProcessChannelChangeResp(tpAniSirGlobal pMac,
                 "sapdfs: Abort channel change in STOP_BSS_REQ state on sessionId[%d]",
                 SessionId);
         status = eHAL_STATUS_FAILURE;
+        vos_mem_free(roam_info->channelChangeRespEvent);
         vos_mem_free(roam_info);
 
         return status;
