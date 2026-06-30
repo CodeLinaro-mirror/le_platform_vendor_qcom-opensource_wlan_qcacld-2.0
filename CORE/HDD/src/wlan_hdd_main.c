@@ -19973,7 +19973,8 @@ static void nl_srv_bcast_svc(struct sk_buff *skb)
 #endif
 }
 
-void wlan_hdd_send_svc_nlink_msg(int radio, int type, void *data, int len)
+static void
+__wlan_hdd_send_svc_nlink_msg(int radio, int type, void *data, int len)
 {
     struct sk_buff *skb;
     struct nlmsghdr *nlh;
@@ -19982,10 +19983,6 @@ void wlan_hdd_send_svc_nlink_msg(int radio, int type, void *data, int len)
     int flags = GFP_KERNEL;
     struct radio_index_tlv *radio_info;
     int tlv_len;
-
-
-    if (in_interrupt() || irqs_disabled() || in_atomic())
-        flags = GFP_ATOMIC;
 
     skb = alloc_skb(NLMSG_SPACE(WLAN_NL_MAX_PAYLOAD), flags);
 
@@ -20061,6 +20058,50 @@ void wlan_hdd_send_svc_nlink_msg(int radio, int type, void *data, int len)
 
     return;
 }
+
+struct wlan_nl_work {
+	struct work_struct work;
+	int radio;
+	int type;
+	void *data;
+	int len;
+};
+
+static void wlan_nl_work_handler(struct work_struct *work)
+{
+	struct wlan_nl_work *ctx = container_of(work, struct wlan_nl_work,
+						work);
+
+	__wlan_hdd_send_svc_nlink_msg(ctx->radio, ctx->type,
+				      ctx->data, ctx->len);
+	kfree(ctx);
+}
+
+void wlan_hdd_send_svc_nlink_msg(int radio, int type, void *data, int len)
+{
+	struct wlan_nl_work *ctx;
+
+	if (in_interrupt() || irqs_disabled() || in_atomic()) {
+		ctx = kmalloc(sizeof(*ctx), GFP_ATOMIC);
+		if (!ctx) {
+			VOS_TRACE(VOS_MODULE_ID_HDD, VOS_TRACE_LEVEL_ERROR,
+				  "%s: malloc failed", __func__);
+			return;
+		}
+
+		INIT_WORK(&ctx->work, wlan_nl_work_handler);
+		ctx->radio = radio;
+		ctx->type = type;
+		ctx->data = data;
+		ctx->len = len;
+
+		schedule_work(&ctx->work);
+		return;
+	}
+
+	__wlan_hdd_send_svc_nlink_msg(radio, type, data, len);
+}
+
 
 #ifdef WLAN_FEATURE_LPSS
 void wlan_hdd_send_status_pkg(hdd_adapter_t *pAdapter,
