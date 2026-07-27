@@ -15,6 +15,10 @@ ifndef CONFIG_ROME_IF
 	CONFIG_ROME_IF = pci
 endif
 
+ifeq ($(CONFIG_CNSS), m)
+	CONFIG_CNSS_MODULE := y
+endif
+
 ifeq ($(KERNEL_BUILD),1)
 	# These are provided in external module based builds
 	# Need to explicitly define for Kernel-based builds
@@ -28,6 +32,10 @@ ifeq ($(CONFIG_ARCH_SDXNIGHTJAR), y)
 endif
 
 ifeq ($(CONFIG_ARCH_SDXBAAGHA), y)
+	CONFIG_TGT_NUM_MSDU_DESC := 1024
+endif
+
+ifeq ($(CONFIG_ARCH_SDXLEMUR), y)
 	CONFIG_TGT_NUM_MSDU_DESC := 1024
 endif
 
@@ -62,6 +70,11 @@ ifeq ($(KERNEL_BUILD), 0)
 	endif
 
 	ifeq ($(CONFIG_ARCH_SDXBAAGHA), y)
+	CONFIG_MOBILE_ROUTER := y
+	CONFIG_CLD_REGDB := y
+	endif
+
+	ifeq ($(CONFIG_ARCH_SDXLEMUR), y)
 	CONFIG_MOBILE_ROUTER := y
 	CONFIG_CLD_REGDB := y
 	endif
@@ -105,6 +118,9 @@ ifeq ($(KERNEL_BUILD), 0)
 				ifneq ($(CONFIG_ARCH_SDXBAAGHA), y)
 					CONFIG_DPTRACE_ENABLE := y
 				endif
+				ifneq ($(CONFIG_ARCH_SDXLEMUR), y)
+					CONFIG_DPTRACE_ENABLE := y
+				endif
 			endif
 		endif
 	endif
@@ -140,7 +156,7 @@ ifeq ($(KERNEL_BUILD), 0)
         endif
 
 	ifneq ($(CONFIG_QCA_CLD_WLAN),)
-        ifeq ($(CONFIG_CNSS),y)
+	ifeq (y,$(findstring y,$(CONFIG_CNSS) $(CONFIG_CNSS_MODULE)))
 		#Flag to enable Protected Managment Frames (11w) feature
 		CONFIG_WLAN_FEATURE_11W := y
 		#Flag to enable LTE CoEx feature
