@@ -43046,7 +43046,11 @@ struct ieee80211com* wma_dfs_attach(struct ieee80211com *dfs_ic)
     dfs_ic->ic_update_dfs_cac_block_tx = ieee80211_update_dfs_cac_block_tx;
     adf_os_spinlock_init(&dfs_ic->chan_lock);
     /* Initializes DFS Data Structures and queues*/
-    dfs_attach(dfs_ic);
+    if (dfs_attach(dfs_ic) == 1) {
+        WMA_LOGE("%s: DFS attach failed", __func__);
+        wma_dfs_detach(dfs_ic);
+        return NULL;
+    }
 
     return dfs_ic;
 }
