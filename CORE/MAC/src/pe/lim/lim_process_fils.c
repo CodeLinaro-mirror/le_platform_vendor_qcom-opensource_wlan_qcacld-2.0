@@ -80,7 +80,7 @@ static int lim_get_crypto_digest_len(uint8_t *type)
  *
  * Return: tag length
  */
-static uint8_t lim_get_auth_tag_len(enum fils_erp_cryptosuite crypto_suite)
+static int lim_get_auth_tag_len(enum fils_erp_cryptosuite crypto_suite)
 {
 	switch (crypto_suite) {
 		case HMAC_SHA256_64:
@@ -761,7 +761,7 @@ static VOS_STATUS lim_process_auth_wrapped_data(tpPESession pe_session,
 	uint32_t remaining_len = data_len, new_len;
 	uint8_t *input_data[1];
 	uint32_t input_len[1];
-	uint8_t auth_tag_len;
+	int auth_tag_len;
 
 	fils_info = pe_session->fils_info;
 	if (!fils_info)
@@ -822,6 +822,12 @@ static VOS_STATUS lim_process_auth_wrapped_data(tpPESession pe_session,
 	remaining_len--;
 
 	auth_tag_len = lim_get_auth_tag_len(crypto);
+	if (auth_tag_len < 0 || (uint32_t)auth_tag_len > remaining_len) {
+		VOS_TRACE(VOS_MODULE_ID_PE, VOS_TRACE_LEVEL_ERROR,
+				FL("invalid auth tag len %d remaining %u"),
+				auth_tag_len, remaining_len);
+		return VOS_STATUS_E_INVAL;
+	}
 	input_len[0] -= auth_tag_len;
 	/* if we have auth tag remaining */
 	if (remaining_len == auth_tag_len) {
