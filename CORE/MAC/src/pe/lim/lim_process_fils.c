@@ -571,9 +571,9 @@ static void lim_generate_key_auth(tpPESession pe_session)
  * FILS-FT = L(FILS-Key-Data, KCK_bits + KEK_bits + TK_bits, FILS-FT_bits)
  * @pe_session: pe session pointer
  *
- * Return: None
+ * Return: VOS_STATUS
  */
-static void lim_get_keys(tpPESession pe_session)
+static VOS_STATUS lim_get_keys(tpPESession pe_session)
 {
 	uint8_t key_label[] = PTK_KEY_LABEL;
 	uint8_t *data;
@@ -585,9 +585,16 @@ static void lim_get_keys(tpPESession pe_session)
 	uint8_t kek_len = lim_get_kek_len(fils_info->akm);
 	uint8_t tk_len = lim_get_tk_len(pe_session->encryptType);
 	uint8_t *buf;
+	VOS_STATUS status = VOS_STATUS_SUCCESS;
 
 	if (!fils_info)
-		return;
+		return VOS_STATUS_E_FAILURE;
+
+	if (!fils_info->fils_pmk || !fils_info->fils_pmk_len) {
+		VOS_TRACE(VOS_MODULE_ID_PE, VOS_TRACE_LEVEL_ERROR,
+				FL("FILS PMK is not available"));
+		return VOS_STATUS_E_FAILURE;
+	}
 	key_data_len = ick_len + kek_len + tk_len;
 
 	data_len = 2 * SIR_FILS_NONCE_LENGTH + 2 * QDF_MAC_ADDR_SIZE;
@@ -595,7 +602,7 @@ static void lim_get_keys(tpPESession pe_session)
 	if (!data) {
 		VOS_TRACE(VOS_MODULE_ID_PE, VOS_TRACE_LEVEL_ERROR,
 				FL("failed to alloc memory"));
-		return;
+		return VOS_STATUS_E_NOMEM;
 	}
 
 	/* Update data */
@@ -608,8 +615,10 @@ static void lim_get_keys(tpPESession pe_session)
 	buf += SIR_FILS_NONCE_LENGTH;
 	vos_mem_copy(buf, fils_info->auth_info.fils_nonce,
 			SIR_FILS_NONCE_LENGTH);
-	lim_generate_key_data(fils_info, key_label, data, data_len,
+	status = lim_generate_key_data(fils_info, key_label, data, data_len,
 			key_data, key_data_len);
+	if (!VOS_IS_STATUS_SUCCESS(status))
+		goto free_data;
 	buf = key_data;
 	vos_mem_copy(fils_info->ick, buf, ick_len);
 	fils_info->ick_len = ick_len;
@@ -623,7 +632,12 @@ static void lim_get_keys(tpPESession pe_session)
 	lim_fils_data_dump("ICK", fils_info->ick, ick_len);
 	lim_fils_data_dump("KEK", fils_info->kek, kek_len);
 	lim_fils_data_dump("TK", fils_info->tk, tk_len);
+
+free_data:
+	vos_mem_zero(data, data_len);
 	vos_mem_free(data);
+
+	return status;
 }
 
 /**
@@ -1140,6 +1154,7 @@ bool lim_process_fils_auth_frame2(tpAniSirGlobal mac_ctx,
 	bool pmkid_found = false;
 	int i;
 	tDot11fIERSN dot11f_ie_rsn = {0};
+	VOS_STATUS status;
 
 	if (rx_auth_frm_body->authAlgoNumber != eSIR_FILS_SK_WITHOUT_PFS)
 		return false;
@@ -1154,16 +1169,19 @@ bool lim_process_fils_auth_frame2(tpAniSirGlobal mac_ctx,
 		return false;
 	}
 
-	for (i = 0; i < dot11f_ie_rsn.pmkid_count; i++) {
-		if (vos_mem_compare(dot11f_ie_rsn.pmkid[i],
-					pe_session->fils_info->fils_pmkid,
-					IEEE80211_PMKID_LEN)) {
-			pmkid_found = true;
-			VOS_TRACE(VOS_MODULE_ID_PE,
-					VOS_TRACE_LEVEL_DEBUG,
-					FL("pmkid match in rsn ie total_count %d"),
-					dot11f_ie_rsn.pmkid_count);
-			break;
+	if (pe_session->fils_info->fils_pmk &&
+			pe_session->fils_info->fils_pmk_len) {
+		for (i = 0; i < dot11f_ie_rsn.pmkid_count; i++) {
+			if (vos_mem_compare(dot11f_ie_rsn.pmkid[i],
+						pe_session->fils_info->fils_pmkid,
+						IEEE80211_PMKID_LEN)) {
+				pmkid_found = true;
+				VOS_TRACE(VOS_MODULE_ID_PE,
+						VOS_TRACE_LEVEL_DEBUG,
+						FL("pmkid match in rsn ie total_count %d"),
+						dot11f_ie_rsn.pmkid_count);
+				break;
+			}
 		}
 	}
 	if (!pmkid_found) {
@@ -1177,7 +1195,9 @@ bool lim_process_fils_auth_frame2(tpAniSirGlobal mac_ctx,
 				pe_session->fils_info->fils_pmk,
 				pe_session->fils_info->fils_pmk_len);
 	}
-	lim_get_keys(pe_session);
+	status = lim_get_keys(pe_session);
+	if (!VOS_IS_STATUS_SUCCESS(status))
+		return false;
 	lim_generate_key_auth(pe_session);
 	lim_generate_ap_key_auth(pe_session);
 	return true;
